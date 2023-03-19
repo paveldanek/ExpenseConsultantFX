@@ -592,6 +592,7 @@ public class PEC {
 		List<String> banks = new ArrayList<String>();
 		List<String> accounts = new ArrayList<String>();
 		List<String> categories = new ArrayList<String>();
+		// downloading bank list
 		Connectivity connectivity = new Connectivity();
 		Connection connection = connectivity.getConnection();
 		String query = "SELECT DISTINCT bank_name FROM transaction WHERE user_id = ?";
@@ -606,6 +607,7 @@ public class PEC {
 			allBanks[i] = banks.get(i);
 		}
 		result.setBankList(allBanks);
+		// downloading account name/ nick list
 		connectivity = new Connectivity();
 		connection = connectivity.getConnection();
 		query = "SELECT DISTINCT account_nick FROM transaction WHERE user_id = ?";
@@ -620,6 +622,7 @@ public class PEC {
 			allAccounts[i] = accounts.get(i);
 		}
 		result.setAcctList(allAccounts);
+		// downloading category list
 		connectivity = new Connectivity();
 		connection = connectivity.getConnection();
 		query = "SELECT category_name FROM category WHERE user_id = ?";
@@ -629,12 +632,14 @@ public class PEC {
 		while (rs.next()) {
 			categories.add(rs.getString("category_name"));
 		}
+		// if the category list was empty, use a preset
 		if (categories.size()==0) {
 			allCategories = new String[presetCategories.length];
 			for (int i = 0; i < presetCategories.length; i++) {
 				allCategories[i] = presetCategories[i];
 			}
 		} else {
+			// otherwise use what's been downloaded
 			allCategories = new String[categories.size()];
 			for (int i = 0; i < categories.size(); i++) {
 				allCategories[i] = categories.get(i);
