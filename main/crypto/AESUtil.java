@@ -38,6 +38,13 @@ import javax.crypto.spec.SecretKeySpec;
  * https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-security-algorithms
  */
 public class AESUtil {
+
+    // ingredients for a single item (short String) encyption/ decryption
+    private static final String PASS = "6va1S$@>KG&^~*8";
+    private static final String SALT = "Dg{Á&";
+    private static final byte[] IV_BYTES =
+            new byte[] {-21, 113 , -62, 2, -99, 37, -3, 120, -116, 71, -49, 57, -101, 17, -89, 7};
+
     /*
     public static String encrypt(String algorithm, String input, SecretKey key, IvParameterSpec iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
@@ -63,23 +70,7 @@ public class AESUtil {
         SecretKey key = keyGenerator.generateKey();
         return key;
     }
-    */
 
-    public static SecretKey getKeyFromPassword(String password, String salt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
-        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-        return secret;
-    }
-
-    public static IvParameterSpec generateIv() {
-        byte[] iv = new byte[16];
-        new SecureRandom().nextBytes(iv);
-        return new IvParameterSpec(iv);
-    }
-
-    /*
     public static void encryptFile(String algorithm, SecretKey key, IvParameterSpec iv, File inputFile, File outputFile)
             throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
@@ -146,6 +137,45 @@ public class AESUtil {
     }
     */
 
+    /**
+     * Constructs the secret key for password encryption/ decryption.
+     * @param password the password ingredient
+     * @param salt the salt ingredient (it's recommended this is randomized)
+     * @return the secret key
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static SecretKey getKeyFromPassword(String password, String salt)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
+        return secret;
+    }
+
+    /**
+     * Generates a random initialization vector for password encryption/ decryption.
+     * @return the IV
+     */
+    public static IvParameterSpec generateIv() {
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
+    }
+
+    /**
+     * Takes in a plain text and produces an encrypted version of the text.
+     * @param plainText the plain text input
+     * @param key the Secret key
+     * @param iv the initialization vector
+     * @return the encrypted text
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static String encryptPasswordBased(String plainText, SecretKey key, IvParameterSpec iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
@@ -154,16 +184,82 @@ public class AESUtil {
         return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.getBytes()));
     }
 
+    /**
+     * Takes in an encrypted text and decrypts it.
+     * @param cipherText the encrypted input
+     * @param keythe Secret key
+     * @param iv the initialization vector
+     * @return the decrypted output in plain text
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static String decryptPasswordBased(String cipherText, SecretKey key, IvParameterSpec iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, key, iv);
         return new String(cipher.doFinal(Base64.getDecoder().decode(cipherText)));
     }
 
-    private static String tListIntoString(TransactionList tList) {
+    /**
+     * Simplified version on a short String encryption based on preset ingredients.
+     * No need to set up Secret key or initialization vector. The only disadvantage
+     * is that the encryption is not randomized.
+     * @param plainText input plain text String
+     * @return output encrypted String
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidKeyException
+     */
+    public static String encryptItem(String plainText) throws NoSuchAlgorithmException,
+            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        if (plainText.length()==0) return "";
+        SecretKey SK = getKeyFromPassword(PASS, SALT);
+        IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
+        return encryptPasswordBased(plainText, SK, IV);
+    }
+
+    /**
+     * Simplified version on a short String decryption based on preset ingredients.
+     * No need to set up Secret key or initialization vector. The only disadvantage
+     * is that the decryption relies on the encrypted input being ciphered based on
+     * agreed-upon presets.
+     * @param cipher input ciphered String
+     * @return output decrypted plain text String
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidKeyException
+     */
+    public static String decryptItem(String cipher) throws NoSuchAlgorithmException,
+            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        if (cipher.length()==0) return "";
+        SecretKey SK = getKeyFromPassword(PASS, SALT);
+        IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
+        return decryptPasswordBased(cipher, SK, IV);
+    }
+
+    /**
+     * A helper method that converts a TransactionList into a single String of text.
+     * @param tList the input TransactionList
+     * @return the output String of text
+     */
+    public static String tListIntoString(TransactionList tList) {
         String output = "";
+        if (tList==null) return output;
         Request r = Request.instance();
         for (int i = 0; i < tList.size(); i++) {
             r.reset();
@@ -174,62 +270,117 @@ public class AESUtil {
         return output;
     }
 
-    private static TransactionList stringIntoTList(String str) {
+    /**
+     * A helper method that converts a single String of text containing a TransactionList
+     * information back into a proper TransactionList.
+     * @param str the input String
+     * @return the output TransactionList
+     */
+    public static TransactionList stringIntoTList(String str) {
         TransactionList tList = new TransactionList();
+        Transaction t;
         String singleT;
         String[] tArray = new String[6];
         int i;
         while (str.length()>0) {
             i = 0;
-            while (str.charAt(i) != (char) 1) { i++; }
+            while (i < str.length() && str.charAt(i) != (char) 1) { i++; }
             singleT = str.substring(0, i);
             str = str.substring(i+1);
             tArray = singleT.split(String.valueOf((char) 0));
-            Transaction t = new Transaction(Transaction.returnCalendarFromYYYYMMDD(tArray[0]),
-                    tArray[1], tArray[2], tArray[3], Double.parseDouble(tArray[4]), tArray[5]);
-            tList.add(t);
+            if (tArray.length==6) {
+                t = new Transaction(Transaction.returnCalendarFromYYYYMMDD(tArray[0]),
+                        tArray[1], tArray[2], tArray[3], Double.parseDouble(tArray[4]), tArray[5]);
+                tList.add(t);
+            }
         }
         return tList;
     }
 
+    /**
+     * Encrypts a long String of plain text for database storage. Only needs a password;
+     * constructs its own randomized salt and initialization vector, which are both stored
+     * within the ciphered output text.
+     * @param plainText the plain text String input
+     * @param password the only necessary ingredient - the password
+     * @return encrypted String of text
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidKeyException
+     */
     public static String encryptHistory(String plainText, String password) throws NoSuchAlgorithmException,
             InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             BadPaddingException, InvalidKeyException {
         String output = "";
+        if (plainText.length()==0 || password.length()==0) return output;
+        // constructs randomized salt
         String salt = "";
         for (int i = 0; i < 5; i++) {
             salt += (char) ((int) (Math.random() * 57 + 65));
         }
+        // creates a secret key and initialization vector for encryption
         SecretKey SK = getKeyFromPassword(password, salt);
         IvParameterSpec IV = generateIv();
+        // converts the IV byte array into a String
         byte[] IVbytes = IV.getIV();
         String IVstring = "";
         for (int i = 0; i < IVbytes.length; i++) {
             IVstring += (char) (IVbytes[i] & 0xff);
         }
+        // stores the randomized salt and initialization vector inside the encrypted text
         output += salt;
-        output += encryptPasswordBased(plainText, SK, IV);
+        output += encryptPasswordBased(plainText, SK, IV); // the actual encryption
         output += IVstring;
         return output;
     }
 
+    /**
+     * Decrypts a long String of ciphered text from database storage. Only needs a password;
+     * retrieves the salt and initialization vector from the ciphered String of which they
+     * were a part.
+     * @param cipher the ciphered String input
+     * @param password the only necessary ingredient - the password
+     * @return decrypted plain text String
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidKeyException
+     */
     public static String decryptHistory(String cipher, String password) throws NoSuchAlgorithmException,
             InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             BadPaddingException, InvalidKeyException {
+        String output = "";
+        // if the ciphered text is less than 22 characters long, it's unlikely
+        // we're dealing with a real encrypted text ciphered by this mechanism
+        // (5-char salt + AT LEAST 1-char cipher + 16-char initialization vector
+        // String)
+        if (cipher.length()<22 || password.length()==0) return output;
+        // extracts the salt and initialization vector String
         String salt = cipher.substring(0,5);
         String IVstring = cipher.substring(cipher.length()-16, cipher.length());
         cipher = cipher.substring(5, cipher.length()-16);
+        // re-creates the secret key for decryption
         SecretKey SK = getKeyFromPassword(password, salt);
+        // converts the IV String into a byte array
         byte[] IVbytes = new byte[IVstring.length()];
         for (int i = 0; i < IVstring.length(); i++) {
             IVbytes[i] = (byte) IVstring.charAt(i);
         }
+        // reconstructs the IV
         IvParameterSpec IV = new IvParameterSpec(IVbytes);
-        String output = decryptPasswordBased(cipher, SK, IV);
+        // decrypts the ciphered text
+        output = decryptPasswordBased(cipher, SK, IV);
         return output;
     }
 
-    /*
+/*
 	public static void main(String[] args)
 			throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
@@ -301,7 +452,14 @@ public class AESUtil {
         for (int i = 0; i < tl.size(); i++) {
             System.out.println(tl.get(i));
         }
+        // -------------------------------------------------------
+        // TEST 4
+        String test = "demo@demo.com";
+        System.out.println(test);
+        test = encryptItem(test);
+        System.out.println(test);
+        test = decryptItem(test);
+        System.out.println(test);
     }
     */
-
 }
