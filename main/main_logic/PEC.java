@@ -464,7 +464,7 @@ public class PEC {
 				ResultSet rs = stmt.executeQuery();
 				if (rs.next()) firstNickFound = rs.getString("account_nick");
 				firstEntry = firstAndLastEntryOfAccount(firstNickFound);
-				download3monthPortion(firstEntry[0]);
+				tList = download3monthPortion(firstEntry[0]);
 				setActiveAccount(firstNickFound);
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
@@ -574,6 +574,7 @@ public class PEC {
 	private TransactionList download3monthPortion(Calendar dateStarting) {
 		Connectivity connectivity = new Connectivity();
 		Connection connection = connectivity.getConnection();
+		TransactionList list = new TransactionList();
 		String query = "SELECT transaction_history FROM transaction "
 				+ "WHERE user_id = ? AND transaction_date = ? AND account_nick = ?";
 		PreparedStatement stmt = null;
@@ -586,8 +587,8 @@ public class PEC {
 			String result = "";
 			if (rs.next()) result = rs.getString("transaction_history");
 			result = AESUtil.decryptHistory(result, getCurrentUserPass());
-			tList = AESUtil.stringIntoTList(result);
-			return tList;
+			list = AESUtil.stringIntoTList(result);
+			return list;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -765,10 +766,13 @@ public class PEC {
 			}
 		}
 		if (result) {
-			// these next 3 or so lines may be moved elsewhere
 			currentUserID = userId;
 			setCurrentUserPass(cipheredPassword);
+			//************************************
+			// this next line should be moved elsewhere
+			// (probably gui_v1.mainWindows.loginSigninWElements.GUI_LogInP.java)
 			initialDBaseDownload();
+			//************************************
 			return userId;
 		} else {
 			return -1;
@@ -828,6 +832,8 @@ public class PEC {
 						// Execute the query and check the number of rows affected
 						int rowsAffected = stmt.executeUpdate();
 						if (rowsAffected > 0) {
+							// added the call of login for further initialization,
+							// which can be moved somewhere else
 							login(r);
 							checkCode = 5;
 						} else {
