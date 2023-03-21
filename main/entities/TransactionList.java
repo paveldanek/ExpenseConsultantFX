@@ -68,9 +68,17 @@ public class TransactionList {
      *         Transaction has NOT been removed
      */
     public boolean remove(String refNumber) {
-        for (Transaction transaction : transactionList) {
-            if (transaction.getRefNumber().equalsIgnoreCase(refNumber)) {
-                return transactionList.remove(transaction);
+        for (int i = 0; i < transactionList.size(); i++) {
+            if (transactionList.get(i).getRefNumber().equalsIgnoreCase(refNumber)) {
+                if (transactionList.size() == 1) {
+                    this.from = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+                    this.to = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+                } else {
+                    if (i == 0) this.from = transactionList.get(1).getPostedDate();
+                    if (i == transactionList.size() - 1)
+                        this.to = transactionList.get(transactionList.size() - 2).getPostedDate();
+                }
+                return transactionList.remove(transactionList.get(i));
             }
         }
         return false;

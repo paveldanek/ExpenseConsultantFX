@@ -34,7 +34,9 @@ import javax.crypto.spec.SecretKeySpec;
  * website, hosted by Baeldung company. The link to it is
  * https://www.baeldung.com/java-aes-encryption-decryption. THANK YOU!!!
  *
- * Source:
+ * @Adopted/modified by SPAM Team (Sammy Dinka, Andrey Yefermov, Pavel Danek) © 2023
+ *
+ * @Source
  * https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-security-algorithms
  */
 public class AESUtil {
@@ -206,50 +208,40 @@ public class AESUtil {
     }
 
     /**
-     * Simplified version on a short String encryption based on preset ingredients.
+     * Simplified version of a short String encryption based on preset ingredients.
      * No need to set up Secret key or initialization vector. The only disadvantage
      * is that the encryption is not randomized.
      * @param plainText input plain text String
      * @return output encrypted String
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws InvalidKeyException
      */
-    public static String encryptItem(String plainText) throws NoSuchAlgorithmException,
-            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException,
-            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public static String encryptItem(String plainText) {
         if (plainText.length()==0) return "";
-        SecretKey SK = getKeyFromPassword(PASS, SALT);
-        IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
-        return encryptPasswordBased(plainText, SK, IV);
+        try {
+            SecretKey SK = getKeyFromPassword(PASS, SALT);
+            IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
+            return encryptPasswordBased(plainText, SK, IV);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
-     * Simplified version on a short String decryption based on preset ingredients.
+     * Simplified version of a short String decryption based on preset ingredients.
      * No need to set up Secret key or initialization vector. The only disadvantage
      * is that the decryption relies on the encrypted input being ciphered based on
      * agreed-upon presets.
      * @param cipher input ciphered String
      * @return output decrypted plain text String
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws InvalidKeyException
      */
-    public static String decryptItem(String cipher) throws NoSuchAlgorithmException,
-            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException,
-            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public static String decryptItem(String cipher) {
         if (cipher.length()==0) return "";
-        SecretKey SK = getKeyFromPassword(PASS, SALT);
-        IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
-        return decryptPasswordBased(cipher, SK, IV);
+        try {
+            SecretKey SK = getKeyFromPassword(PASS, SALT);
+            IvParameterSpec IV = new IvParameterSpec(IV_BYTES);
+            return decryptPasswordBased(cipher, SK, IV);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -284,10 +276,10 @@ public class AESUtil {
         int i;
         while (str.length()>0) {
             i = 0;
-            while (i < str.length() && str.charAt(i) != (char) 1) { i++; }
+            while (i < str.length() && str.charAt(i) != (char)1) { i++; }
             singleT = str.substring(0, i);
             str = str.substring(i+1);
-            tArray = singleT.split(String.valueOf((char) 0));
+            tArray = singleT.split(String.valueOf((char)0));
             if (tArray.length==6) {
                 t = new Transaction(Transaction.returnCalendarFromYYYYMMDD(tArray[0]),
                         tArray[1], tArray[2], tArray[3], Double.parseDouble(tArray[4]), tArray[5]);
@@ -304,17 +296,8 @@ public class AESUtil {
      * @param plainText the plain text String input
      * @param password the only necessary ingredient - the password
      * @return encrypted String of text
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws InvalidKeyException
      */
-    public static String encryptHistory(String plainText, String password) throws NoSuchAlgorithmException,
-            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
-            BadPaddingException, InvalidKeyException {
+    public static String encryptHistory(String plainText, String password) {
         String output = "";
         if (plainText.length()==0 || password.length()==0) return output;
         // constructs randomized salt
@@ -322,19 +305,23 @@ public class AESUtil {
         for (int i = 0; i < 5; i++) {
             salt += (char) ((int) (Math.random() * 57 + 65));
         }
-        // creates a secret key and initialization vector for encryption
-        SecretKey SK = getKeyFromPassword(password, salt);
-        IvParameterSpec IV = generateIv();
-        // converts the IV byte array into a String
-        byte[] IVbytes = IV.getIV();
-        String IVstring = "";
-        for (int i = 0; i < IVbytes.length; i++) {
-            IVstring += (char) (IVbytes[i] & 0xff);
+        try {
+            // creates a secret key and initialization vector for encryption
+            SecretKey SK = getKeyFromPassword(password, salt);
+            IvParameterSpec IV = generateIv();
+            // converts the IV byte array into a String
+            byte[] IVbytes = IV.getIV();
+            String IVstring = "";
+            for (int i = 0; i < IVbytes.length; i++) {
+                IVstring += (char) (IVbytes[i] & 0xff);
+            }
+            // stores the randomized salt and initialization vector inside the encrypted text
+            output += salt;
+            output += encryptPasswordBased(plainText, SK, IV); // the actual encryption
+            output += IVstring;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        // stores the randomized salt and initialization vector inside the encrypted text
-        output += salt;
-        output += encryptPasswordBased(plainText, SK, IV); // the actual encryption
-        output += IVstring;
         return output;
     }
 
@@ -345,17 +332,8 @@ public class AESUtil {
      * @param cipher the ciphered String input
      * @param password the only necessary ingredient - the password
      * @return decrypted plain text String
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws InvalidKeyException
-     */
-    public static String decryptHistory(String cipher, String password) throws NoSuchAlgorithmException,
-            InvalidKeySpecException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
-            BadPaddingException, InvalidKeyException {
+    */
+    public static String decryptHistory(String cipher, String password) {
         String output = "";
         // if the ciphered text is less than 22 characters long, it's unlikely
         // we're dealing with a real encrypted text ciphered by this mechanism
@@ -366,17 +344,21 @@ public class AESUtil {
         String salt = cipher.substring(0,5);
         String IVstring = cipher.substring(cipher.length()-16, cipher.length());
         cipher = cipher.substring(5, cipher.length()-16);
-        // re-creates the secret key for decryption
-        SecretKey SK = getKeyFromPassword(password, salt);
-        // converts the IV String into a byte array
-        byte[] IVbytes = new byte[IVstring.length()];
-        for (int i = 0; i < IVstring.length(); i++) {
-            IVbytes[i] = (byte) IVstring.charAt(i);
+        try {
+            // re-creates the secret key for decryption
+            SecretKey SK = getKeyFromPassword(password, salt);
+            // converts the IV String into a byte array
+            byte[] IVbytes = new byte[IVstring.length()];
+            for (int i = 0; i < IVstring.length(); i++) {
+                IVbytes[i] = (byte) IVstring.charAt(i);
+            }
+            // reconstructs the IV
+            IvParameterSpec IV = new IvParameterSpec(IVbytes);
+            // decrypts the ciphered text
+            output = decryptPasswordBased(cipher, SK, IV);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        // reconstructs the IV
-        IvParameterSpec IV = new IvParameterSpec(IVbytes);
-        // decrypts the ciphered text
-        output = decryptPasswordBased(cipher, SK, IV);
         return output;
     }
 

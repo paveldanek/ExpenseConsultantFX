@@ -104,6 +104,7 @@ public class MenuActionProgrammableHandle {
     }
     void dologOutProcessing() {
         try {
+            PEC.instance().uploadCurrentList();
             PEC.instance().addCategoriesForUser();
         } catch (SQLException e) {
             throw new RuntimeException(e);
