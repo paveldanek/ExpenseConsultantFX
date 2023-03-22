@@ -1,9 +1,11 @@
 package db_connectors;
 
-import crypto.AESUtil;
 import entities.Transaction;
 
 import javax.swing.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.*;
 
 public class Connectivity {
