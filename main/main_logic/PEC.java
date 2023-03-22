@@ -13,14 +13,16 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.File;
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -454,8 +456,7 @@ public class PEC {
 		String firstNickFound="";
 		Calendar[] firstEntry = new Calendar[2];
 		if (currentUserHasAnyAccount()) {
-			Connectivity connectivity = new Connectivity();
-			Connection connection = connectivity.getConnection();
+			Connection connection = Connectivity.getConnection();
 			String query = "SELECT * FROM transaction WHERE user_id = ?";
 			PreparedStatement stmt = null;
 			try {
@@ -475,8 +476,7 @@ public class PEC {
 	}
 
 	private boolean currentUserHasAnyAccount() {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String query = "SELECT account_nick FROM transaction WHERE user_id = ?";
 		PreparedStatement stmt = null;
 		try {
@@ -490,8 +490,7 @@ public class PEC {
 	}
 
 	private boolean currentUserHasAccount(String acctNick) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String query = "SELECT account_nick FROM transaction WHERE user_id = ? AND account_nick = ?";
 		PreparedStatement stmt = null;
 		try {
@@ -506,8 +505,7 @@ public class PEC {
 	}
 
 	private Calendar[] firstAndLastEntryOfAccount(String acctNick) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		Calendar[] result = new Calendar[2];
 		result[0] = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MAX);
 		result[1] = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MIN);
@@ -529,8 +527,7 @@ public class PEC {
 	}
 
 	private Calendar[] previousAndNextEntryOfAccount(String acctNick, Calendar date) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		Calendar[] result = new Calendar[2];
 		Calendar biggestSmall = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MIN);
 		Calendar smallestBig = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MAX);
@@ -554,8 +551,7 @@ public class PEC {
 	}
 
 	private void upload3monthPortion(TransactionList load) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String sql = "INSERT INTO transaction (transaction_date, transaction_history,"+
 				" bank_name, account_nick, user_id) VALUES (?, ?, ?, ?, ?)";
 		try {
@@ -572,8 +568,7 @@ public class PEC {
 	}
 
 	private TransactionList download3monthPortion(Calendar dateStarting) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		TransactionList list = new TransactionList();
 		String query = "SELECT transaction_history FROM transaction "
 				+ "WHERE user_id = ? AND transaction_date = ? AND account_nick = ?";
@@ -595,8 +590,7 @@ public class PEC {
 	}
 
 	private void delete3monthPortion(Calendar dateStarting) {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String sql = "DELETE FROM transaction WHERE user_id = ? AND transaction_date = ? AND account_nick = ?";
 		try {
 			PreparedStatement s = connection.prepareStatement(sql);
@@ -734,22 +728,21 @@ public class PEC {
 	public int login(Request r) throws SQLException {
 		int userId = -1;
 		boolean result = false;
-
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String query = "SELECT user_id FROM users WHERE email = ? AND password = ?";
 		PreparedStatement statement = null;
 		String cipheredPassword;
+		ResultSet resultSet = null;
 		try {
 			statement = connection.prepareStatement(query);
 			try {
 				cipheredPassword = AESUtil.encryptItem(r.getPass1());
 				statement.setString(1, AESUtil.encryptItem(r.getEmail()));
 				statement.setString(2, cipheredPassword);
+				resultSet = statement.executeQuery();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			ResultSet resultSet = statement.executeQuery();
 			if (resultSet.next()) {
 				userId = resultSet.getInt("user_id");
 				result = true;
@@ -783,8 +776,7 @@ public class PEC {
 
 		int checkCode = 0;
 		// Connect to the database
-		Connectivity connectivity = new Connectivity();
-		Connection conn = connectivity.getConnection();
+		Connection conn = Connectivity.getConnection();
 
 		String email = r.getEmail();
 		String pass1 = r.getPass1();
@@ -798,40 +790,44 @@ public class PEC {
 		if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
 			checkCode = 1;
 		} else {
-			String checkSql = "SELECT COUNT(*) FROM users WHERE email=?";
-			PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-			checkStmt.setString(1, email);
+			ResultSet rs = null;
+			try {
+				String checkSql = "SELECT COUNT(*) FROM users WHERE email=?";
+				PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+				checkStmt.setString(1, email);
 
-			// Execute the query to check if the user already exists
-			ResultSet rs = checkStmt.executeQuery();
+				// Execute the query to check if the user already exists
+				rs = checkStmt.executeQuery();
+			} catch (SQLException e){
+				throw new RuntimeException(e);
+			}
 			rs.next();
 			int count = rs.getInt(1);
 
 			if (count == 0) {
 				if (pass1.length() >= 8 && pass1.length() < 20) {
-					System.out.println(pass1 + "123");
 					if (!pass1.equals(pass2)) {
 						checkCode = 4;
 					} else {
-
-
 						// Create a PreparedStatement to insert a new user
 						String sql = "INSERT INTO users (email,password,Question1,Question2,answer1,answer2,created_date) " +
 								"VALUES ( ?,?,?,?,?,?,now())";
-						PreparedStatement stmt = conn.prepareStatement(sql);
+						int rowsAffected = 0;
+						PreparedStatement stmt = null;
 						try {
+							stmt = conn.prepareStatement(sql);
 							stmt.setString(1, AESUtil.encryptItem(email));
 							stmt.setString(2, AESUtil.encryptItem(pass1));
 							stmt.setString(3, AESUtil.encryptItem(question1));
 							stmt.setString(4, AESUtil.encryptItem(question2));
 							stmt.setString(5, AESUtil.encryptItem(answer1));
 							stmt.setString(6, AESUtil.encryptItem(answer2));
-						} catch (Exception e) {
-							throw new RuntimeException(e);
+							rowsAffected = stmt.executeUpdate();
+						} catch (SQLIntegrityConstraintViolationException e) {
+							checkCode = 6;
 						}
 						// Execute the query and check the number of rows affected
-						int rowsAffected = stmt.executeUpdate();
-						if (rowsAffected > 0) {
+						if (rowsAffected > 0 && checkCode==0 ) {
 							// added the call of login for further initialization,
 							// which can be moved somewhere else
 							login(r);
@@ -864,8 +860,7 @@ public class PEC {
 		List<String> accounts = new ArrayList<String>();
 		List<String> categories = new ArrayList<String>();
 		// downloading bank list
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String query = "SELECT DISTINCT bank_name FROM transaction WHERE user_id = ?";
 		PreparedStatement stmt = connection.prepareStatement(query);
 		stmt.setInt(1, getCurrentUserID());
@@ -879,8 +874,6 @@ public class PEC {
 		}
 		result.setBankList(allBanks);
 		// downloading account name/ nick list
-		connectivity = new Connectivity();
-		connection = connectivity.getConnection();
 		query = "SELECT DISTINCT account_nick FROM transaction WHERE user_id = ?";
 		stmt = connection.prepareStatement(query);
 		stmt.setInt(1, getCurrentUserID());
@@ -895,8 +888,7 @@ public class PEC {
 		}
 		result.setAcctList(allAccounts);
 		// downloading category list
-		connectivity = new Connectivity();
-		connection = connectivity.getConnection();
+		connection = Connectivity.getConnection();
 		query = "SELECT category_name FROM category WHERE user_id = ?";
 		stmt = connection.prepareStatement(query);
 		stmt.setInt(1, getCurrentUserID());
@@ -931,14 +923,11 @@ public class PEC {
 	}
 
 	public void addCategoriesForUser() throws SQLException {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String sql = "DELETE FROM category where user_id = ?";
 		PreparedStatement s = connection.prepareStatement(sql);
 		s.setInt(1, getCurrentUserID());
 		int rowsAffected = s.executeUpdate();
-		connectivity = new Connectivity();
-		connection = connectivity.getConnection();
 		String query = "INSERT INTO category (category_name, user_id) VALUES (?, ?)";
 		try (PreparedStatement stmt = connection.prepareStatement(query)) {
 			for (String categoryName : allCategories) {
@@ -956,8 +945,7 @@ public class PEC {
 		List<String> transactionHistories = new ArrayList<>();
 		String query = "SELECT transaction_history FROM transaction "
 				+ "WHERE user_id = ? AND transaction_date = ? AND account_nick = ?";
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 
 		PreparedStatement stmt = connection.prepareStatement(query);
 
@@ -995,8 +983,7 @@ public class PEC {
 
 
 	public String getTransactionHistory(Request r) throws SQLException, ParseException {
-		Connectivity connectivity = new Connectivity();
-		Connection connection = connectivity.getConnection();
+		Connection connection = Connectivity.getConnection();
 		String transactionHistory = "";
 		int transactionId = Integer.parseInt(r.getParameter("transaction_id"));
 
