@@ -104,11 +104,13 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent evt) {
-				int row = table.rowAtPoint(evt.getPoint());
-				int col = table.columnAtPoint(evt.getPoint());
-				if (row >= 0 && col >= 0) {
-					PEC.instance().changeCategoryToActive((String) dm.getValueAt(row, 1));
-					dm.setValueAt(PEC.instance().getActiveCategory(), row, 5);
+				if (PEC.instance().getActiveAccount().length()>0) {
+					int row = table.rowAtPoint(evt.getPoint());
+					int col = table.columnAtPoint(evt.getPoint());
+					if (row >= 0 && col >= 0) {
+						PEC.instance().changeCategoryToActive((String) dm.getValueAt(row, 1));
+						dm.setValueAt(PEC.instance().getActiveCategory(), row, 5);
+					}
 				}
 			}
 		});
@@ -144,9 +146,9 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 				compareToIgnoreCase(jcmbCategory.getItemAt(jcmbCategory.getItemCount()-1)) == 0) {
 			GUI_NewCategoryWindow.getInstance().showNewCategoryFromRecordsWindow();
 			GUI_RecordsWindow.getInstance().hideRecordsWindoww();
-		} //else if ((jcmbCategory.getSelectedItem() + "").trim().
-		//		compareToIgnoreCase(jcmbCategory.getItemAt(0)) == 0) {
-		//	jcmbCategory.setSelectedItem(PEC.instance().getActiveCategory());}
+		} else if ((jcmbCategory.getSelectedItem() + "").trim().
+				compareToIgnoreCase(GUI_ElementsDataLoader.manualEntryElements_HelpMessages[6]) == 0) {
+			jcmbCategory.setSelectedItem(PEC.instance().getActiveCategory()); }
 		else {
 			PEC.instance().setActiveCategory((String) jcmbCategory.getSelectedItem());
 		}
@@ -154,7 +156,11 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 
 	private void processAccountSelection() {
 		String selectedItem = (String) jcmbAccount.getSelectedItem();
-		if (selectedItem.compareToIgnoreCase(PEC.instance().getActiveAccount())!=0) {
+		if ((jcmbAccount.getSelectedItem() + "").trim().
+				compareToIgnoreCase(GUI_ElementsDataLoader.manualEntryElements_HelpMessages[0]) == 0 ||
+				(jcmbAccount.getSelectedItem() + "").trim().length() == 0) {
+			jcmbAccount.setSelectedItem(PEC.instance().getActiveAccount());
+		} else if (selectedItem.compareToIgnoreCase(PEC.instance().getActiveAccount())!=0) {
 			ListIterator<Result> resIt = PEC.instance().switchActiveAccount(selectedItem);
 			if (resIt.hasNext()) {
 				clearTable();

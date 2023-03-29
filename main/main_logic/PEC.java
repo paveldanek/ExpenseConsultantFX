@@ -961,6 +961,7 @@ public class PEC {
 	}
 
 	public void changeCategoryToActive(String refNum) {
+		if (tList==null || tList.size()==0) return;
 		tList.searchByRefNumber(refNum).setCategory(activeCategory);
 	}
 
