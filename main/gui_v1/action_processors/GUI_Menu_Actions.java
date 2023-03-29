@@ -24,12 +24,8 @@ public class GUI_Menu_Actions extends MenuActionProgrammableHandle implements Ac
 	private void productionActions(ActionEvent e) {
 		MenuActionProgrammableHandle ac = new MenuActionProgrammableHandle();
 
-		if (e.getActionCommand().compareToIgnoreCase("Exit")==0) {
-			ac.dologOutProcessing();
-			System.exit(0);
-		}else if (e.getActionCommand().compareToIgnoreCase("About")==0) {
+		if (e.getActionCommand().compareToIgnoreCase("About")==0) {
 			JOptionPane.showMessageDialog(null, ""+strAboutApp,"About", JOptionPane.INFORMATION_MESSAGE);
-
 		}else if (e.getActionCommand().compareToIgnoreCase("Manual Entry")==0) {
 			ac.doManualEntryProcessing();
 
@@ -41,9 +37,8 @@ public class GUI_Menu_Actions extends MenuActionProgrammableHandle implements Ac
 			ac.doGenerateSummaryProcessing();
 		}else if (e.getActionCommand().compareToIgnoreCase("How To Start")==0) {
 			ac.doHowToStartProcessing();
-		}else if (e.getActionCommand().compareToIgnoreCase("LogOut")==0) {
+		}else if (e.getActionCommand().compareToIgnoreCase("Log Out and Exit")==0) {
 			ac.dologOutProcessing();
-			System.exit(0);
 		}else if (e.getActionCommand().compareToIgnoreCase("Settings")==0){
 			ac.doSettingsProcessing();
 

@@ -36,8 +36,8 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
      *  [2] -- TextField for Currency Amount of Transaction Input
      *  [7] -- ComboBox Selection List for Transaction Categories Selection
      */
-    public static String[] manualEntryElements_HelpMessages = new String[]{"Select Account","Enter Date",
-            "Enter Reference number", "Enter Transaction Name", "Enter Memo", "Enter Amount", "Select Category"};
+    public static String[] manualEntryElements_HelpMessages = new String[]{"Select Account","",
+            "", "", "", "", "Select Category"};
     /**
      * Same as Help Messages with adding at end Date string.
      * Positions in array are for -->
@@ -48,9 +48,11 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
             "Enter Reference number", "Enter Transaction Name", "Enter Memo", "Enter Amount", "Select Category",
             "03/12/2023"};
 
-    public static String[] newBankElements_HelpMessages = new String[]{"Enter New Bank Name",""};
-    public static String[] newAccountElements_HelpMessages = new String[]{"Enter Account Number","Enter Account Nickname",
-            "Select Bank"};
+    public static String[] newBankElements_HelpMessages = new String[]{"",""};
+    public static String[] newCategoryElements_HelpMessages = new String[]{"",""};
+
+    public static String[] newAccountElements_HelpMessages = new String[]{"","",
+            ""};
     private static String bSelectActionOption;
     private static  String[]  availableBanks;
     private static String anSelectActionOption;
@@ -61,7 +63,7 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
 
         bSelectActionOption = PEC.NEW_BANK;
         anSelectActionOption = PEC.NEW_ACCOUNT;
-        cSelectActionOption = PEC.OTHER;
+        cSelectActionOption = PEC.NEW_CATEGORY;
         Result res = PEC.instance().downloadDropDownMenuEntries();
         availableBanks= res.getBankList();
         availableNicks= res.getAcctList();
@@ -88,6 +90,10 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
     public static NewBankDataLoader getNBHelpMsgs(){
         return NewBankDataLoader.getInst();
     }
+    public static NewCategoryDataLoader getNCHelpMsgs(){
+        return NewCategoryDataLoader.getInst();
+    }
+
 
     public static AvailableBanksLoader getBanks(){
         return AvailableBanksLoader.getInst();
@@ -112,25 +118,25 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
         public int numOfInputElementsManualEntryHas(){
             return NUMBER_ENABLED_INPUT_ELEMENTS_ON_THIS_VIEW;
         }
-        public String acctNicksSelectionHelpMsg(){
+        public static String acctNicksSelectionHelpMsg(){
             return manualEntryElements_HelpMessages[0];
         }
-        public String dateInputHelpMsg(){
+        public static String dateInputHelpMsg(){
             return manualEntryElements_HelpMessages[1];
         }
-        public String referenceInputHelpMsg(){
+        public static String referenceInputHelpMsg(){
             return manualEntryElements_HelpMessages[2];
         }
-        public String transNameInputHelpMsg(){
+        public static String transNameInputHelpMsg(){
             return manualEntryElements_HelpMessages[3];
         }
-        public String transMemoInputHelpMsg(){
+        public static String transMemoInputHelpMsg(){
             return manualEntryElements_HelpMessages[4];
         }
-        public String transAmountInputHelpMsg(){
+        public static String transAmountInputHelpMsg(){
             return manualEntryElements_HelpMessages[5];
         }
-        public String categoryOfAccntSelectionHelpMsg(){
+        public static String categoryOfAccntSelectionHelpMsg(){
             return manualEntryElements_HelpMessages[6];
         }
 
@@ -178,7 +184,21 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
             return newBankElements_HelpMessages[0];
         }
     }
+    public static class NewCategoryDataLoader{
+        private static final int NUMBER_ENABLED_INPUT_ELEMENTS_ON_THIS_VIEW = 1;
+        private static NewCategoryDataLoader inst = null;
+        private  NewCategoryDataLoader(){}
+        public static NewCategoryDataLoader getInst(){
+            if(inst == null){
+                inst = new NewCategoryDataLoader();
+            }
+            return inst;
+        }
 
+        public String newCategoryNameInputHelpMsg(){
+            return newCategoryElements_HelpMessages[0];
+        }
+    }
     public static class AvailableBanksLoader{
         private static AvailableBanksLoader inst = null;
         private  AvailableBanksLoader(){}

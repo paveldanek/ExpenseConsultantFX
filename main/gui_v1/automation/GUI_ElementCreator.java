@@ -46,7 +46,7 @@ public final class GUI_ElementCreator implements GUI_Settings_Variables{
 	public static JComboBox<String> newJComboBoxWithHidenHelp(String[]  s){
 		JComboBox<String>  jcmmo = new JComboBox<String>(s);
 		jcmmo.setFont(newFont(jcmmo.getFont(), txtSize_JTextField+1));
-		jcmmo.setToolTipText(s[0]);
+		if (s.length>0) jcmmo.setToolTipText(s[0]);
 		jcmmo.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {

@@ -1,4 +1,7 @@
 package gui_v1.action_processors;
+import entities.Transaction;
+import entities.TransactionList;
+import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 import gui_v1.mainWindows.recordsWElements.RecordsTable;
 import gui_v1.mainWindows.GUI_HowToWindow;
 import gui_v1.mainWindows.GUI_ManualEntryWindow;
@@ -33,28 +36,19 @@ public class MenuActionProgrammableHandle {
       //  GUI_RecordsFrame records = new GUI_RecordsFrame();
         GUI_RecordsWindow.getInstance().showRecordsWindow();
         File f = null;
-
+        Request request = Request.instance();
         File chosenFile= GUI_FileChooser.getFileOrDirectory(f);
         if(chosenFile == null ){
             JOptionPane.showMessageDialog(null, "File not Selected","Info", JOptionPane.ERROR_MESSAGE);
         } else{
-            Request request = Request.instance();
             request.reset();
             ListIterator<Result> it;
             request.setFileWithPath(chosenFile.getAbsolutePath());
             //For limiting the time window for parsed Transactions.
-            //It should be set to: beginning date of database - ending date of database
-            request.setFrom(PEC.instance().getAcctBeginDate(PEC.instance().getActiveAccount()));
-            request.setTo(PEC.instance().getAcctEndDate(PEC.instance().getActiveAccount()));
-            // technically, we don't want more than 3 months of Transactions:
-            // <beginning date>.add(Calendar.MONTH, 3);
+            //It should be set to: min.date - min.date
+            request.setFrom(Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MIN));
+            request.setTo(Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MIN));
             it = PEC.instance().parseOFX(request);
-            /*
-            //Applying sorting, if a Transaction column header/title has been clicked.
-            //This may have to go to a different method.
-            request.setButton(Request.Button.NAME); // sorted by different attribute (NAME)
-            it = PEC.instance().sortedColumnSwitched(request);
-            */
             Result result = new Result();
             if (it.hasNext()) result = it.next();
             if (result.getCode()==Result.Code.WRONG_FILE ||
@@ -77,11 +71,11 @@ public class MenuActionProgrammableHandle {
                 RecordsTable.addRowToTable(result.getTDate(),
                         result.getTRef(), result.getTDesc(),
                         result.getTMemo(), result.getTAmount(), result.getTCat());
-               // out("Date>>>> "+result.getTDate());
-            }
+               }
         }
+        //updateMenus(PEC.instance().getActiveAccount(), PEC.instance().getActiveCategory());
 //        records.setVisible(true);
-
+        request.getWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
         GUI_RecordsWindow.getInstance().showRecordsWindow();
     }
 
@@ -102,15 +96,17 @@ public class MenuActionProgrammableHandle {
     void doSettingsProcessing(){
 
     }
-    void dologOutProcessing() {
+    public void dologOutProcessing() {
+        JOptionPane.showMessageDialog(null, "You're about to log out and end" +
+                        "\nthe program. If you do, your work\nwill be saved in the database.",
+                "Warning", JOptionPane.INFORMATION_MESSAGE);
         try {
             PEC.instance().uploadCurrentList();
-            PEC.instance().addCategoriesForUser();
+            PEC.instance().addCategoriesForUserToDB();
+            System.exit(0);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
-
 }
 

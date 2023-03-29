@@ -9,6 +9,7 @@ import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
 import gui_v1.mainWindows.GUI_ManualEntryWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_NewAccountWindow;
+import gui_v1.mainWindows.GUI_NewCategoryWindow;
 import gui_v1.settings.GUI_Settings_Variables;
 
 import javax.swing.*;
@@ -17,9 +18,11 @@ import java.awt.*;
 import java.awt.event.*;
 //import java.util.Calendar;
 
-public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings_Variables, ActionListener, FocusListener, WindowStateListener {
+public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings_Variables, ActionListener,
+        FocusListener, WindowStateListener {
     private final static String[] ERRORS_IN_USER_INPUT = null;
-    private final static int INPUT_ELEMENTS_ON_VIEW_COUNTER = GUI_ElementsDataLoader.getMEntHelpMsgs().numOfInputElementsManualEntryHas();
+    private final static int INPUT_ELEMENTS_ON_VIEW_COUNTER = GUI_ElementsDataLoader.getMEntHelpMsgs().
+            numOfInputElementsManualEntryHas();
     private int[] listsSelectedItems;
     private JTextField jtfDate;
     private JTextField jtfOutputDate;
@@ -28,8 +31,8 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
     private JTextField jtfMemo;
     private JTextField jtfAmount;
 
-    private static JComboBox<String> jcmbAccount;
-    private static JComboBox<String> jcmbCategory;
+    private static JComboBox<String> jcmbAccount = new JComboBox<>();
+    private static JComboBox<String> jcmbCategory = new JComboBox<>();
     //    private String previousAcctSelection = infoTxtOfInputs[0];
 
     private JButton jbtnCancel;
@@ -172,8 +175,17 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
     }
 
     public static void addAccountNickToComboBox(String acctNick) {
+        jcmbAccount = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getAccountNicksList());
+        jcmbAccount.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
         jcmbAccount.insertItemAt(acctNick, jcmbAccount.getItemCount() - 1);
         jcmbAccount.setSelectedItem(acctNick);
+    }
+
+    public static void addCategoryToComboBox(String category) {
+        jcmbCategory = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getTransCategoryist());
+        jcmbCategory.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
+        jcmbCategory.insertItemAt(category, jcmbCategory.getItemCount() - 1);
+        jcmbCategory.setSelectedItem(category);
     }
 
     public void setElementsDefaultHelpTexts() {
@@ -278,6 +290,10 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
     private void processCategorySelection() {
         listsSelectedItems[1] =  jcmbCategory.getSelectedIndex();
         listsSelectedItems[0] =  jcmbAccount.getSelectedIndex();
+        if ((jcmbCategory.getSelectedItem() + "").trim().compareToIgnoreCase(jcmbCategory.getItemAt(jcmbCategory.getItemCount()-1)) == 0) {
+            GUI_NewCategoryWindow.getInstance().showNewCategoryFromManualEntryWindow();
+            GUI_ManualEntryWindow.getInstance().hideManualEntryWindow();
+        }
     }
 
     private void processAcountSelectoion() {

@@ -7,24 +7,20 @@ import crypto.AESUtil;
 import db_connectors.Connectivity;
 import entities.Transaction;
 import entities.TransactionList;
+import gui_v1.data_loaders.GUI_ElementsDataLoader;
+import gui_v1.data_loaders.GUI_ElementsOptionLists;
+import gui_v1.mainWindows.GUI_RecordsWindow;
 import parsers.OFXParser;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.*;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static main_logic.Result.Code.*;
@@ -34,10 +30,12 @@ public class PEC {
 
 	public static String NEW_BANK = "<NEW BANK>";
 	public static String NEW_ACCOUNT = "<NEW ACCOUNT>";
-	public static String OTHER = "<OTHER>";
+	public static String NEW_CATEGORY = "<NEW CATEGORY>";
+	public static String OTHER_CATEGORY = "<OTHER>";
 
+	// presetCategories must contain OTHER_CATEGORY as last element
 	private static String[] presetCategories = new String[]
-			{"Food","Car Repair","Mortgage", "Car insurance", "Fun"};
+			{"Food","Car Repair","Mortgage", "Car insurance", "Fun", OTHER_CATEGORY};
 
 	// private main structure housing active Transaction data
 	// (no more than 3 months worth)
@@ -52,7 +50,8 @@ public class PEC {
 	private String[] allBanks = {};
 	private String[] allAccounts = {};
 	private String[] allCategories = {};
-	private String activeAccount;
+	private String activeAccount = "";
+	private String activeCategory = OTHER_CATEGORY;
 	// array of booleans to remember if a particular column is sorted
 	// in a descending (or ascending) direction
 	private boolean[] descColumn = { true, true, true, true, true, true };
@@ -198,6 +197,10 @@ public class PEC {
 		this.activeAccount = activeAccount;
 	}
 
+	public String getActiveCategory() { return activeCategory; }
+
+	public void setActiveCategory(String activeCategory) { this.activeCategory = activeCategory; }
+
 	public static boolean isTextInList(String text, LinkedList<String> list) {
 		for (String item : list) {
 			if (item.compareToIgnoreCase(text)==0) return true;
@@ -287,6 +290,10 @@ public class PEC {
 		String acctNum = OFXParser.getAcctNumber();
 		int acctPos = accountPosition("", acctNum);
 		if (acctPos==-1) {
+			if (currentUserHasAnyAccount()) {
+				uploadCurrentList();
+				tList.clearTransactionList();
+			}
 			// set up a new account, clear the table; the following is temporary
 			String[] tempAccounts = new String[(allAccounts.length+1)];
 			System.arraycopy(allAccounts, 0, tempAccounts, 0, allAccounts.length);
@@ -294,7 +301,13 @@ public class PEC {
 			String newParsedNick = "My "+OFXParser.getAcctType();
 			allAccounts[allAccounts.length-1] = createAcctIdentifier(newParsedNick,
 					OFXParser.getAcctNumber(), OFXParser.getBankName());
-			activeAccount = newParsedNick;
+			String[] tempBanks = new String[allBanks.length+1];
+			System.arraycopy(allBanks, 0, tempBanks, 0, allBanks.length);
+			tempBanks[tempBanks.length-1] = OFXParser.getBankName();
+			allBanks = tempBanks;
+			activeAccount = allAccounts[allAccounts.length-1];
+			//GUI_ElementsOptionLists.getInstance().addAccntNickToList(activeAccount);
+			GUI_ElementsOptionLists.getInstance().addBankToList(OFXParser.getBankName());
 			Calendar[] tempBegin = new Calendar[acctBeginDate.length+1];
 			Calendar[] tempEnd = new Calendar[acctEndDate.length+1];
 			System.arraycopy(acctBeginDate, 0, tempBegin, 0, acctBeginDate.length);
@@ -305,10 +318,12 @@ public class PEC {
 			acctEndDate = tempEnd;
 		} else {
 			// if the parsed account is not the active account, fetch it and make it active
-			String[] tempStr = allAccounts[acctPos].split(" …");
-			setActiveAccount(tempStr[0]);
+			setActiveAccount(allAccounts[acctPos]);
 		}
-		if (mergeNewTList(parsedTlist)) return returnRListIterator();
+		if (mergeNewTList(parsedTlist)) {
+			uploadCurrentList();
+			return returnRListIterator();
+		}
 		else {
 			result.setCode(NO_ITEMS_TO_READ);
 			rList.add(result);
@@ -324,11 +339,11 @@ public class PEC {
 	private boolean mergeNewTList(TransactionList list) {
 		boolean change = false;
 		if (list==null) return change;
-		System.out.println("POTENTIALLY ADDING "+list.size()+", active acct: "+activeAccount);
-		for (int i = 0; i < allAccounts.length; i++) { System.out.println(allAccounts[i]); }
-		System.out.println("\n");
-		for (int i = 0; i < acctBeginDate.length; i++) { System.out.println(Transaction.returnYYYYMMDDFromCalendar
-				(acctBeginDate[i])+"-"+Transaction.returnYYYYMMDDFromCalendar(acctEndDate[i])); }
+		//System.out.println("POTENTIALLY ADDING "+list.size()+", active acct: "+activeAccount);
+		//for (int i = 0; i < allAccounts.length; i++) { System.out.println(allAccounts[i]); }
+		//System.out.println("\n");
+		//for (int i = 0; i < acctBeginDate.length; i++) { System.out.println(Transaction.returnYYYYMMDDFromCalendar
+		//		(acctBeginDate[i])+"-"+Transaction.returnYYYYMMDDFromCalendar(acctEndDate[i])); }
 		TransactionList resultTList = new TransactionList();
 		if (list.getStartDate().compareTo(getAcctBeginDate(activeAccount))<=0) {
 			// fetch the first 3-or-less-month chunk of the db and load it in tList
@@ -453,7 +468,8 @@ public class PEC {
 
 		// fetch the user's first account's last 3-month-block
 		// set activeAccount = ...;
-		String firstNickFound="";
+		String lastNickFound="";
+		String lastRecordMade="";
 		Calendar[] firstEntry = new Calendar[2];
 		if (currentUserHasAnyAccount()) {
 			Connection connection = Connectivity.getConnection();
@@ -463,15 +479,26 @@ public class PEC {
 				stmt = connection.prepareStatement(query);
 				stmt.setInt(1, getCurrentUserID());
 				ResultSet rs = stmt.executeQuery();
-				if (rs.next()) firstNickFound = rs.getString("account_nick");
-				firstEntry = firstAndLastEntryOfAccount(firstNickFound);
-				tList = download3monthPortion(firstEntry[0]);
-				setActiveAccount(firstNickFound);
+				while (rs.next()) {
+					lastNickFound = rs.getString("account_nick");
+					lastRecordMade = rs.getString("transaction_date");
+				}
+				setActiveAccount(lastNickFound);
+				tList = download3monthPortion(Transaction.returnCalendarFromYYYYMMDD(lastRecordMade));
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
 
 		}
+		return returnRListIterator();
+	}
+
+	public ListIterator<Result> switchActiveAccount(String acctToSwitchTo) {
+		if (accountPosition(acctToSwitchTo, "")==-1)
+			return returnRListIterator();
+		uploadCurrentList();
+		setActiveAccount(acctToSwitchTo);
+		tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[0]);
 		return returnRListIterator();
 	}
 
@@ -529,8 +556,10 @@ public class PEC {
 	private Calendar[] previousAndNextEntryOfAccount(String acctNick, Calendar date) {
 		Connection connection = Connectivity.getConnection();
 		Calendar[] result = new Calendar[2];
-		Calendar biggestSmall = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MIN);
-		Calendar smallestBig = Transaction.returnCalendarFromOFX(TransactionList.STR_DATE_MAX);
+		Calendar[] firstLast = firstAndLastEntryOfAccount(acctNick);
+		Calendar biggestSmall = firstLast[0];
+		Calendar smallestBig = firstLast[1];
+		if (date==null) date=Transaction.returnCalendarFromOFX(Transaction.returnOFXFromCalendar(firstLast[1]));
 		String query = "SELECT * FROM transaction WHERE user_id = ? AND account_nick = ?";
 		try {
 			PreparedStatement stmt = connection.prepareStatement(query);
@@ -539,8 +568,10 @@ public class PEC {
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				Calendar dbDate = Transaction.returnCalendarFromYYYYMMDD(rs.getString("transaction_date"));
-				if (dbDate.compareTo(date) < 0 && dbDate.compareTo(biggestSmall) > 0) biggestSmall = dbDate;
-				if (dbDate.compareTo(date) > 0 && dbDate.compareTo(smallestBig) < 0) smallestBig = dbDate;
+				if (dbDate.compareTo(date) < 0 && dbDate.compareTo(biggestSmall) > 0) biggestSmall =
+						Transaction.returnCalendarFromYYYYMMDD(Transaction.returnYYYYMMDDFromCalendar(dbDate));
+				if (dbDate.compareTo(date) > 0 && dbDate.compareTo(smallestBig) < 0) smallestBig =
+						Transaction.returnCalendarFromYYYYMMDD(Transaction.returnYYYYMMDDFromCalendar(dbDate));
 			}
 			result[0] = biggestSmall;
 			result[1] = smallestBig;
@@ -627,12 +658,10 @@ public class PEC {
 				(tList.getStartDate()));
 		startPlus3Months.add(Calendar.MONTH, 3);
 		Calendar[] dbAcctFirstLast = firstAndLastEntryOfAccount(activeAccount);
-
 		boolean isCurrentAcctInDB = currentUserHasAccount(activeAccount);
 		boolean isCurrentListLessThan3Months = tList.getEndDate().compareTo(startPlus3Months)<=0;
 		boolean currentListStartGoesBeforeDB = tList.getStartDate().compareTo(dbAcctFirstLast[0])<=0;
-		boolean currentListEndGoesAfterDB = tList.getEndDate().compareTo(dbAcctFirstLast[1])>=0;
-
+		boolean currentListEndGoesAfterDB = tList.getStartDate().compareTo(dbAcctFirstLast[1])>=0;
 		if (!isCurrentAcctInDB && isCurrentListLessThan3Months) {
 			upload3monthPortion(tList);
 			setAcctBeginDate(activeAccount, tList.getStartDate());
@@ -657,6 +686,7 @@ public class PEC {
 		}
 		if (isCurrentAcctInDB && currentListStartGoesBeforeDB) {
 			TransactionList tempList = download3monthPortion(dbAcctFirstLast[0]);
+			delete3monthPortion(dbAcctFirstLast[0]);
 			mergeNewTList(tempList);
 			while (tList.size()>0) {
 				Calendar endMinus3Months = Transaction.returnCalendarFromOFX(Transaction.returnOFXFromCalendar
@@ -664,15 +694,14 @@ public class PEC {
 				endMinus3Months.add(Calendar.MONTH, -3);
 				tempList = new TransactionList();
 				while (tList.size()>0 && tList.get(tList.size()-1).getPostedDate().compareTo(endMinus3Months)>=0) {
-					tempList.add(tList.get(tList.size()-1));
+					tempList.addToFrontFirst(tList.get(tList.size()-1));
 					tList.remove(tList.get(tList.size()-1).getRefNumber());
 				}
 				upload3monthPortion(tempList);
 			}
 			tList = tempList;
 			setAcctBeginDate(activeAccount, tList.getStartDate());
-		}
-		if (isCurrentAcctInDB && currentListEndGoesAfterDB) {
+		} else if (isCurrentAcctInDB && currentListEndGoesAfterDB) {
 			TransactionList tempList = download3monthPortion(dbAcctFirstLast[1]);
 			delete3monthPortion(dbAcctFirstLast[1]);
 			mergeNewTList(tempList);
@@ -695,7 +724,7 @@ public class PEC {
 			upload3monthPortion(tList);
 		}
 		try {
-			addCategoriesForUser();
+			addCategoriesForUserToDB();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -715,7 +744,7 @@ public class PEC {
 
 	public ListIterator<Result> goNext() {
 		uploadCurrentList();
-		tList = download3monthPortion(previousAndNextEntryOfAccount(activeAccount, tList.getEndDate())[1]);
+		tList = download3monthPortion(previousAndNextEntryOfAccount(activeAccount, tList.getStartDate())[1]);
 		return returnRListIterator();
 	}
 
@@ -794,7 +823,7 @@ public class PEC {
 			try {
 				String checkSql = "SELECT COUNT(*) FROM users WHERE email=?";
 				PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-				checkStmt.setString(1, email);
+				checkStmt.setString(1, AESUtil.encryptItem(email));
 
 				// Execute the query to check if the user already exists
 				rs = checkStmt.executeQuery();
@@ -803,7 +832,6 @@ public class PEC {
 			}
 			rs.next();
 			int count = rs.getInt(1);
-
 			if (count == 0) {
 				if (pass1.length() >= 8 && pass1.length() < 20) {
 					if (!pass1.equals(pass2)) {
@@ -884,7 +912,6 @@ public class PEC {
 		allAccounts = new String[accounts.size()];
 		for (int i = 0; i < accounts.size(); i++) {
 			allAccounts[i] = accounts.get(i);
-			System.out.println(allAccounts[i]);
 		}
 		result.setAcctList(allAccounts);
 		// downloading category list
@@ -922,7 +949,22 @@ public class PEC {
 		return result;
 	}
 
-	public void addCategoriesForUser() throws SQLException {
+	public String[] addCategoryLocally(String category) {
+		String last = allCategories[allCategories.length-1];
+		String[] newArray = new String[allCategories.length+1];
+		System.arraycopy(allCategories, 0, newArray, 0, allCategories.length-1);
+		newArray[newArray.length-2] = category;
+		newArray[newArray.length-1] = last;
+		allCategories = newArray;
+		setActiveCategory(category);
+		return allCategories;
+	}
+
+	public void changeCategoryToActive(String refNum) {
+		tList.searchByRefNumber(refNum).setCategory(activeCategory);
+	}
+
+	public void addCategoriesForUserToDB() throws SQLException {
 		Connection connection = Connectivity.getConnection();
 		String sql = "DELETE FROM category where user_id = ?";
 		PreparedStatement s = connection.prepareStatement(sql);

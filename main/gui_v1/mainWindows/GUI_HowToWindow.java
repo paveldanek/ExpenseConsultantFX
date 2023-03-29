@@ -17,12 +17,15 @@ public class GUI_HowToWindow  extends JFrame implements GUI_Settings_Variables, 
         setSize(howToWindowFrameSize);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        add(GUI_ElementCreator.newTitle("This is the How to Start Using PEC Quick Manual Help"), BorderLayout.NORTH);
+        add(GUI_ElementCreator.newTitle("To resize, hold down lower-right corner of window and move it around. "),
+                BorderLayout.NORTH);
         add(new JScrollPane(new JImagePanel()), BorderLayout.CENTER);
-        JButton jbtnClose = GUI_ElementCreator.newJButton("Click Here for Close This How To Help Window");
+        /*
+        JButton jbtnClose = GUI_ElementCreator.newJButton("Click Here To Close This Window");
         jbtnClose.addActionListener(e -> disposeHowToWindow());
         add(jbtnClose, BorderLayout.SOUTH);
         addWindowListener(w2);
+        */
     }
     public static GUI_HowToWindow getInstance() {
         if (instance == null) {

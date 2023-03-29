@@ -8,7 +8,6 @@ public class GUI_MainiWindowActionProcessor {
         startAppTerminationProcess();
     }
     public void startAppTerminationProcess(){
-        JOptionPane.showMessageDialog(null,"TThis is Action Handler for Termination of APP","This is App Termination Process Handler",JOptionPane.INFORMATION_MESSAGE);
         System.exit(JFrame.EXIT_ON_CLOSE);
     }
 }

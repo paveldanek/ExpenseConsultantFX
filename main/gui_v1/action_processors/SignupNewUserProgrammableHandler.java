@@ -21,7 +21,7 @@ public class SignupNewUserProgrammableHandler  {
         answer1 = a1;
         answer2 = a2;
 
-        showNewUserSignupInfo();
+        //showNewUserSignupInfo();
 
 
     }

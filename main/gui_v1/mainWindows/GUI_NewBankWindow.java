@@ -10,7 +10,7 @@ public class GUI_NewBankWindow extends JFrame implements GUI_MainWidowsSharedBeh
     private GUI_NewBankWindow() {
         int width = 500;
         int height = 200;
-        setTitle("New Bank fo Add");
+        setTitle("New Bank to Add");
         setSize(new Dimension(width, height));
         setLocationRelativeTo(null);
 

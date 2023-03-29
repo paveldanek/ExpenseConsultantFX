@@ -11,7 +11,6 @@ public class RecordsNavigationButtonsP extends JPanel{
     private JButton  jbtnNext = GUI_ElementCreator.newRecordNavigationJButton("Next");
     private JButton  jbtnFirst = GUI_ElementCreator.newRecordNavigationJButton("First");
     private JButton jbtnLast = GUI_ElementCreator.newRecordNavigationJButton("Last");
-    private JButton jbtnBack = GUI_ElementCreator.newRecordNavigationJButton("Back");
 //    private JButton jbtnNext;
 //    private JButton jbtnFirst;
 //    private JButton jbtnLast;
@@ -19,26 +18,24 @@ public class RecordsNavigationButtonsP extends JPanel{
     RecordsNavigation_Actions a;
 
     public RecordsNavigationButtonsP(){
-        setLayout(new GridLayout(1, 5));
+        setLayout(new GridLayout(1, 4));
 
 //        jbtnPrevious = GUI_ElementCreator.newRecordNavigationJButton("Previous");
 //        jbtnNext = GUI_ElementCreator.newRecordNavigationJButton("Next");
 //        jbtnFirst = GUI_ElementCreator.newRecordNavigationJButton("First");
 //        jbtnLast = GUI_ElementCreator.newRecordNavigationJButton("Last");
-//        jbtnBack = GUI_ElementCreator.newRecordNavigationJButton("Back");
+
         a = new RecordsNavigation_Actions();
         jbtnPrevious.addActionListener(a);
         jbtnNext.addActionListener(a);
         jbtnFirst.addActionListener(a);
         jbtnLast.addActionListener(a);
-        jbtnBack.addActionListener(a);
 
 
         add(jbtnFirst);
         add(jbtnPrevious);
         add(jbtnNext);
         add(jbtnLast);
-        add(jbtnBack);
 
     }
 }

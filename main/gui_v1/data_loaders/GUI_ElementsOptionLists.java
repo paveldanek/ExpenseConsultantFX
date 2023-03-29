@@ -38,18 +38,24 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
         return  isTextInList(bank, bankList);
     }
 
+    public boolean isCategoryExist(String category) {
+        return  isTextInList(category, transactionCategoriesList);
+    }
 
     public void addTransactionCategoriessToList(String[] transactionCategoriesArr) {
         if(transactionCategoriesArr==null || transactionCategoriesArr.length<0){
             return;
         }
-        String last = transactionCategoriesList.removeLast();
+        String last ="";
+        if (transactionCategoriesList.size()>0) last = transactionCategoriesList.removeLast();
+        else last = GUI_ElementsDataLoader.ManualEntryDataLoader.categoryOfAccntSelectionHelpMsg();
         for(int i=0; i< transactionCategoriesArr.length; i++){
             transactionCategoriesList.add(transactionCategoriesArr[i]);
         }
         transactionCategoriesList.addLast(last);
     }
     public void addTransactionCategoryToList(String transactionCategory) {
+        if (isCategoryExist(transactionCategory)) return;
         transactionCategoriesList.add(bankList.size()-1, transactionCategory);
     }
     public  void addBanksToList(String[] banks){
@@ -69,13 +75,14 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
         if(accountNicks==null || accountNicks.length<0){
             return;
         }
-        String last = acctNicksList.removeLast();
+        String last = "";
+        if (accountNicks.length>0) last = acctNicksList.removeLast();
         for(int i=0; i< accountNicks.length; i++){
             acctNicksList.add(accountNicks[i]);
         }
-        acctNicksList.addLast(last);
+        if (last.length()>0) acctNicksList.addLast(last);
     }
-    public void addAccntNickToList(String accountNick){
+    public void addAccntNickToList(String accountNick) {
         acctNicksList.add(acctNicksList.size()-1, accountNick);
     }
 
@@ -89,6 +96,12 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
         return getAsStringArr(acctNicksList);
     }
 
+    public void clearTransCategoryList() {
+        transactionCategoriesList.clear();
+    }
 
+    public void clearAccountNicksList() {
+        acctNicksList.clear();
+    }
 
 }

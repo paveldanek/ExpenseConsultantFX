@@ -22,7 +22,8 @@ public class TransactionList {
     // Variables from and to indicate the first and last date of Transactions
     // on the list, respectively. Not set initially.
     // Only Transactions dated before "from" or after "to" will be added.
-    private Calendar from, to;
+    private Calendar from = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+    private Calendar to = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
 
     /**
      * The constructor.
@@ -50,7 +51,37 @@ public class TransactionList {
         if (isInTheList(transaction.getRefNumber())) return false;
         if (transaction.getPostedDate().compareTo(this.from)>0 &&
                 transaction.getPostedDate().compareTo(this.to)<0) return false;
-        else if (transaction.getPostedDate().compareTo(this.from)<=0) {
+        else if (transaction.getPostedDate().compareTo(this.from)<0  ||
+                (transaction.getPostedDate().compareTo(this.from)==0 &&
+                        transaction.getPostedDate().compareTo(this.to)<0)) {
+            transactionList.add(0, transaction);
+            this.from = transaction.getPostedDate();
+            return true;
+        } else {
+            this.to = transaction.getPostedDate();
+            return transactionList.add(transaction);
+        }
+    }
+
+    /**
+     * Like method add, but if all items have the same date, incl. the new one,
+     * it adds the new item in the front of the list.
+     * @param transaction - the Transaction being added
+     * @return TRUE - if everything goes well FALSE - if there's trouble and
+     *         Transaction has NOT been added
+     */
+    public boolean addToFrontFirst(Transaction transaction) {
+        if (transactionList.size()==0) {
+            this.from = transaction.getPostedDate();
+            this.to = transaction.getPostedDate();
+            return transactionList.add(transaction);
+        }
+        if (isInTheList(transaction.getRefNumber())) return false;
+        if (transaction.getPostedDate().compareTo(this.from)>0 &&
+                transaction.getPostedDate().compareTo(this.to)<0) return false;
+        else if (transaction.getPostedDate().compareTo(this.from)<=0  ||
+                (transaction.getPostedDate().compareTo(this.from)==0 &&
+                        transaction.getPostedDate().compareTo(this.to)==0)) {
             transactionList.add(0, transaction);
             this.from = transaction.getPostedDate();
             return true;
@@ -136,6 +167,8 @@ public class TransactionList {
      */
     public void clearTransactionList() {
         transactionList = new ArrayList<Transaction>();
+        from = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+        to = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
     }
 
     /**

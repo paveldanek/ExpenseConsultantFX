@@ -11,12 +11,13 @@ import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 import gui_v1.menu.GUI_Menu;
 import gui_v1.menu.GUI_Menu_Technical;
 import gui_v1.settings.GUI_Settings_Variables;
+import main_logic.Request;
 
 public class GUI_RecordsWindow extends JFrame implements GUI_MainWidowsSharedBehaviors, GUI_Settings_Variables{
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private static GUI_RecordsWindow instance = null;
-
+	private GUI_RecordsBoxP rbp;
 	private GUI_RecordsWindow() {
 		try {
 			GUI_ElementsDataLoader.loadDataInitializeGUI();
@@ -37,8 +38,10 @@ public class GUI_RecordsWindow extends JFrame implements GUI_MainWidowsSharedBeh
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout());
 
-
-		add(new GUI_RecordsBoxP(), BorderLayout.CENTER);
+		rbp = new GUI_RecordsBoxP();
+		Request r = Request.instance();
+		r.setWindowHolder(rbp);
+		add(rbp, BorderLayout.CENTER);
 		add(new JLabel(strCopyRigts, JLabel.CENTER), BorderLayout.SOUTH);
 		addWindowListener(mainW);
 	}
@@ -48,6 +51,7 @@ public class GUI_RecordsWindow extends JFrame implements GUI_MainWidowsSharedBeh
 		}
 		return instance;
 	}
+
 	public void showRecordsWindow(){
 		instance.setVisible(true);
 	}

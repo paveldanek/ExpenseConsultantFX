@@ -1,7 +1,9 @@
 package main_logic;
 
 import entities.Transaction;
+import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +34,8 @@ public class DataTransfer {
 	private String question2;
 	private String answer1;
 	private String answer2;
-
-
+	private GUI_RecordsBoxP windowHolder;
+	private JTable tableHolder;
 
 
 	// ... Both GUI programmers and LOGIC programmers are allowed to add fields and
@@ -70,6 +72,14 @@ public class DataTransfer {
 		answer2 = "";
 		// ...
 	}
+
+	public void setWindowHolder(GUI_RecordsBoxP holder) { windowHolder = holder; }
+
+	public GUI_RecordsBoxP getWindowHolder() { return windowHolder;	}
+
+	public void setTableHolder(JTable holder) { tableHolder = holder; }
+
+	public JTable getTableHolder() { return tableHolder; }
 
 	public String getTDate() {
 		return tDate;

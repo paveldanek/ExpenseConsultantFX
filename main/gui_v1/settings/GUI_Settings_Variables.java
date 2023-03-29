@@ -48,7 +48,7 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 	String strDefaultString  = "SPAM Team \nSam, Pavel, Andrey, and not Musab";
 	String strDefaultActionString  = "Action Title NOT SET";
 
-	String strDefaultSubTitleString  = "This Sub Title NOT-SET";
+	String strDefaultSubTitleString  = "";
 
 
 	String strAppOfficialName = "Personal Expense Consultant by SPAM Team";
@@ -56,7 +56,7 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 	String strAboutApp = "This App is Capstone project of SPAM Team";
 
 	String strHeadTitle_GUIMainWindow = "Welcome to Personal Expenses Manager ";
-	String strHeadTitle_GUIRecordsWindow = "Records Handler Personal Expenses Manager ";
+	String strHeadTitle_GUIRecordsWindow = "Personal Expense Consultant";
 
 
 
@@ -67,7 +67,7 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 	Dimension mainWindowMessageAreaSize = new Dimension(0,200);
 
 	Dimension manualEntryGUIWindowFrameSize = new Dimension(gui_width, 400);
-	Dimension howToWindowFrameSize  = new Dimension(gui_width, gui_height);
+	Dimension howToWindowFrameSize  = new Dimension(gui_width-100, gui_height-50);
 
 	String mainGUIFrameWindowTitle = strAppOfficialName;
 	String recordsGUIWindowTitle = strAppOfficialName;
@@ -183,6 +183,8 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 	Color clrF_DataOutput = Color.BLUE;
 	Color clrB_DataOutput = Color.LIGHT_GRAY;
 
+	Color linkSelected = Color.CYAN;
+	Color linkDeselected = Color.BLACK;
 
 	Color clrF_Btn_Insert = Color.BLUE;
 	Color clrB_Btn_Insert = Color.LIGHT_GRAY;

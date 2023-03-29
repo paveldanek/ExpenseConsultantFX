@@ -95,6 +95,7 @@ public interface GUI_Routines {
     }
 
     default boolean  isTextInList(String text, LinkedList<String> list) {
+        if (list==null) return false;
         for(String existBank: list){
             if(text.compareToIgnoreCase(existBank)==0){
                 return true;

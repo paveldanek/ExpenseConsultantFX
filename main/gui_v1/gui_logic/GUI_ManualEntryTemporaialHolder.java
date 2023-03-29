@@ -9,6 +9,7 @@ public class GUI_ManualEntryTemporaialHolder implements GUI_Routines {
     private static int currEntryIndex;
 
     private static LinkedList<String>  unsavedBanksList;
+    private static LinkedList<String>  unsavedCategoriesList;
     private static LinkedList<String>  unsavedAcctNickskList;
 
     public  boolean isBankInUnsavedList(String bName) {
@@ -29,6 +30,15 @@ public class GUI_ManualEntryTemporaialHolder implements GUI_Routines {
             unsavedAcctNickskList.addLast(aNick);
         }
     }
+    public  boolean isCategoryInUnsavedList(String cName) {
+        return isTextInList(cName,  unsavedCategoriesList);
+    }
+
+    public  void addCategoryAsUnstored(String cName) {
+        if(!isCategoryInUnsavedList(cName)){
+            unsavedCategoriesList.addLast(cName);
+        }
+    }
 
 
     private GUI_ManualEntryTemporaialHolder(){
@@ -39,6 +49,7 @@ public class GUI_ManualEntryTemporaialHolder implements GUI_Routines {
         currEntryIndex = 0;
         unsavedBanksList= new LinkedList<String>();
         unsavedAcctNickskList= new LinkedList<String>();
+        unsavedCategoriesList= new LinkedList<String>();
     }
 
     public static GUI_ManualEntryTemporaialHolder getInstance() {

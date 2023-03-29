@@ -1,5 +1,6 @@
 package db_connectors;
 
+import crypto.AESUtil;
 import entities.Transaction;
 
 import javax.swing.*;
@@ -138,8 +139,6 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Database \"expense_consultant\"\n"+
-                            "could not be created.", "Error", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         return true;
@@ -161,8 +160,6 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Table \"users\" could not be created.",
-                    "Error", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         return true;
@@ -184,8 +181,6 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Table \"transaction\" could not be created.",
-                    "Error", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         return true;
@@ -205,11 +200,27 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Table \"category\" could not be created.",
-                    "Error", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         return true;
+    }
+
+    public static boolean aUserExists() {
+        Connection conn = getConnection();
+        if (!checkTable("users")) return false;
+        ResultSet rs = null;
+        int count = 0;
+        try {
+            String checkForUsers = "SELECT COUNT(*) FROM users";
+            PreparedStatement checkStmt = conn.prepareStatement(checkForUsers);
+            // Execute the query to check if any entry in "users" table exists
+            rs = checkStmt.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return count>0;
     }
 
 }

@@ -28,29 +28,6 @@ public class GUI_Menu extends JMenuBar implements GUI_Settings_Variables{
 		setFont(GUI_ElementCreator.newFont(this.getFont(), txtSize_JMenuBar));
 		a = new GUI_Menu_Actions();
 
-		JMenu jmFile = GUI_ElementCreator.newJMenu("File");
-		jmFile.setMnemonic('F');
-		JMenuItem jmiSave = GUI_ElementCreator.newJMenuItem("Save");
-		jmiSave.setMnemonic('v');
-		jmFile.add(jmiSave);
-		JMenuItem jmiLoad = GUI_ElementCreator.newJMenuItem("Load");
-		jmiLoad.setMnemonic('L');
-		jmFile.add(jmiLoad);
-		jmFile.add(new JSeparator());
-		JMenuItem jmiExit = GUI_ElementCreator.newJMenuItem("Exit");
-		jmiExit.setMnemonic('E');
-		jmFile.add(jmiExit);
-		add(jmFile);
-		jmiExit.addActionListener(a);
-
-
-		
-		
-		JMenu jmAction = GUI_ElementCreator.newJMenu("Transactions" );
-		jmAction.setMnemonic('T');
-		jmAction.addActionListener(a);
-
-
 		JMenu jmVMenu = GUI_ElementCreator.newJMenu("Menu");
 		jmVMenu.setMnemonic('M');
 
@@ -84,20 +61,17 @@ public class GUI_Menu extends JMenuBar implements GUI_Settings_Variables{
 		jmiSettings.addActionListener(a);
 		jmVMenu.add(jmiSettings);
 
-		JMenuItem jmiLogOuut = GUI_ElementCreator.newJMenuItem("LogOut" );
+		JMenuItem jmiAbout = GUI_ElementCreator.newJMenuItem("About");
+		jmiAbout.setMnemonic('A');
+		jmiAbout.addActionListener(a);
+		jmVMenu.add(jmiAbout);
+
+		JMenuItem jmiLogOuut = GUI_ElementCreator.newJMenuItem("Log Out and Exit" );
 		jmiLogOuut.addActionListener(a);
 		jmiLogOuut.setMnemonic('O');
 		jmVMenu.add(jmiLogOuut);
 
 		add(jmVMenu);
 
-		JMenu jmHelp = GUI_ElementCreator.newJMenu("Help" );
-		jmHelp.setMnemonic('H');
-
-		JMenuItem jmiAbout = GUI_ElementCreator.newJMenuItem("About");
-		jmiAbout.setMnemonic('A');
-		jmiAbout.addActionListener(a);
-		jmHelp.add(jmiAbout);
-		add(jmHelp);
 	}
 }

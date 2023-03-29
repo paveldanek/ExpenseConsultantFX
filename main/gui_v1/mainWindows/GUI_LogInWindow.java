@@ -17,7 +17,8 @@ public class GUI_LogInWindow extends JFrame  implements GUI_LoginSignUpWiindows_
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         add(new GUI_LogInP(), BorderLayout.CENTER);
-        add(GUI_ElementCreator.newCopyRightsLabel(strCopyRigts), BorderLayout.SOUTH);
+        //add(GUI_ElementCreator.newCopyRightsLabel(strCopyRigts), BorderLayout.SOUTH);
+        add(new JLabel(strCopyRigts, JLabel.CENTER), BorderLayout.SOUTH);
         setVisible(true);
     }
     public static GUI_LogInWindow getInstance(){

@@ -72,8 +72,6 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         selectedItem = jcmbBank.getSelectedIndex();
 
         if((jcmbBank.getSelectedItem()+"").trim().compareToIgnoreCase(PEC.NEW_BANK)==0){
-            JOptionPane.showOptionDialog(null, "New Bank Window will be created soon", "New Bank",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, JOptionPane.YES_OPTION);
             GUI_NewBankWindow.getInstance().showNewBankWindow();
             GUI_NewAccountWindow.getInstance().hideNewAccntWindow();
         }
@@ -90,8 +88,8 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         msg+="\n";
         msg+="After Clicking Yes button this account will be added to your accounts";
         int answr = JOptionPane.showOptionDialog(null, msg, "Adding and Storing Account!",
-                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
-        if(answr == JOptionPane.YES_OPTION){
+                JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
+        if(answr == JOptionPane.OK_OPTION){
 
             new NewAccountProgrammableHandler(jtfAcctNum.getText().trim(), jtfAcctNick.getText().trim(),
                     (jcmbBank.getSelectedItem()+"").trim());

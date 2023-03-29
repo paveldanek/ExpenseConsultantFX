@@ -13,7 +13,7 @@ public class NewBankProgrammableHandler {
         GUI_NewAccountP.addAccountNickToComboBox(strBank );
         GUI_ManualEntryTemporaialHolder.getInstance().addBankAsUnstored(strBank);
 
-        showNewBankEntryInfo();
+        //showNewBankEntryInfo();
     }
     private void showNewBankEntryInfo(){
         String regInfo = "User New Bank Info:\nBank name --> " + strBank;
