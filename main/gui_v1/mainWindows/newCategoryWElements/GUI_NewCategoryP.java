@@ -80,12 +80,15 @@ public class GUI_NewCategoryP extends JPanel implements GUI_Settings_Variables, 
 
     private void processAddCategoryBtnClick() {
         String categoryName = jtfCategoryName.getText().trim() ;
-        if( categoryName.compareToIgnoreCase(GUI_ElementsDataLoader.getNCHelpMsgs().newCategoryNameInputHelpMsg())==0 || categoryName.trim().compareToIgnoreCase("")==0 ) {
+        if( categoryName.compareToIgnoreCase(GUI_ElementsDataLoader.getNCHelpMsgs().
+                newCategoryNameInputHelpMsg())==0 || categoryName.trim().compareToIgnoreCase("")==0 ) {
             showCategoryNotEnteredMsg();
+            /*
         }else if(GUI_ManualEntryTemporaialHolder.getInstance().isCategoryInUnsavedList(categoryName)){
             showAlreadyEnteredCategoryMsg();
         }else  if(GUI_ElementsOptionLists.getInstance().isCategoryExist(categoryName)){
             showCategoryExistsMMsg();
+            */
         }else {
             new NewCategoryProgrammableHandler(categoryName);
             GUI_ElementsOptionLists.getInstance().addTransactionCategoryToList(categoryName);

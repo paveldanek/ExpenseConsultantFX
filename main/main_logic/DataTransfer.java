@@ -1,11 +1,11 @@
 package main_logic;
 
 import entities.Transaction;
+import gui_v1.mainWindows.manualEntryWElements.GUI_ManualTransactionsEntryP;
+import gui_v1.mainWindows.newAccountWElements.GUI_NewAccountP;
 import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataTransfer {
 
@@ -34,9 +34,10 @@ public class DataTransfer {
 	private String question2;
 	private String answer1;
 	private String answer2;
-	private GUI_RecordsBoxP windowHolder;
-	private JTable tableHolder;
-
+	private GUI_RecordsBoxP windowHolder = null;
+	private JTable recordsTableHolder = null;
+	private GUI_ManualTransactionsEntryP manualEntryWindowHolder = null;
+	private GUI_NewAccountP newAccountWindowHolder = null;
 
 	// ... Both GUI programmers and LOGIC programmers are allowed to add fields and
 	// corresponding methods to convey functionality back and forth between LOGIC
@@ -73,13 +74,25 @@ public class DataTransfer {
 		// ...
 	}
 
-	public void setWindowHolder(GUI_RecordsBoxP holder) { windowHolder = holder; }
-
 	public GUI_RecordsBoxP getWindowHolder() { return windowHolder;	}
 
-	public void setTableHolder(JTable holder) { tableHolder = holder; }
+	public void setWindowHolder(GUI_RecordsBoxP holder) { windowHolder = holder; }
 
-	public JTable getTableHolder() { return tableHolder; }
+	public JTable getRecordsTableHolder() { return recordsTableHolder; }
+
+	public void setRecordsTableHolder(JTable holder) { recordsTableHolder = holder; }
+
+	public GUI_ManualTransactionsEntryP getManualEntryWindowHolder() { return manualEntryWindowHolder; }
+
+	public void setManualEntryWindowHolder(GUI_ManualTransactionsEntryP manualEntryWindowHolder) {
+		this.manualEntryWindowHolder = manualEntryWindowHolder;
+	}
+
+	public GUI_NewAccountP getNewAccountWindowHolder() { return newAccountWindowHolder; }
+
+	public void setNewAccountWindowHolder(GUI_NewAccountP newAccountWindowHolder) {
+		this.newAccountWindowHolder = newAccountWindowHolder;
+	}
 
 	public String getTDate() {
 		return tDate;

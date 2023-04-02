@@ -36,8 +36,8 @@ public class TransactionList {
      * Method allows to add a single transaction at the beginning or at the end,
      * of the list, as long as its date is <= the first date, or >= the last date
      * in the list. Another condition is that the added Transaction's reference
-     * number must NOT be present in the list yet.
-     *
+     * number or its description/name (in case the ref. number is missing) must
+     * NOT be present in the list yet.
      * @param transaction - the Transaction being added
      * @return TRUE - if everything goes well FALSE - if there's trouble and
      *         Transaction has NOT been added
@@ -48,7 +48,8 @@ public class TransactionList {
             this.to = transaction.getPostedDate();
             return transactionList.add(transaction);
         }
-        if (isInTheList(transaction.getRefNumber())) return false;
+        if ((transaction.getRefNumber().length()==0 && isInTheList(transaction.getDescription()))
+                || isInTheList(transaction.getRefNumber())) return false;
         if (transaction.getPostedDate().compareTo(this.from)>0 &&
                 transaction.getPostedDate().compareTo(this.to)<0) return false;
         else if (transaction.getPostedDate().compareTo(this.from)<0  ||
@@ -76,7 +77,8 @@ public class TransactionList {
             this.to = transaction.getPostedDate();
             return transactionList.add(transaction);
         }
-        if (isInTheList(transaction.getRefNumber())) return false;
+        if ((transaction.getRefNumber().length()==0 && isInTheList(transaction.getDescription()))
+                || isInTheList(transaction.getRefNumber())) return false;
         if (transaction.getPostedDate().compareTo(this.from)>0 &&
                 transaction.getPostedDate().compareTo(this.to)<0) return false;
         else if (transaction.getPostedDate().compareTo(this.from)<=0  ||
@@ -94,13 +96,30 @@ public class TransactionList {
     /**
      * Removes a Transaction, identified by its reference number, from the list.
      *
-     * @param refNumber - a reference number of the Transaction to be removed
+     * @param identifier - a reference number of the Transaction to be removed;
+     *                   if not found, the identifier will be searched for as the
+     *                   Transaction description (name)
      * @return TRUE - if everything goes well FALSE - if there's trouble and
      *         Transaction has NOT been removed
      */
-    public boolean remove(String refNumber) {
+    public boolean remove(String identifier) {
         for (int i = 0; i < transactionList.size(); i++) {
-            if (transactionList.get(i).getRefNumber().equalsIgnoreCase(refNumber)) {
+            if (transactionList.get(i).getRefNumber().equalsIgnoreCase(identifier)) {
+                if (transactionList.size() == 1) {
+                    this.from = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+                    this.to = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
+                } else {
+                    if (i == 0) this.from = transactionList.get(1).getPostedDate();
+                    if (i == transactionList.size() - 1)
+                        this.to = transactionList.get(transactionList.size() - 2).getPostedDate();
+                }
+                return transactionList.remove(transactionList.get(i));
+            }
+        }
+        //if reference number has not been found, the method will try to compare
+        //the identifier against Transaction descriptions
+        for (int i = 0; i < transactionList.size(); i++) {
+            if (transactionList.get(i).getDescription().equalsIgnoreCase(identifier)) {
                 if (transactionList.size() == 1) {
                     this.from = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
                     this.to = Transaction.returnCalendarFromOFX(STR_DATE_MIN);
@@ -117,13 +136,20 @@ public class TransactionList {
 
     /**
      * Finds a Transaction, identified by its reference number, in the list.
-     * @param refNumber - a reference number of the Transaction searched for
+     * @param identifier - a reference number of the Transaction searched for;
+     *                   if not found, the identifier will be searched for as
+     *                   the Transaction description (name)
      * @return TRUE - if Transaction was found in the list
      *         FALSE - if Transaction is not in the list
      */
-    public boolean isInTheList(String refNumber) {
+    public boolean isInTheList(String identifier) {
         for (Transaction transaction : transactionList) {
-            if (transaction.getRefNumber().equalsIgnoreCase(refNumber)) {
+            if (transaction.getRefNumber().equalsIgnoreCase(identifier)) {
+                return true;
+            }
+        }
+        for (Transaction transaction : transactionList) {
+            if (transaction.getDescription().equalsIgnoreCase(identifier)) {
                 return true;
             }
         }

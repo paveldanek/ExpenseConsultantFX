@@ -208,6 +208,13 @@ public class PEC {
 		return false;
 	}
 
+	public static boolean isTextInList(String text, String[] list) {
+		for (String item : list) {
+			if (item.compareToIgnoreCase(text)==0) return true;
+		}
+		return false;
+	}
+
 	public static String createAcctIdentifier(String acctNick, String acctNum, String bankName) {
 		String output = "";
 		if (acctNick.length()>0) output += acctNick;
@@ -295,6 +302,7 @@ public class PEC {
 				tList.clearTransactionList();
 			}
 			// set up a new account, clear the table; the following is temporary
+			// DO SIMILAR FOR MANUAL ENTRY!!!
 			String[] tempAccounts = new String[(allAccounts.length+1)];
 			System.arraycopy(allAccounts, 0, tempAccounts, 0, allAccounts.length);
 			allAccounts = tempAccounts;

@@ -42,6 +42,10 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
         return  isTextInList(category, transactionCategoriesList);
     }
 
+    public boolean isAccountExist(String acctNick) {
+        return  isTextInList(acctNick, acctNicksList);
+    }
+
     public void addTransactionCategoriessToList(String[] transactionCategoriesArr) {
         if(transactionCategoriesArr==null || transactionCategoriesArr.length<0){
             return;
@@ -56,7 +60,10 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
     }
     public void addTransactionCategoryToList(String transactionCategory) {
         if (isCategoryExist(transactionCategory)) return;
-        transactionCategoriesList.add(bankList.size()-1, transactionCategory);
+        if (transactionCategoriesList.size()>1)
+            transactionCategoriesList.add(transactionCategoriesList.size()-2, transactionCategory);
+        else if (transactionCategoriesList.size()==1)
+            transactionCategoriesList.add(transactionCategoriesList.size()-1, transactionCategory);
     }
     public  void addBanksToList(String[] banks){
         if(banks==null || banks.length<0){
@@ -71,6 +78,7 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
     public  void addBankToList(String bank){
         bankList.add(bankList.size()-1, bank);
     }
+
     public  void addAccntNicksToList(String[] accountNicks){
         if(accountNicks==null || accountNicks.length<0){
             return;

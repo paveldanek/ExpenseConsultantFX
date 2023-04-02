@@ -38,6 +38,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
             }
              */
+            GUI_NewAccountWindow.getInstance().disposeNewAccntWindow();
+            GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
     };
 
@@ -52,6 +54,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                GUI_RecordsWindow.getInstance().showRecordsWindow();
            }
             */
+           GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
+           GUI_RecordsWindow.getInstance().showRecordsWindow();
        }
    };
     WindowListener w3 = new WindowAdapter() {
@@ -65,6 +69,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_NewAccountWindow.getInstance().showNewAccntWindow();
             }
              */
+            GUI_NewBankWindow.getInstance().disposeNewBankWindow();
+            GUI_NewAccountWindow.getInstance().showNewAccntWindow();
         }
     };
     WindowListener w4 = new WindowAdapter() {
@@ -78,6 +84,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
             }
              */
+            GUI_NewCategoryWindow.getInstance().disposeNewCategoryWindow();
+            GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
     };
     WindowListener w5 = new WindowAdapter() {
@@ -91,6 +99,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_RecordsWindow.getInstance().showRecordsWindow();
             }
              */
+            GUI_NewCategoryWindow.getInstance().disposeNewCategoryWindow();
+            GUI_RecordsWindow.getInstance().showRecordsWindow();
         }
     };
 }

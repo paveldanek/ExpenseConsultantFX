@@ -9,6 +9,7 @@ import gui_v1.mainWindows.GUI_NewAccountWindow;
 import gui_v1.mainWindows.GUI_NewBankWindow;
 import gui_v1.settings.GUI_Settings_Variables;
 import main_logic.PEC;
+import main_logic.Request;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,11 +23,11 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
     private static int selectedItem;
 
 
-    private static JComboBox<String>  jcmbBank;
+    private static JComboBox<String> jcmbBank;
     private JTextField jtfAcctNum;
     private JTextField jtfAcctNick;
     private JButton jbtnAdd;
-
+    private JPanel pBox;
 
     private void init(){
         jcmbBank = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getBanksList());
@@ -42,7 +43,7 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
 
         setLayout(new BorderLayout());
         add(GUI_ElementCreator.newTitle("Enter New Account Info"), BorderLayout.NORTH);
-        JPanel pBox = new JPanel(new GridLayout(3,2));
+        pBox = new JPanel(new GridLayout(3,2));
         pBox.add(GUI_ElementCreator.newTextLabel("Account #:"));
         pBox.add(jtfAcctNum);
         pBox.add(GUI_ElementCreator.newTextLabel("Account Nick:"));
@@ -57,7 +58,8 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         pBox.requestFocusInWindow();
         jbtnAdd.setFocusTraversalPolicyProvider(true);
 //        pBox.setRequestFocusEnabled(true);
-
+        Request r = Request.instance();
+        r.setNewAccountWindowHolder(this);
     }
 
     @Override
@@ -70,14 +72,13 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
     }
     private void processBankSelection(){
         selectedItem = jcmbBank.getSelectedIndex();
-
         if((jcmbBank.getSelectedItem()+"").trim().compareToIgnoreCase(PEC.NEW_BANK)==0){
             GUI_NewBankWindow.getInstance().showNewBankWindow();
             GUI_NewAccountWindow.getInstance().hideNewAccntWindow();
         }
     }
     private void processAddBtnClick(){
-
+        /*
         String msg = "Do you really want to save this account:";
         msg+="\n";
         msg+="Account #: "+ jtfAcctNum.getText().trim();
@@ -90,19 +91,29 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         int answr = JOptionPane.showOptionDialog(null, msg, "Adding and Storing Account!",
                 JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
         if(answr == JOptionPane.OK_OPTION){
-
+        */
             new NewAccountProgrammableHandler(jtfAcctNum.getText().trim(), jtfAcctNick.getText().trim(),
                     (jcmbBank.getSelectedItem()+"").trim());
-
             GUI_NewAccountWindow.getInstance().hideNewAccntWindow();
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
-        } else {
-        }
+          /* } */
     }
-    public static void addAccountNickToComboBox(String acctNick) {
-        jcmbBank.insertItemAt(acctNick, jcmbBank.getItemCount() - 1);
-        jcmbBank.setSelectedItem(acctNick);
+
+    public void addBankToComboBox(String bank) {
+        JComboBox<String> oldBank = jcmbBank;
+        if (!GUI_ElementsOptionLists.getInstance().isBankExist(bank))
+            GUI_ElementsOptionLists.getInstance().addBankToList(bank);
+        jcmbBank = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getBanksList());
+        jcmbBank.addActionListener(this);
+        jcmbBank.setSelectedItem(bank);
+        pBox.remove(oldBank);
+        pBox.add(jcmbBank, 5);
     }
+
+    public void setSelectedBank(String bank) {
+        jcmbBank.setSelectedItem(bank);
+    }
+
     @Override
     public Component getComponent() {
         return null;

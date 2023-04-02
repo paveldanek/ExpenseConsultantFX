@@ -7,8 +7,6 @@ import main_logic.Result;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.text.DecimalFormat;
 import java.util.ListIterator;
@@ -65,7 +63,7 @@ public class RecordsTable  extends JPanel {
             }
         }
         Request req = Request.instance();
-        req.setTableHolder(instance);
+        req.setRecordsTableHolder(instance);
     }
 
 

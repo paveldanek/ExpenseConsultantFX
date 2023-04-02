@@ -10,14 +10,11 @@ import java.awt.event.MouseEvent;
 import java.util.ListIterator;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.data_loaders.GUI_ElementsDataLoader;
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
-import gui_v1.mainWindows.GUI_ManualEntryWindow;
 import gui_v1.mainWindows.GUI_NewCategoryWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.settings.GUI_Settings_Variables;
@@ -99,7 +96,7 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 		add(jpRecordsDisplayBoxP, BorderLayout.CENTER);
 		add(new RecordsNavigationButtonsP(), BorderLayout.SOUTH);
 		Request r = Request.instance();
-		table = r.getTableHolder();
+		table = r.getRecordsTableHolder();
 		DefaultTableModel dm = (DefaultTableModel) table.getModel();
 		table.addMouseListener(new MouseAdapter() {
 			@Override
@@ -117,31 +114,38 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 	}
 
 	public void updateRecordWindowAcctMenu(String acctNick) {
-		jpRecordsActionControlsBoxP.remove(jcmbCategory);
-		jpRecordsActionControlsBoxP.remove(catLabel);
-		jpRecordsActionControlsBoxP.remove(jcmbAccount);
-		GUI_ElementsOptionLists.getInstance().addAccntNickToList(acctNick);
-		jcmbAccount = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getAccountNicksList());
-		jcmbAccount.removeItemAt(jcmbAccount.getItemCount()-1);
-		jcmbAccount.setSelectedItem(acctNick);
-		jpRecordsActionControlsBoxP.add(jcmbAccount);
+		JComboBox<String> oldAccount = jcmbAccount;
+		if (!GUI_ElementsOptionLists.getInstance().isAccountExist(acctNick))
+			GUI_ElementsOptionLists.getInstance().addAccntNickToList(acctNick);
+		jcmbAccount = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getAccountNicksList());
+		if (jcmbAccount.getItemAt(DEFAULT_SELECTED_ITEM).
+				compareToIgnoreCase(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg())!=0)
+			jcmbAccount.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
 		jcmbAccount.addActionListener(this);
-		jpRecordsActionControlsBoxP.add(catLabel);
-		jpRecordsActionControlsBoxP.add(jcmbCategory);
-		jcmbCategory.addActionListener(this);
+		jcmbAccount.setSelectedItem(acctNick);
+		jpRecordsActionControlsBoxP.remove(oldAccount);
+		jpRecordsActionControlsBoxP.add(jcmbAccount, 1); // maybe the number is OK
 	}
 
 	public void updateRecordWindowCatMenu(String category) {
-		jpRecordsActionControlsBoxP.remove(jcmbCategory);
-		GUI_ElementsOptionLists.getInstance().addTransactionCategoryToList(category);
-		jcmbCategory = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getTransCategoryist());
-		jcmbCategory.setSelectedItem(category);
-		jpRecordsActionControlsBoxP.add(jcmbCategory);
+		JComboBox<String> oldCategory = jcmbCategory;
+		if (!GUI_ElementsOptionLists.getInstance().isCategoryExist(category))
+			GUI_ElementsOptionLists.getInstance().addTransactionCategoryToList(category);
+		jcmbCategory = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getTransCategoryist());
+		if (jcmbCategory.getItemAt(DEFAULT_SELECTED_ITEM).
+				compareToIgnoreCase(GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg())!=0)
+			jcmbCategory.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
 		jcmbCategory.addActionListener(this);
+		jcmbCategory.setSelectedItem(category);
+		jpRecordsActionControlsBoxP.remove(oldCategory);
+		jpRecordsActionControlsBoxP.add(jcmbCategory, 3); // maybe the number is OK
+	}
+
+	public void setSelectedCategory(String category) {
+		jcmbCategory.setSelectedItem(category);
 	}
 
 	private void processCategorySelection() {
-		int selectedIndex =  jcmbCategory.getSelectedIndex();
 		if ((jcmbCategory.getSelectedItem() + "").trim().
 				compareToIgnoreCase(jcmbCategory.getItemAt(jcmbCategory.getItemCount()-1)) == 0) {
 			GUI_NewCategoryWindow.getInstance().showNewCategoryFromRecordsWindow();

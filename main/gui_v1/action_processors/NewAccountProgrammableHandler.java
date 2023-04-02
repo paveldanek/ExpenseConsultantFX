@@ -1,10 +1,11 @@
 package gui_v1.action_processors;
 
 import javax.swing.*;
+
+import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import main_logic.PEC;
 import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
-
-import static gui_v1.mainWindows.manualEntryWElements.GUI_ManualTransactionsEntryP.addAccountNickToComboBox;
+import main_logic.Request;
 
 public class NewAccountProgrammableHandler {
     private String strAcctNum;
@@ -14,10 +15,21 @@ public class NewAccountProgrammableHandler {
         strAcctNum = _strAcctNum;
         strAccntNick = _strAccntNick;
         strBank = _strBank;
-        GUI_ManualEntryTemporaialHolder.getInstance().
-                addAcctNickAsUnstored(PEC.instance().createAcctIdentifier(_strAccntNick, _strAcctNum, _strBank));
-        addAccountNickToComboBox(PEC.instance().createAcctIdentifier(_strAccntNick, _strAcctNum, _strBank));
-        //showNewManualEntryInfo();
+        String acctIdentifier = PEC.instance().createAcctIdentifier(_strAccntNick, _strAcctNum, _strBank);
+        Request r = Request.instance();
+        r.setAccountNumber(strAcctNum);
+        r.setAccountNick(strAccntNick);
+        r.setBankName(strBank);
+        if (PEC.instance().isTextInList(acctIdentifier,
+                GUI_ElementsOptionLists.getInstance().getAccountNicksList())) {
+            JOptionPane.showMessageDialog(null, "This account alredy exists.",
+                    "Info", JOptionPane.INFORMATION_MESSAGE);
+            r.getManualEntryWindowHolder().setSelectedAccount(acctIdentifier);
+        } else {
+            //GUI_ManualEntryTemporaialHolder.getInstance().addAcctNickAsUnstored(acctIdentifier);
+            GUI_ElementsOptionLists.getInstance().addAccntNickToList(acctIdentifier);
+            r.getManualEntryWindowHolder().addAccountNickToComboBox(acctIdentifier);
+        }
     }
     private void showNewManualEntryInfo(){
         String regInfo = "User New Account Info:\nAccount # --> "+ strAcctNum+ "\nAccount NickName --> " + strAccntNick
