@@ -361,7 +361,7 @@ public class PEC {
 		String acctNum = OFXParser.getAcctNumber();
 		int acctPos = accountPosition("", acctNum);
 		if (acctPos==-1) {
-			if (currentUserHasAnyAccount()) {
+			if (tList.size()>0) {
 				uploadCurrentList();
 				tList.clearTransactionList();
 			}
