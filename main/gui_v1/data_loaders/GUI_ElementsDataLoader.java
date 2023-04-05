@@ -52,7 +52,7 @@ public class GUI_ElementsDataLoader implements GUI_Routines {
     public static String[] newCategoryElements_HelpMessages = new String[]{"",""};
 
     public static String[] newAccountElements_HelpMessages = new String[]{"","",
-            ""};
+            "Select Bank"};
     private static String bSelectActionOption;
     private static  String[]  availableBanks;
     private static String anSelectActionOption;

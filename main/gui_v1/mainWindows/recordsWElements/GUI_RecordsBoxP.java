@@ -11,10 +11,12 @@ import java.util.ListIterator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.data_loaders.GUI_ElementsDataLoader;
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
+import gui_v1.mainWindows.GUI_ManualEntryWindow;
 import gui_v1.mainWindows.GUI_NewCategoryWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.settings.GUI_Settings_Variables;
@@ -97,7 +99,6 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 		add(new RecordsNavigationButtonsP(), BorderLayout.SOUTH);
 		Request r = Request.instance();
 		table = r.getRecordsTableHolder();
-		DefaultTableModel dm = (DefaultTableModel) table.getModel();
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent evt) {
@@ -105,8 +106,8 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 					int row = table.rowAtPoint(evt.getPoint());
 					int col = table.columnAtPoint(evt.getPoint());
 					if (row >= 0 && col >= 0) {
-						PEC.instance().changeCategoryToActive((String) dm.getValueAt(row, 1));
-						dm.setValueAt(PEC.instance().getActiveCategory(), row, 5);
+						PEC.instance().changeCategoryToActive((String) table.getValueAt(row, 1));
+						table.setValueAt(PEC.instance().getActiveCategory(), row, 5);
 					}
 				}
 			}
@@ -117,10 +118,10 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 		JComboBox<String> oldAccount = jcmbAccount;
 		if (!GUI_ElementsOptionLists.getInstance().isAccountExist(acctNick))
 			GUI_ElementsOptionLists.getInstance().addAccntNickToList(acctNick);
-		jcmbAccount = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getAccountNicksList());
-		if (jcmbAccount.getItemAt(DEFAULT_SELECTED_ITEM).
-				compareToIgnoreCase(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg())!=0)
-			jcmbAccount.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
+		String[] nicksListTemp = GUI_ElementsOptionLists.getInstance().getAccountNicksList();
+		String[] nicksList = new String[nicksListTemp.length-1];
+		System.arraycopy(nicksListTemp, 0, nicksList, 0, nicksListTemp.length-1);
+		jcmbAccount = GUI_ElementCreator.newJComboBox(nicksList);
 		jcmbAccount.addActionListener(this);
 		jcmbAccount.setSelectedItem(acctNick);
 		jpRecordsActionControlsBoxP.remove(oldAccount);
@@ -148,6 +149,7 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 	private void processCategorySelection() {
 		if ((jcmbCategory.getSelectedItem() + "").trim().
 				compareToIgnoreCase(jcmbCategory.getItemAt(jcmbCategory.getItemCount()-1)) == 0) {
+			jcmbCategory.setSelectedItem(PEC.instance().getActiveCategory());
 			GUI_NewCategoryWindow.getInstance().showNewCategoryFromRecordsWindow();
 			GUI_RecordsWindow.getInstance().hideRecordsWindoww();
 		} else if ((jcmbCategory.getSelectedItem() + "").trim().

@@ -3,6 +3,8 @@ package main_logic;
 import entities.Transaction;
 import gui_v1.mainWindows.manualEntryWElements.GUI_ManualTransactionsEntryP;
 import gui_v1.mainWindows.newAccountWElements.GUI_NewAccountP;
+import gui_v1.mainWindows.newBankWElements.GUI_NewBankP;
+import gui_v1.mainWindows.newCategoryWElements.GUI_NewCategoryP;
 import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 
 import javax.swing.*;
@@ -17,7 +19,7 @@ public class DataTransfer {
 	private String tMemo;
 	private Double tAmount;
 	private String tCat;
-	// parse OFX file fields
+	// parse OFX file fields/ manual entry
 	private String fileWithPath;
 	private String accountNick;
 	private String accountNumber;
@@ -34,10 +36,13 @@ public class DataTransfer {
 	private String question2;
 	private String answer1;
 	private String answer2;
-	private GUI_RecordsBoxP windowHolder = null;
+	// fields to hold references to instantiated GUI objects
+	private GUI_RecordsBoxP mainWindowHolder = null;
 	private JTable recordsTableHolder = null;
 	private GUI_ManualTransactionsEntryP manualEntryWindowHolder = null;
 	private GUI_NewAccountP newAccountWindowHolder = null;
+	private GUI_NewCategoryP newCategoryWindowHolder = null;
+	private GUI_NewBankP newBankWindowHolder = null;
 
 	// ... Both GUI programmers and LOGIC programmers are allowed to add fields and
 	// corresponding methods to convey functionality back and forth between LOGIC
@@ -74,9 +79,9 @@ public class DataTransfer {
 		// ...
 	}
 
-	public GUI_RecordsBoxP getWindowHolder() { return windowHolder;	}
+	public GUI_RecordsBoxP getMainWindowHolder() { return mainWindowHolder;	}
 
-	public void setWindowHolder(GUI_RecordsBoxP holder) { windowHolder = holder; }
+	public void setMainWindowHolder(GUI_RecordsBoxP holder) { mainWindowHolder = holder; }
 
 	public JTable getRecordsTableHolder() { return recordsTableHolder; }
 
@@ -92,6 +97,18 @@ public class DataTransfer {
 
 	public void setNewAccountWindowHolder(GUI_NewAccountP newAccountWindowHolder) {
 		this.newAccountWindowHolder = newAccountWindowHolder;
+	}
+
+	public GUI_NewCategoryP getNewCategoryWindowHolder() { return newCategoryWindowHolder; }
+
+	public void setNewCategoryWindowHolder(GUI_NewCategoryP newCategoryWindowHolder) {
+		this.newCategoryWindowHolder = newCategoryWindowHolder;
+	}
+
+	public GUI_NewBankP getNewBankWindowHolder() { return newBankWindowHolder; }
+
+	public void setNewBankWindowHolder(GUI_NewBankP newBankWindowHolder) {
+		this.newBankWindowHolder = newBankWindowHolder;
 	}
 
 	public String getTDate() {
@@ -171,7 +188,8 @@ public class DataTransfer {
 		this.tMemo = transaction.getMemo();
 //		if (transaction.getAmount()<0) { this.tAmount = String.format("$%.2f", transaction.getAmount()); }
 //		else { this.tAmount = String.format("$ %.2f", transaction.getAmount()); }
-		this.tAmount = ((int)(transaction.getAmount() * 100))/100.0;
+		this.tAmount = transaction.getAmount();
+		//this.tAmount = ((int)(transaction.getAmount() * 100))/100.0;
 		this.tCat = transaction.getCategory();
 	}
 

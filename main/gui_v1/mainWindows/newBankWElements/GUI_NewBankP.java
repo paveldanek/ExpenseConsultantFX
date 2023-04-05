@@ -9,6 +9,7 @@ import gui_v1.mainWindows.GUI_NewAccountWindow;
 import gui_v1.mainWindows.GUI_NewBankWindow;
 import gui_v1.mainWindows.GUI_ShowingPupUpMsgAAbility;
 import gui_v1.settings.GUI_Settings_Variables;
+import main_logic.Request;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +22,8 @@ public class GUI_NewBankP extends JPanel implements GUI_Settings_Variables, Acti
     private JTextField jtfBankName;
     private JButton jbtnAdd;
     private void init(){
-        jtfBankName= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNBHelpMsgs().newBankNameInputHelpMsg());
+        jtfBankName= GUI_ElementCreator.newTextFieldWithHelp("");
+        //jtfBankName= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNBHelpMsgs().newBankNameInputHelpMsg());
         jbtnAdd = GUI_ElementCreator.newJButton("Add This Bank");
 
         jbtnAdd.addActionListener(this);
@@ -54,6 +56,8 @@ public class GUI_NewBankP extends JPanel implements GUI_Settings_Variables, Acti
                 jbtnAdd.requestFocusInWindow();
             }
         });
+        Request r = Request.instance();
+        r.setNewBankWindowHolder(this);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -62,9 +66,14 @@ public class GUI_NewBankP extends JPanel implements GUI_Settings_Variables, Acti
         }
     }
 
+    public void clearField() {
+        jtfBankName.setText("");
+    }
+
     AbstractAction a = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            clearField();
             GUI_NewBankWindow.getInstance().disposeNewBankWindow();
             GUI_NewAccountWindow.getInstance().showNewAccntWindow();
         }
@@ -72,16 +81,17 @@ public class GUI_NewBankP extends JPanel implements GUI_Settings_Variables, Acti
 
     private void processAddBankBtnClick() {
         String bankName = jtfBankName.getText().trim() ;
+        /*
         if( bankName.compareToIgnoreCase(GUI_ElementsDataLoader.getNBHelpMsgs().newBankNameInputHelpMsg())==0 ||
                 bankName.trim().compareToIgnoreCase("")==0 ) {
             showBankNotEnteredMsg();
-            /*
-        }else if(GUI_ManualEntryTemporaialHolder.getInstance().isBankInUnsavedList(bankName)){
+        } else */
+        if(GUI_ManualEntryTemporaialHolder.getInstance().isBankInUnsavedList(bankName)){
             showAlreadyEnteredBankMsg();
-        }else  if(GUI_ElementsOptionLists.getInstance().isBankExist(bankName)){
+        } else  if(GUI_ElementsOptionLists.getInstance().isBankExist(bankName)){
             showBankExistsMMsg();
-            */
         } else {
+            clearField();
             new NewBankProgrammableHandler(bankName);
             GUI_NewBankWindow.getInstance().disposeNewBankWindow();
             GUI_NewAccountWindow.getInstance().showNewAccntWindow();

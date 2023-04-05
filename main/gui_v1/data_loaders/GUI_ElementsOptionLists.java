@@ -1,5 +1,6 @@
 package gui_v1.data_loaders;
 import gui_v1.help_utils.GUI_Routines;
+import main_logic.PEC;
 
 import java.util.LinkedList;
 import java.util.MissingResourceException;
@@ -44,6 +45,18 @@ public class GUI_ElementsOptionLists implements GUI_Routines {
 
     public boolean isAccountExist(String acctNick) {
         return  isTextInList(acctNick, acctNicksList);
+    }
+
+    public int getBankListPosition(String bank) {
+        return PEC.instance().whereIsTextInList(bank, bankList);
+    }
+
+    public int getCategoryListPosition(String category) {
+        return PEC.instance().whereIsTextInList(category, transactionCategoriesList);
+    }
+
+    public int getAccountListPosition(String acctNick) {
+        return PEC.instance().whereIsTextInList(acctNick, acctNicksList);
     }
 
     public void addTransactionCategoriessToList(String[] transactionCategoriesArr) {

@@ -40,11 +40,9 @@ public class PEC {
 	// private main structure housing active Transaction data
 	// (no more than 3 months worth)
 	private TransactionList tList;
-	// these variables contain the date of the first and last transaction
-	// in each account of the authenticated user in the database, both initialized
-	// with STR_DATE_MIN of TransactionList.java (1900/01/01)--that way, if the
-	// database is empty, the parsing or manual entries can start anytime after that
-	// initial date
+
+	private String[][] manualEntries = new String[0][7];
+
 	private Calendar[] acctBeginDate = new Calendar[0];
 	private Calendar[] acctEndDate = new Calendar[0];
 	private String[] allBanks = {};
@@ -54,11 +52,6 @@ public class PEC {
 	private String activeCategory = OTHER_CATEGORY;
 	// array of booleans to remember if a particular column is sorted
 	// in a descending (or ascending) direction
-	private boolean[] descColumn = { true, true, true, true, true, true };
-	// sortedColumn indicates which column is active and sorted on screen
-	private int sortedColumn = Transaction.POSTED_DATE;
-	// current user (after authentication) will have their own space in the database,
-	// their own presets, and communicate with the system in their own, unique way
 
 	private int currentUserID = 0;
 	private String currentUserPass = "";
@@ -113,17 +106,6 @@ public class PEC {
 //		return list.listIterator();
 //	}
 // ...
-
-	/**
-	 * Sets all columns to be viewed in descending order, sets the sorted
-	 * column to go by as the one with the "date posted".
-	 */
-	private void resetView() {
-		for (int i = 0; i < descColumn.length; i++) {
-			descColumn[i] = true;
-		}
-		sortedColumn = Transaction.POSTED_DATE;
-	}
 
 	public int getCurrentUserID() { return currentUserID; }
 
@@ -215,6 +197,20 @@ public class PEC {
 		return false;
 	}
 
+	public static int whereIsTextInList(String text, LinkedList<String> list) {
+		for (int i=0; i<list.size(); i++) {
+			if (list.get(i).compareToIgnoreCase(text)==0) return i;
+		}
+		return -1;
+	}
+
+	public static int whereIsTextInList(String text, String[] list) {
+		for (int i=0; i<list.length; i++) {
+			if (list[i].compareToIgnoreCase(text)==0) return i;
+		}
+		return -1;
+	}
+
 	public static String createAcctIdentifier(String acctNick, String acctNum, String bankName) {
 		String output = "";
 		if (acctNick.length()>0) output += acctNick;
@@ -233,6 +229,13 @@ public class PEC {
 			}
 		}
 		return "";
+	}
+
+	public void addBankToList(String bankName) {
+		String[] tempBanks = new String[allBanks.length+1];
+		System.arraycopy(allBanks, 0, tempBanks, 0, allBanks.length);
+		tempBanks[tempBanks.length-1] = bankName;
+		allBanks = tempBanks;
 	}
 
 	/**
@@ -260,6 +263,67 @@ public class PEC {
 			}
 		}
 		return -1;
+	}
+
+	public void clearManualEntries() {
+		manualEntries = new String[0][7];
+	}
+
+	public void addManualEntry(String acctNick, Calendar date, String category) {
+		String [][] temp = new String[manualEntries.length+1][7];
+		System.arraycopy(manualEntries, 0, temp, 0, manualEntries.length);
+		manualEntries = temp;
+		manualEntries[manualEntries.length-1][0] = acctNick;
+		manualEntries[manualEntries.length-1][1] = Transaction.returnYYYYMMDDFromCalendar(date);
+		manualEntries[manualEntries.length-1][2] = "";
+		manualEntries[manualEntries.length-1][3] = "";
+		manualEntries[manualEntries.length-1][4] = "";
+		manualEntries[manualEntries.length-1][5] = "";
+		manualEntries[manualEntries.length-1][6] = category;
+	}
+
+	public void editManualEntry(int position, Request r) {
+		if (position<0 || position>=manualEntries.length) return;
+		manualEntries[position][0] = r.getAccountNick();
+		manualEntries[position][1] = r.getTDate();
+		manualEntries[position][2] = r.getTRef();
+		manualEntries[position][3] = r.getTDesc();
+		manualEntries[position][4] = r.getTMemo();
+		manualEntries[position][5] = String.valueOf(r.getTAmount());
+		manualEntries[position][6] = r.getTCat();
+	}
+
+	public void deleteManualEntry(int position) {
+		if (position<0 || position>=manualEntries.length) return;
+		if (manualEntries.length==0) return;
+		String [][] temp = new String[manualEntries.length-1][7];
+		System.arraycopy(manualEntries, 0, temp, 0, position);
+		System.arraycopy(manualEntries, position+1, temp, position, manualEntries.length-position-1);
+		manualEntries = temp;
+	}
+
+	public Result getManualEntry(int position) {
+		Result r = new Result();
+		if (manualEntries.length==0) return r;
+		r.setAccountNick(manualEntries[position][0]);
+		r.setTDate(manualEntries[position][1]);
+		r.setTRef(manualEntries[position][2]);
+		r.setTDesc(manualEntries[position][3]);
+		r.setTMemo(manualEntries[position][4]);
+		if (manualEntries[position][5].length()>0)
+			r.setTAmount(Double.parseDouble(manualEntries[position][5]));
+		r.setTCat(manualEntries[position][6]);
+		return r;
+	}
+
+	public int getManualEntrySize() {
+		return manualEntries.length;
+	}
+
+	public void changeManualEntryAccount(String accountNick) {
+		for (int i = 0; i < manualEntries.length; i++) {
+			manualEntries[i][0] = accountNick;
+		}
 	}
 
 	/**
@@ -309,10 +373,7 @@ public class PEC {
 			String newParsedNick = "My "+OFXParser.getAcctType();
 			allAccounts[allAccounts.length-1] = createAcctIdentifier(newParsedNick,
 					OFXParser.getAcctNumber(), OFXParser.getBankName());
-			String[] tempBanks = new String[allBanks.length+1];
-			System.arraycopy(allBanks, 0, tempBanks, 0, allBanks.length);
-			tempBanks[tempBanks.length-1] = OFXParser.getBankName();
-			allBanks = tempBanks;
+			addBankToList(OFXParser.getBankName());
 			activeAccount = allAccounts[allAccounts.length-1];
 			//GUI_ElementsOptionLists.getInstance().addAccntNickToList(activeAccount);
 			GUI_ElementsOptionLists.getInstance().addBankToList(OFXParser.getBankName());
@@ -328,8 +389,8 @@ public class PEC {
 			// if the parsed account is not the active account, fetch it and make it active
 			setActiveAccount(allAccounts[acctPos]);
 		}
+		uploadCurrentList();
 		if (mergeNewTList(parsedTlist)) {
-			uploadCurrentList();
 			return returnRListIterator();
 		}
 		else {
@@ -347,14 +408,12 @@ public class PEC {
 	private boolean mergeNewTList(TransactionList list) {
 		boolean change = false;
 		if (list==null) return change;
-		//System.out.println("POTENTIALLY ADDING "+list.size()+", active acct: "+activeAccount);
-		//for (int i = 0; i < allAccounts.length; i++) { System.out.println(allAccounts[i]); }
-		//System.out.println("\n");
-		//for (int i = 0; i < acctBeginDate.length; i++) { System.out.println(Transaction.returnYYYYMMDDFromCalendar
-		//		(acctBeginDate[i])+"-"+Transaction.returnYYYYMMDDFromCalendar(acctEndDate[i])); }
 		TransactionList resultTList = new TransactionList();
 		if (list.getStartDate().compareTo(getAcctBeginDate(activeAccount))<=0) {
-			// fetch the first 3-or-less-month chunk of the db and load it in tList
+			// fetch the first 3-or-less-month chunk of the db and load it in tList, if not there already
+			if (tList.getStartDate().compareTo(getAcctBeginDate(activeAccount))>0) {
+				tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[0]);
+			}
 			for (int j=0;j<tList.size();j++) resultTList.add(tList.get(j));
 			int i = list.size()-1;
 			// do this until the end of the parsedTList or beginning of the db
@@ -367,7 +426,10 @@ public class PEC {
 			tList = resultTList;
 			return change;
 		} else if (list.getEndDate().compareTo(getAcctEndDate(activeAccount))>=0) {
-			// fetch the last 3-or-less-month chunk of db and load it in tList
+			// fetch the last 3-or-less-month chunk of db and load it in tList, if not there already
+			if (tList.getEndDate().compareTo(getAcctEndDate(activeAccount))<0) {
+				tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[1]);
+			}
 			for (int i=0;i<tList.size();i++) resultTList.add(tList.get(i));
 			int i = 0;
 			while (i< list.size() &&
@@ -401,55 +463,23 @@ public class PEC {
 		return rList.listIterator();
 	}
 
-
-	/*
-	/**
-	 * Fetches the Transaction list, sorts it by the active column criterion
-	 * and distinguishes whether the data are in descending or ascending order.
-	 * @return the Result object list with all Transaction fields filled out
-	 */
-	/*
-	private ListIterator<Result> getNewView() {
-		ListIterator<Transaction> it = tList.sort(sortedColumn);
-		ArrayList<Result> resIt = new ArrayList<Result>();
-		if (descColumn[sortedColumn]) {
-			while (it.hasNext()) {
-				Result result = new Result();
-				result.setTFields(it.next());
-				resIt.add(result);
-			}
+	public boolean processManualEntries() {
+		if (manualEntries.length==0) return false;
+		if (isTextInList(manualEntries[0][0], allAccounts)) {
+			switchActiveAccount(manualEntries[0][0]);
 		} else {
-			while (it.hasNext()) { it.next(); }
-			while (it.hasPrevious()) {
-				Result result = new Result();
-				result.setTFields(it.previous());
-				resIt.add(result);
+			if (tList.size()>0) {
+				uploadCurrentList();
+				tList.clearTransactionList();
 			}
-		}
-		return resIt.listIterator();
-	}
-
-	/**
-	 * Switches the view between descending and ascending order.
-	 * @return new IteratorList to view
-	 */
-	/*
-	public ListIterator<Result> sortingOrientationSwitched() {
-		descColumn[sortedColumn] = !descColumn[sortedColumn];
-		return getNewView();
-	}
-	*/
-
-	public boolean processSingleManualEntry(Request request) {
-		int acctPos = accountPosition(request.getAccountNick(), "");
-		if (acctPos==-1) {
-			// set up a new account, clear the table; the following is temporary
 			String[] tempAccounts = new String[(allAccounts.length+1)];
 			System.arraycopy(allAccounts, 0, tempAccounts, 0, allAccounts.length);
 			allAccounts = tempAccounts;
-			allAccounts[allAccounts.length-1] =createAcctIdentifier(request.getAccountNick(),
-					request.getAccountNumber(), request.getBankName());
-			activeAccount = request.getAccountNick();
+			allAccounts[allAccounts.length-1] = manualEntries[0][0];
+			activeAccount = allAccounts[allAccounts.length-1];
+			if (getBankNameFromCurrAcctIdentifier().length()>0) {
+				GUI_ElementsOptionLists.getInstance().addBankToList(getBankNameFromCurrAcctIdentifier());
+			}
 			Calendar[] tempBegin = new Calendar[acctBeginDate.length+1];
 			Calendar[] tempEnd = new Calendar[acctEndDate.length+1];
 			System.arraycopy(acctBeginDate, 0, tempBegin, 0, acctBeginDate.length);
@@ -458,15 +488,20 @@ public class PEC {
 			tempEnd[tempEnd.length-1] = Transaction.returnCalendarFromYYYYMMDD(TransactionList.STR_DATE_MIN);
 			acctBeginDate = tempBegin;
 			acctEndDate = tempEnd;
-		} else {
-			// if the added account is not the active account, fetch it and make it active
-			setActiveAccount(request.getAccountNick());
 		}
-		Transaction newT = new Transaction(Transaction.returnCalendarFromYYYYMMDD(request.getTDate()),
-				request.getTRef(), request.getTDesc(), request.getTMemo(), request.getTAmount(), request.getTCat());
-		TransactionList list = new TransactionList();
-		list.add(newT);
-		return mergeNewTList(list);
+		// sort transactions by date, merge them in.
+		ArrayList<Transaction> list = new ArrayList<Transaction>();
+		ArrayList<Transaction> sortedList = new ArrayList<Transaction>();
+		for (int j=0; j<manualEntries.length; j++) {
+			Transaction newT = new Transaction(Transaction.returnCalendarFromYYYYMMDD(manualEntries[j][1]),
+					manualEntries[j][2], manualEntries[j][3], manualEntries[j][4],
+					Double.parseDouble(manualEntries[j][5]), manualEntries[j][6]);
+			list.add(newT);
+		}
+		sortedList = TransactionList.mergeSortByDate(list);
+		TransactionList temp = new TransactionList();
+		for (Transaction t : sortedList) { temp.add(t); }
+		return mergeNewTList(temp);
 	}
 
 	public ListIterator<Result> initialDBaseDownload() {
@@ -990,111 +1025,4 @@ public class PEC {
 			throw e;
 		}
 	}
-/*
-	// --------------------------------------------------------------------------
-	public String getTransactionHistory1(Request r) throws SQLException {
-		List<String> transactionHistories = new ArrayList<>();
-		String query = "SELECT transaction_history FROM transaction "
-				+ "WHERE user_id = ? AND transaction_date = ? AND account_nick = ?";
-		Connection connection = Connectivity.getConnection();
-
-		PreparedStatement stmt = connection.prepareStatement(query);
-
-
-		stmt.setInt(1, getCurrentUserID());
-		stmt.setString(2, r.getDate_range());
-		stmt.setString(3, r.getAccountNick());
-		ResultSet rs = stmt.executeQuery();
-
-		while (rs.next()) {
-			// Get the encrypted transaction history
-			String encryptedTransactionHistory = rs.getString("transaction_history");
-
-			// Decrypt the transaction history using the encryption algorithm
-			String decryptedTransactionHistory = decryptTransactionHistory(encryptedTransactionHistory);
-
-			// Add the decrypted transaction history to the list
-			transactionHistories.add(decryptedTransactionHistory);
-		}
-
-
-		return transactionHistories;
-	}
-
-
-	private String decryptTransactionHistory(String encryptedTransactionHistory) {
-		// Decrypt the transaction history using the encryption algorithm
-		// ...
-		String decryptedTransactionHistory="";
-		return decryptedTransactionHistory;
-	}
-
-
-
-
-
-	public String getTransactionHistory(Request r) throws SQLException, ParseException {
-		Connection connection = Connectivity.getConnection();
-		String transactionHistory = "";
-		int transactionId = Integer.parseInt(r.getParameter("transaction_id"));
-
-
-		// Create a database connection
-
-
-		// Get the date range and user_id for the specified transaction_id
-		PreparedStatement ps = connection.prepareStatement("SELECT date_range, user_id FROM transaction WHERE transaction_id = ?");
-		ps.setInt(1, transactionId);
-		ResultSet rs = ps.executeQuery();
-		rs.next();
-		String dateRange = rs.getString("date_range");
-		int userId = rs.getInt("user_id");
-
-		// Parse the date range string into its start and end date components
-		SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
-		String startDateStr = dateRange.substring(0, 8);
-		String endDateStr = dateRange.substring(8);
-		Date startDate = dateFormat.parse(startDateStr);
-		Date endDate = dateFormat.parse(endDateStr);
-
-		// Calculate the date 3 months prior to the start date
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(startDate);
-		cal.add(Calendar.MONTH, -3);
-		Date prevStartDate = cal.getTime();
-
-		// Retrieve the transaction history for the same user_id within the previous 3 months
-		ps = connection.prepareStatement("SELECT transaction_history FROM transaction WHERE user_id = ? AND transaction_date BETWEEN ? AND ? ORDER BY transaction_date DESC");
-		ps.setInt(1, userId);
-		ps.setString(2, dateFormat.format(prevStartDate));
-		ps.setString(3, endDateStr);
-		rs = ps.executeQuery();
-
-		// Concatenate the transaction histories into a single string
-		while (rs.next()) {
-			transactionHistory += rs.getString("transaction_history") + "\n";
-		}
-
-		// Close the database connection
-		connection.close();
-
-
-		return transactionHistory;
-	}
-
-	// ---------------------------------------------------------------------------------
-	 */
-
-	/*
-	public static void main(String[] args) {
-		Request request = Request.instance();
-		ListIterator<Result> it;
-		request.setFileWithPath("/Users/starnet/CreditCardSAMPLE.qfx");
-		System.out.println("Now parsing.");
-		it = PEC.instance().parseOFX(request);
-		while (it.hasNext()) {
-			System.out.println(it.next().getTDesc());
-		}
-	}
-	*/
 }

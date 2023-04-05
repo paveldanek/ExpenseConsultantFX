@@ -1,13 +1,10 @@
 package gui_v1.action_processors;
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
-import gui_v1.mainWindows.newCategoryWElements.GUI_NewCategoryP;
-import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 import main_logic.PEC;
 
 import javax.swing.*;
 
-import gui_v1.mainWindows.manualEntryWElements.GUI_ManualTransactionsEntryP;
 import main_logic.Request;
 
 
@@ -26,7 +23,7 @@ public class NewCategoryProgrammableHandler {
                 r.getManualEntryWindowHolder().addCategoryToComboBox(strCategory);
             GUI_ManualEntryTemporaialHolder.getInstance().addCategoryAsUnstored(strCategory);
             PEC.instance().addCategoryLocally(strCategory);
-            r.getWindowHolder().updateRecordWindowCatMenu(PEC.instance().getActiveCategory());
+            r.getMainWindowHolder().updateRecordWindowCatMenu(PEC.instance().getActiveCategory());
             //showNewCategoryEntryInfo();
         }
     }

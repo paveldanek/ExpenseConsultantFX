@@ -249,7 +249,7 @@ public class TransactionList {
 //
 //  --------------- sort by posted date -------------------------------------------
 
-    private ArrayList<Transaction> mergeByDate(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByDate(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).comparePostedDates(list2.get(0)) > 0) {
@@ -272,7 +272,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByDate(ArrayList<Transaction> list) {
+    public static ArrayList<Transaction> mergeSortByDate(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();
@@ -294,7 +294,7 @@ public class TransactionList {
 
 //  --------------- sort by reference number --------------------------------------
 
-    private ArrayList<Transaction> mergeByRef(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByRef(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).compareRefNumbers(list2.get(0)) > 0) {
@@ -317,7 +317,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByRef(ArrayList<Transaction> list) {
+    public static  ArrayList<Transaction> mergeSortByRef(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();
@@ -339,7 +339,7 @@ public class TransactionList {
 
 //  --------------- sort by description -------------------------------------------
 
-    private ArrayList<Transaction> mergeByDescription(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByDescription(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).compareDescriptions(list2.get(0)) > 0) {
@@ -362,7 +362,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByDescription(ArrayList<Transaction> list) {
+    public static  ArrayList<Transaction> mergeSortByDescription(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();
@@ -384,7 +384,7 @@ public class TransactionList {
 
 //  --------------- sort by memo --------------------------------------------------
 
-    private ArrayList<Transaction> mergeByMemo(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByMemo(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).compareMemos(list2.get(0)) > 0) {
@@ -407,7 +407,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByMemo(ArrayList<Transaction> list) {
+    public static ArrayList<Transaction> mergeSortByMemo(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();
@@ -429,7 +429,7 @@ public class TransactionList {
 
 //  --------------- sort by amount ------------------------------------------------
 
-    private ArrayList<Transaction> mergeByAmount(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByAmount(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).compareAmounts(list2.get(0)) > 0) {
@@ -452,7 +452,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByAmount(ArrayList<Transaction> list) {
+    public static ArrayList<Transaction> mergeSortByAmount(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();
@@ -474,7 +474,7 @@ public class TransactionList {
 
 //  --------------- sort by category ----------------------------------------------
 
-    private ArrayList<Transaction> mergeByCategory(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
+    private static ArrayList<Transaction> mergeByCategory(ArrayList<Transaction> list1, ArrayList<Transaction> list2) {
         ArrayList<Transaction> result = new ArrayList<Transaction>();
         while (list1.size() > 0 && list2.size() > 0) {
             if (list1.get(0).compareCategories(list2.get(0)) > 0) {
@@ -497,7 +497,7 @@ public class TransactionList {
         return result;
     }
 
-    private ArrayList<Transaction> mergeSortByCategory(ArrayList<Transaction> list) {
+    public static ArrayList<Transaction> mergeSortByCategory(ArrayList<Transaction> list) {
         ArrayList<Transaction> list1 = new ArrayList<Transaction>();
         ArrayList<Transaction> list2 = new ArrayList<Transaction>();
         int n = list.size();

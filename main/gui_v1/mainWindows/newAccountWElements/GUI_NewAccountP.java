@@ -7,6 +7,7 @@ import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import gui_v1.mainWindows.GUI_ManualEntryWindow;
 import gui_v1.mainWindows.GUI_NewAccountWindow;
 import gui_v1.mainWindows.GUI_NewBankWindow;
+import gui_v1.mainWindows.GUI_NewCategoryWindow;
 import gui_v1.settings.GUI_Settings_Variables;
 import main_logic.PEC;
 import main_logic.Request;
@@ -33,8 +34,10 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         jcmbBank = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getBanksList());
         jcmbBank.insertItemAt(GUI_ElementsDataLoader.getNAHelpMsgs().bankSelectionHelpMsg(),DEFAULT_SELECTED_ITEM);
         selectedItem = DEFAULT_SELECTED_ITEM;
-        jtfAcctNum= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNAHelpMsgs().accontInputHelpMsg());
-        jtfAcctNick= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNAHelpMsgs().nicknameInputHelpMsg());
+        jtfAcctNum= GUI_ElementCreator.newTextFieldWithHelp("");
+        jtfAcctNick= GUI_ElementCreator.newTextFieldWithHelp("");
+        //jtfAcctNum= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNAHelpMsgs().accontInputHelpMsg());
+        //jtfAcctNick= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNAHelpMsgs().nicknameInputHelpMsg());
         jbtnAdd = GUI_ElementCreator.newJButton("Add This Account");
     }
 
@@ -70,14 +73,17 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
             processBankSelection();
         }
     }
-    private void processBankSelection(){
-        selectedItem = jcmbBank.getSelectedIndex();
-        if((jcmbBank.getSelectedItem()+"").trim().compareToIgnoreCase(PEC.NEW_BANK)==0){
+    private void processBankSelection() {
+        if (jcmbBank.getSelectedIndex()==0) jcmbBank.setSelectedIndex(selectedItem);
+        else if((jcmbBank.getSelectedItem()+"").trim().
+                compareToIgnoreCase(jcmbBank.getItemAt(jcmbBank.getItemCount()-1))==0) {
+            jcmbBank.setSelectedIndex(selectedItem);
             GUI_NewBankWindow.getInstance().showNewBankWindow();
             GUI_NewAccountWindow.getInstance().hideNewAccntWindow();
-        }
+        } else selectedItem = jcmbBank.getSelectedIndex();
     }
-    private void processAddBtnClick(){
+
+    private void processAddBtnClick() {
         /*
         String msg = "Do you really want to save this account:";
         msg+="\n";
@@ -92,11 +98,18 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
                 JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
         if(answr == JOptionPane.OK_OPTION){
         */
-            new NewAccountProgrammableHandler(jtfAcctNum.getText().trim(), jtfAcctNick.getText().trim(),
-                    (jcmbBank.getSelectedItem()+"").trim());
+            String bank = (jcmbBank.getSelectedItem()+"").trim();
+            if (bank.compareToIgnoreCase(GUI_ElementsDataLoader.newAccountElements_HelpMessages[2])==0) { bank = ""; }
+            new NewAccountProgrammableHandler(jtfAcctNum.getText().trim(), jtfAcctNick.getText().trim(), bank);
+            clearFields();
             GUI_NewAccountWindow.getInstance().hideNewAccntWindow();
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
           /* } */
+    }
+
+    public void clearFields() {
+        jtfAcctNum.setText("");
+        jtfAcctNick.setText("");
     }
 
     public void addBankToComboBox(String bank) {
@@ -114,6 +127,8 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
         jcmbBank.setSelectedItem(bank);
     }
 
+    public void setDefaultSelectedBank() { jcmbBank.setSelectedIndex(DEFAULT_SELECTED_ITEM); }
+
     @Override
     public Component getComponent() {
         return null;
@@ -121,7 +136,5 @@ public class GUI_NewAccountP extends JPanel implements GUI_Settings_Variables, A
 
     @Override
     public void windowStateChanged(WindowEvent e) {
-        System.out.println("JJJJ");
-        jcmbBank.setSelectedIndex(selectedItem);
     }
 }

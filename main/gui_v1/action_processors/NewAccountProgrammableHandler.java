@@ -18,7 +18,7 @@ public class NewAccountProgrammableHandler {
         String acctIdentifier = PEC.instance().createAcctIdentifier(_strAccntNick, _strAcctNum, _strBank);
         Request r = Request.instance();
         r.setAccountNumber(strAcctNum);
-        r.setAccountNick(strAccntNick);
+        r.setAccountNick(acctIdentifier);
         r.setBankName(strBank);
         if (PEC.instance().isTextInList(acctIdentifier,
                 GUI_ElementsOptionLists.getInstance().getAccountNicksList())) {
@@ -28,7 +28,11 @@ public class NewAccountProgrammableHandler {
         } else {
             //GUI_ManualEntryTemporaialHolder.getInstance().addAcctNickAsUnstored(acctIdentifier);
             GUI_ElementsOptionLists.getInstance().addAccntNickToList(acctIdentifier);
-            r.getManualEntryWindowHolder().addAccountNickToComboBox(acctIdentifier);
+            PEC.instance().addBankToList(strBank);
+            if (r.getManualEntryWindowHolder()!=null) {
+                r.getManualEntryWindowHolder().addAccountNickToComboBox(acctIdentifier);
+                PEC.instance().changeManualEntryAccount(acctIdentifier);
+            }
         }
     }
     private void showNewManualEntryInfo(){

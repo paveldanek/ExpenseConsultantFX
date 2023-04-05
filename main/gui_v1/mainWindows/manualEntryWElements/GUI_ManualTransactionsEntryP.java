@@ -1,19 +1,19 @@
 package gui_v1.mainWindows.manualEntryWElements;
 
 import entities.Transaction;
-import gui_v1.action_processors.ManualEntryProgrammableHandler;
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.data_loaders.GUI_ElementsDataLoader;
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import gui_v1.gui_logic.DateFormatter;
-import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
 import gui_v1.mainWindows.GUI_ManualEntryWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_NewAccountWindow;
 import gui_v1.mainWindows.GUI_NewCategoryWindow;
+import gui_v1.mainWindows.recordsWElements.RecordsTable;
 import gui_v1.settings.GUI_Settings_Variables;
 import main_logic.PEC;
 import main_logic.Request;
+import main_logic.Result;
 import net.sourceforge.jdatepicker.impl.*;
 
 import javax.swing.*;
@@ -21,6 +21,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Calendar;
+import java.util.ListIterator;
 
 import static gui_v1.automation.GUI_ElementCreator.newFont;
 //import java.util.Calendar;
@@ -53,6 +54,8 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
     private JButton jbtnNext;
     private JButton jbtnLast;
 
+    private int position = 0;
+
     private UtilCalendarModel model;
     private JDatePanelImpl datePanel;
     private JDatePickerImpl datePicker;
@@ -65,8 +68,14 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         jcmbCategory = GUI_ElementCreator.newJComboBoxWithHidenHelp(GUI_ElementsOptionLists.getInstance().getTransCategoryist());
         jcmbCategory.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg(), DEFAULT_SELECTED_ITEM);
         listsSelectedItems = new int[2];
-        listsSelectedItems[0]=DEFAULT_SELECTED_ITEM;
-        listsSelectedItems[1]=DEFAULT_SELECTED_ITEM;
+        if (PEC.instance().getActiveAccount().length()>0) {
+            listsSelectedItems[0] = GUI_ElementsOptionLists.getInstance().
+                    getAccountListPosition(PEC.instance().getActiveAccount());
+        } else listsSelectedItems[0]=DEFAULT_SELECTED_ITEM;
+        if (PEC.instance().getActiveCategory().length()>0) {
+            listsSelectedItems[1] = GUI_ElementsOptionLists.getInstance().
+                    getCategoryListPosition(PEC.instance().getActiveCategory());
+        } else listsSelectedItems[1]=DEFAULT_SELECTED_ITEM;
 
         jtfDate = GUI_ElementCreator.newTextField(GUI_ElementsDataLoader.getMEntHelpMsgs().dateInputHelpMsg());
         jtfOutputDate = GUI_ElementCreator.newTextField(GUI_ElementsDataLoader.getMEntHelpMsgs().dateOutputHelpMsg());
@@ -102,8 +111,8 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
 
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Account:"));
         jcmbAccount.addActionListener(this);
-        jcmbAccount.setSelectedIndex(DEFAULT_SELECTED_ITEM);
         userInputElementsBox.add(jcmbAccount);
+        jcmbAccount.setSelectedItem(PEC.instance().getActiveAccount());
 
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel
                 ("Pick a Date of Transaction (click \"...\"):"), BorderLayout.WEST);
@@ -122,20 +131,25 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Reference Number:"));
         userInputElementsBox.add(jtfRefNum);
         jtfRefNum.addFocusListener(this);
+        jtfRefNum.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Transaction Name (mandatory):"));
         userInputElementsBox.add(jtfTransName);
         jtfTransName.addFocusListener(this);
+        jtfTransName.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+
 
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Memo:"));
         userInputElementsBox.add(jtfMemo);
         jtfMemo.addFocusListener(this);
+        jtfMemo.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 
         userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Amount (mandatory):"));
         userInputElementsBox.add(jtfAmount);
         jtfAmount.addFocusListener(this);
+        jtfAmount.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 
-        userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Category (mandatory):"));
+        userInputElementsBox.add(GUI_ElementCreator.newTextLabel("Category:"));
         jcmbCategory.setSelectedItem(PEC.instance().getActiveCategory());
         jcmbCategory.addActionListener(this);
         userInputElementsBox.add(jcmbCategory);
@@ -161,16 +175,15 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         buttonsBox.add(jbtnDone);
         add(buttonsBox, BorderLayout.SOUTH);
         req.setManualEntryWindowHolder(this);
+
+        PEC.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
+                (Calendar) datePicker.getModel().getValue(), (String) jcmbCategory.getSelectedItem());
     }
 
-    public static void setAcctSelection(String selection) {
-        jcmbAccount.setSelectedItem(selection);
-    }
-/*
+    /*
     private void setDateOutputTextFieldWithDateFromComboBoxes() {
         jtfOutputDate.setText(jcmbMonths.getSelectedItem() + "/" + jcmbDays.getSelectedItem() + "/" + jcmbYears.getSelectedItem());
     }
-*/
 
     private void replaceItemsAtJCMBoWith(JComboBox<String> jcb, String[] items) {
         jcb.removeAllItems();
@@ -178,6 +191,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
             jcb.addItem(i);
         }
     }
+    */
 
     public void addAccountNickToComboBox(String acctNick) {
         JComboBox<String> oldAccount = jcmbAccount;
@@ -217,6 +231,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         jcmbCategory.setSelectedItem(category);
     }
 
+    /*
     public void setElementsDefaultHelpTexts() {
         if(jcmbAccount.getItemAt(DEFAULT_SELECTED_ITEM).compareToIgnoreCase
                 (GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg())!=0){
@@ -273,7 +288,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         setAllElementsCustomHelpTexts(acctNick, date, refNum, transName, memo, amount, category);
         //setManualEntriesCalendarValues(date.split("/"));
     }
-/*
+
     public void setManualEntriesCalendarValues(String[] calArrYMD) {
         jcmbYears.setSelectedItem(calArrYMD[2]);
         jcmbMonths.setSelectedItem(calArrYMD[0]);
@@ -289,17 +304,15 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         String descr = jtfTransName.getText().trim();
         String memo = jtfMemo.getText().trim();
         String amount = jtfAmount.getText().trim();
-
         return new String[]{account, date, refN, descr, memo, amount, custom_category};
     }
+
+    /*
     private void clearrErrorArr(String[] errArr){
         clearStrArr( errArr);
 
     }
-    private void clearErrorBorders() {
-        jcmbAccount.setBorder(new LineBorder(null, 0));
-        jcmbCategory.setBorder(new LineBorder(null, 0));
-    }
+
     private boolean checkInputData(String[] inputData){
         if(inputData.length != INPUT_ELEMENTS_ON_VIEW_COUNTER){
             return false;
@@ -314,26 +327,27 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         }
         return true;
     }
-
+*/
     private void processCategorySelection() {
-        listsSelectedItems[1] =  jcmbCategory.getSelectedIndex();
-        listsSelectedItems[0] =  jcmbAccount.getSelectedIndex();
-        if ((jcmbCategory.getSelectedItem() + "").trim().compareToIgnoreCase
+        if (jcmbCategory.getSelectedIndex()==0) jcmbCategory.setSelectedIndex(listsSelectedItems[1]);
+        else if ((jcmbCategory.getSelectedItem() + "").trim().compareToIgnoreCase
                 (jcmbCategory.getItemAt(jcmbCategory.getItemCount()-1)) == 0) {
+            jcmbCategory.setSelectedIndex(listsSelectedItems[1]);
             GUI_NewCategoryWindow.getInstance().showNewCategoryFromManualEntryWindow();
             GUI_ManualEntryWindow.getInstance().hideManualEntryWindow();
-        }
+        } else listsSelectedItems[1] = jcmbCategory.getSelectedIndex();
     }
 
     private void processAccountSelection() {
-        listsSelectedItems[1] =  jcmbCategory.getSelectedIndex();
-        listsSelectedItems[0] =  jcmbAccount.getSelectedIndex();
-        if ((jcmbAccount.getSelectedItem() + "").trim().compareToIgnoreCase
+        if (jcmbAccount.getSelectedIndex()==0) jcmbAccount.setSelectedIndex(listsSelectedItems[0]);
+        else if ((jcmbAccount.getSelectedItem() + "").trim().compareToIgnoreCase
                 (jcmbAccount.getItemAt(jcmbAccount.getItemCount()-1)) == 0) {
+            jcmbAccount.setSelectedIndex(listsSelectedItems[0]);
             GUI_NewAccountWindow.getInstance().showNewAccntWindow();
             GUI_ManualEntryWindow.getInstance().hideManualEntryWindow();
         } else {
-            //       previousAcctSelection = (String) jcmbAccount.getSelectedItem();
+            listsSelectedItems[0] = jcmbAccount.getSelectedIndex();
+            PEC.instance().changeManualEntryAccount((String) jcmbAccount.getSelectedItem());
         }
     }
 
@@ -345,65 +359,216 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
             model.setSelected(true);
         }
     }
-/*
-    private void errorInInput(){
 
+    private void setNameErrorBorder() { jtfTransName.setBorder(new LineBorder(Color.RED, 1)); }
+
+    private void setAmountErrorBorder() {
+        jtfAmount.setBorder(new LineBorder(Color.RED, 1));
     }
 
-    private void testingOutput(ActionEvent e) {
-        o(e);
-        o(getAllInputElementsData());
-
+    private void clearNameErrorBorder() {
+        jtfTransName.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
     }
-*/
+
+    private void clearAmountErrorBorder() {
+        jtfAmount.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+    }
+
+    private boolean isFormEmpty() {
+        return (jtfRefNum.getText().trim().length()==0 && jtfTransName.getText().trim().length()==0 &&
+                jtfMemo.getText().trim().length()==0 && jtfAmount.getText().trim().length()==0);
+    }
+
+    private boolean areFieldsValid() {
+        boolean output = true;
+        boolean amountError = false;
+        double amount = 0.0;
+        try {
+            amount = Double.parseDouble(jtfAmount.getText().trim());
+        } catch (NumberFormatException ex) {
+            amountError = true;
+        }
+        if (jtfTransName.getText().trim().length()==0) {
+            setNameErrorBorder();
+            output = false;
+        }
+        else clearNameErrorBorder();
+        if (jtfAmount.getText().trim().length()==0 || amountError) {
+            setAmountErrorBorder();
+            output = false;
+        }
+        else clearAmountErrorBorder();
+        return output;
+    }
+
+    private boolean isManualEntryADouble() {
+        int i = 0;
+        String[] newEntry = new String[7];
+        Result r = new Result();
+        newEntry = getAllInputElementsData();
+        if (position==0) i++;
+        while (i < PEC.instance().getManualEntrySize()) {
+            r.reset();
+            r = PEC.instance().getManualEntry(i);
+            if (newEntry[0].compareToIgnoreCase(r.getAccountNick())==0 &&
+                    newEntry[1].compareToIgnoreCase(r.getTDate())==0 &&
+                    newEntry[2].compareToIgnoreCase(r.getTRef())==0 &&
+                    newEntry[3].compareToIgnoreCase(r.getTDesc())==0 &&
+                    newEntry[4].compareToIgnoreCase(r.getTMemo())==0 &&
+                    Double.parseDouble(newEntry[5])==r.getTAmount() &&
+                    newEntry[6].compareToIgnoreCase(r.getTCat())==0)
+                return true;
+            i++; if (position==i) i++;
+        }
+        return false;
+    }
+
+    private boolean doesManualEntryExist(String[] entry) {
+        Result r = new Result();
+        for (int i=0; i<PEC.instance().getManualEntrySize(); i++) {
+            r.reset();
+            r = PEC.instance().getManualEntry(i);
+            if (entry[0].compareToIgnoreCase(r.getAccountNick())==0 &&
+                    entry[1].compareToIgnoreCase(r.getTDate())==0 &&
+                    entry[2].compareToIgnoreCase(r.getTRef())==0 &&
+                    entry[3].compareToIgnoreCase(r.getTDesc())==0 &&
+                    entry[4].compareToIgnoreCase(r.getTMemo())==0 &&
+                    Double.parseDouble(entry[5])==r.getTAmount() &&
+                    entry[6].compareToIgnoreCase(r.getTCat())==0)
+                return true;
+        }
+        return false;
+    }
+
+    private void setFieldsTo(Result r) {
+        jcmbAccount.setSelectedItem(r.getAccountNick());
+        model.setValue(Transaction.returnCalendarFromYYYYMMDD(r.getTDate()));
+        jtfRefNum.setText(r.getTRef());
+        jtfTransName.setText(r.getTDesc());
+        jtfMemo.setText(r.getTMemo());
+        if (r.getTAmount()==0.0) jtfAmount.setText("");
+        else jtfAmount.setText(String.valueOf(r.getTAmount()));
+        jcmbCategory.setSelectedItem(r.getTCat());
+    }
+
+    public void clearFields() {
+        jtfRefNum.setText("");
+        jtfTransName.setText("");
+        jtfMemo.setText("");
+        jtfAmount.setText("");
+    }
+
+    private boolean exitEntry() {
+        // returns false if there are invalid fields and process can't move on
+        if (isFormEmpty() && PEC.instance().getManualEntrySize()>1) {
+            PEC.instance().deleteManualEntry(position);
+            if (position>=PEC.instance().getManualEntrySize())
+                    position = PEC.instance().getManualEntrySize()-1;
+        } else {
+            if (!areFieldsValid()) return false;
+            if (isManualEntryADouble()) {
+                JOptionPane.showMessageDialog(null, "You've already entered this transaction.",
+                        "Info", JOptionPane.INFORMATION_MESSAGE);
+                return false;
+            }
+        }
+        if (!isFormEmpty()) {
+            Request req = Request.instance();
+            req.reset();
+            String[] fields = new String[7];
+            fields = getAllInputElementsData();
+            req.setAccountNick(fields[0]);
+            req.setTDate(fields[1]);
+            req.setTRef(fields[2]);
+            req.setTDesc(fields[3]);
+            req.setTMemo(fields[4]);
+            req.setTAmount(Double.parseDouble(fields[5]));
+            req.setTCat(fields[6]);
+            PEC.instance().editManualEntry(position, req);
+        }
+        return true;
+    }
+
     private void processAnotherClick() {
-        String[] userInputs =getAllInputElementsData();
-         if(!checkInputData(userInputs)){
-             //errorInInput();
-             return;
-         }
-
-        GUI_ManualEntryTemporaialHolder.getInstance().addTempUserManualEntry(userInputs[0], userInputs[1], userInputs[2],
-                userInputs[3], userInputs[4], userInputs[5], userInputs[6]);
-        setElementsDefaultHelpTexts();
+        if (!exitEntry()) return;
+        clearFields();
+        PEC.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
+                (Calendar) datePicker.getModel().getValue(), (String) jcmbCategory.getSelectedItem());
+        position = PEC.instance().getManualEntrySize()-1;
     }
-    private void processDoneBtnClick(){
 
-        GUI_ManualEntryTemporaialHolder.getInstance().addTempUserManualEntry(getAllInputElementsData());
-        new ManualEntryProgrammableHandler(GUI_ManualEntryTemporaialHolder.getInstance().getManuallYEnterredAccounts());
-        GUI_ManualEntryTemporaialHolder.getInstance().clearTemporalManualEntryList();
+    private void processDoneBtnClick(){
+        if (!exitEntry()) return;
+        boolean success = PEC.instance().processManualEntries();
+        if (success) {
+            ListIterator<Result> it = PEC.instance().returnRListIterator();
+            Result result = new Result();
+            RecordsTable.clearTable();
+            while (it.hasNext()) {
+                result = it.next();
+                RecordsTable.addRowToTable(result.getTDate(),
+                        result.getTRef(), result.getTDesc(),
+                        result.getTMemo(), result.getTAmount(), result.getTCat());
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "No transactions could be added.",
+                    "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
         PEC.instance().setActiveCategory((String) jcmbCategory.getSelectedItem());
-        Request.instance().getWindowHolder().setSelectedCategory((String) jcmbCategory.getSelectedItem());
+        Request.instance().getMainWindowHolder().setSelectedCategory((String) jcmbCategory.getSelectedItem());
+        Request.instance().getMainWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
+        position = 0;
+        clearFields();
+        PEC.instance().clearManualEntries();
         GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
         GUI_RecordsWindow.getInstance().showRecordsWindow();
     }
-    private void processFirstBtnClick(){
-        if(!(GUI_ManualEntryTemporaialHolder.getInstance().getNumOfItems()>0)){
-            return;
-        }
-        String[] firstManualEntryArr = GUI_ManualEntryTemporaialHolder.getInstance().getFirst();
-        setManualEntriesValues(firstManualEntryArr);
+
+    private void processFirstBtnClick() {
+        if (position==0) return;
+        if (!exitEntry()) return;
+        position = 0;
+        Result r = PEC.instance().getManualEntry(position);
+        setFieldsTo(r);
     }
+
     private void processPrevBtnClick(){
-        if(!(GUI_ManualEntryTemporaialHolder.getInstance().getNumOfItems()>0)){
-            return;
-        }
-        String[] previousManualEntryArr = GUI_ManualEntryTemporaialHolder.getInstance().getPrevNoCycles();
-        setManualEntriesValues(previousManualEntryArr);
+        if (position==0) return;
+        boolean dontMove = false;
+        if (position==PEC.instance().getManualEntrySize()-1 && isFormEmpty()) dontMove = true;
+        if (!exitEntry()) return;
+        if (!dontMove) position--;
+        Result r = PEC.instance().getManualEntry(position);
+        setFieldsTo(r);
     }
+
     private void processNextBtnClick(){
-        if(!(GUI_ManualEntryTemporaialHolder.getInstance().getNumOfItems()>0)){
-            return;
-        }
-        String[] nextManualEntryArr = GUI_ManualEntryTemporaialHolder.getInstance().getNextNoCycles();
-        setManualEntriesValues(nextManualEntryArr);
+        if (position==PEC.instance().getManualEntrySize()-1) return;
+        boolean dontMove = false;
+        if (isFormEmpty()) dontMove = true;
+        if (!exitEntry()) return;
+        if (!dontMove) position++;
+        if (position>=PEC.instance().getManualEntrySize()) position = PEC.instance().getManualEntrySize()-1;
+        Result r = PEC.instance().getManualEntry(position);
+        setFieldsTo(r);
     }
+
     private void processLastBtnClick(){
-        if(!(GUI_ManualEntryTemporaialHolder.getInstance().getNumOfItems()>0)){
-            return;
+        if (position==PEC.instance().getManualEntrySize()-1) return;
+        if (!exitEntry()) return;
+        position = PEC.instance().getManualEntrySize()-1;
+        Result r = PEC.instance().getManualEntry(position);
+        setFieldsTo(r);
+    }
+
+    private void processCancelBtnClick() {
+        int answr = JOptionPane.showOptionDialog(null, "Do you want to cancel manual entry\n and discard all input entries?", "Warning",
+                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
+        if (answr==JOptionPane.YES_OPTION) {
+            PEC.instance().clearManualEntries();
+            GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
+            GUI_RecordsWindow.getInstance().showRecordsWindow();
         }
-        String[] lastManualEntryArr = GUI_ManualEntryTemporaialHolder.getInstance().getLast();
-        setManualEntriesValues(lastManualEntryArr);
     }
 
     @Override
@@ -421,6 +586,8 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
             processNextBtnClick();
         } else if (e.getSource() == jbtnLast) {
             processLastBtnClick();
+        } else if (e.getSource() == jbtnCancel) {
+            processCancelBtnClick();
         } else if (e.getSource() == jcmbAccount) {
             processAccountSelection();
         } else if (e.getSource() == jcmbCategory) {
@@ -450,54 +617,4 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         jcmbAccount.setSelectedIndex(listsSelectedItems[1]);
 
     }
-/*
-    private class DateSelectionsP extends JPanel {
-        DateSelectionsP() {
-            setLayout(new GridLayout(1, 6));
-
-            jcmbYears = GUI_ElementCreator.newJComboBox(GUI_AY_Calendar.getYearsDescendingArr());
-            jcmbYears.setActionCommand("YEAR");
-            jcmbYears.setSelectedItem(GUI_AY_Calendar.getTodayYear());
-            jcmbYears.addActionListener(actionListenerForDatesJCMboxes());
-
-            jcmbMonths = GUI_ElementCreator.newJComboBox(GUI_AY_Calendar.monthsArr);
-            jcmbMonths.setSelectedItem(GUI_AY_Calendar.getTodayMonth());
-            jcmbMonths.addActionListener(actionListenerForDatesJCMboxes());
-            jcmbMonths.setActionCommand("MONTH");
-
-            jcmbDays = GUI_ElementCreator.newJComboBox(GUI_AY_Calendar.getDaysAsStrArrForMountOfYear(Integer.parseInt(jcmbMonths.getSelectedItem() + ""),
-                    Integer.parseInt(jcmbYears.getSelectedItem() + "")));
-            jcmbDays.setSelectedItem(GUI_AY_Calendar.getTodayDayOfMonth());
-            jcmbDays.addActionListener(actionListenerForDatesJCMboxes());
-            jcmbDays.setActionCommand("DAY");
-
-            add(GUI_ElementCreator.newTextLabel("Year"));
-            add(jcmbYears);
-            add(GUI_ElementCreator.newFieldNameLabel("Month"));
-            add(jcmbMonths);
-            add(GUI_ElementCreator.newFieldNameLabel("Day"));
-            add(jcmbDays);
-
-            setDateOutputTextFieldWithDateFromComboBoxes();
-        }
-
-        private ActionListener actionListenerForDatesJCMboxes() {
-            ActionListener a = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (e.getActionCommand().compareToIgnoreCase("YEAR") == 0) {
-                        jcmbMonths.setSelectedIndex(0);
-                    } else if (e.getActionCommand().compareToIgnoreCase("MONTH") == 0) {
-                        replaceItemsAtJCMBoWith(jcmbDays, GUI_AY_Calendar.getDaysAsStrArrForMountOfYear(Integer.parseInt(jcmbMonths.getSelectedItem() + ""),
-                                Integer.parseInt(jcmbYears.getSelectedItem() + "")));
-                    } else if (e.getActionCommand().compareToIgnoreCase("DAY") == 0) {
-                    }
-                    setDateOutputTextFieldWithDateFromComboBoxes();
-                }
-            };
-            return a;
-        }
-
-    }
-*/
 }

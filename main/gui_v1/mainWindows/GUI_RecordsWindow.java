@@ -40,7 +40,7 @@ public class GUI_RecordsWindow extends JFrame implements GUI_MainWidowsSharedBeh
 
 		rbp = new GUI_RecordsBoxP();
 		Request r = Request.instance();
-		r.setWindowHolder(rbp);
+		r.setMainWindowHolder(rbp);
 		add(rbp, BorderLayout.CENTER);
 		add(new JLabel(strCopyRigts, JLabel.CENTER), BorderLayout.SOUTH);
 		addWindowListener(mainW);

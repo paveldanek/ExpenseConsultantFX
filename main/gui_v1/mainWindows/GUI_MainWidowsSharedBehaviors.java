@@ -2,6 +2,7 @@ package gui_v1.mainWindows;
 import gui_v1.action_processors.GUI_MainiWindowActionProcessor;
 import gui_v1.action_processors.MenuActionProgrammableHandle;
 import main_logic.PEC;
+import main_logic.Request;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -38,6 +39,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
             }
              */
+            Request r = Request.instance();
+            r.getNewAccountWindowHolder().clearFields();
             GUI_NewAccountWindow.getInstance().disposeNewAccntWindow();
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
@@ -54,8 +57,15 @@ public interface GUI_MainWidowsSharedBehaviors {
                GUI_RecordsWindow.getInstance().showRecordsWindow();
            }
             */
-           GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
-           GUI_RecordsWindow.getInstance().showRecordsWindow();
+           int answr = JOptionPane.showOptionDialog(null, "Do you want to cancel Manual Entry\n and discard all input entries?", "Warning",
+                   JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
+           if (answr==JOptionPane.YES_OPTION) {
+               PEC.instance().clearManualEntries();
+               Request r = Request.instance();
+               r.getManualEntryWindowHolder().clearFields();
+               GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
+               GUI_RecordsWindow.getInstance().showRecordsWindow();
+           }
        }
    };
     WindowListener w3 = new WindowAdapter() {
@@ -69,6 +79,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_NewAccountWindow.getInstance().showNewAccntWindow();
             }
              */
+            Request r = Request.instance();
+            r.getNewBankWindowHolder().clearField();
             GUI_NewBankWindow.getInstance().disposeNewBankWindow();
             GUI_NewAccountWindow.getInstance().showNewAccntWindow();
         }
@@ -84,6 +96,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
             }
              */
+            Request r = Request.instance();
+            r.getNewCategoryWindowHolder().clearField();
             GUI_NewCategoryWindow.getInstance().disposeNewCategoryWindow();
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
@@ -99,6 +113,8 @@ public interface GUI_MainWidowsSharedBehaviors {
                 GUI_RecordsWindow.getInstance().showRecordsWindow();
             }
              */
+            Request r = Request.instance();
+            r.getNewCategoryWindowHolder().clearField();
             GUI_NewCategoryWindow.getInstance().disposeNewCategoryWindow();
             GUI_RecordsWindow.getInstance().showRecordsWindow();
         }

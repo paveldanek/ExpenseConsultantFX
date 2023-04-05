@@ -1,7 +1,7 @@
 package gui_v1.action_processors;
 import entities.Transaction;
 import entities.TransactionList;
-import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
+import gui_v1.mainWindows.GUI_NewAccountWindow;
 import gui_v1.mainWindows.recordsWElements.RecordsTable;
 import gui_v1.mainWindows.GUI_HowToWindow;
 import gui_v1.mainWindows.GUI_ManualEntryWindow;
@@ -39,7 +39,8 @@ public class MenuActionProgrammableHandle {
         Request request = Request.instance();
         File chosenFile= GUI_FileChooser.getFileOrDirectory(f);
         if(chosenFile == null ){
-            JOptionPane.showMessageDialog(null, "File not Selected","Info", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "File not Selected",
+                    "Info", JOptionPane.ERROR_MESSAGE);
         } else{
             request.reset();
             ListIterator<Result> it;
@@ -75,7 +76,7 @@ public class MenuActionProgrammableHandle {
         }
         //updateMenus(PEC.instance().getActiveAccount(), PEC.instance().getActiveCategory());
 //        records.setVisible(true);
-        request.getWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
+        request.getMainWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
         GUI_RecordsWindow.getInstance().showRecordsWindow();
     }
 
@@ -88,7 +89,11 @@ public class MenuActionProgrammableHandle {
 
     }
     void doManualEntryProcessing(){
-        GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
+        if (PEC.instance().getActiveAccount().length()==0) {
+            GUI_NewAccountWindow.getInstance().showNewAccntWindow();
+        } else {
+            GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
+        }
     }
     void doGenerateSummaryProcessing(){
 
@@ -98,7 +103,7 @@ public class MenuActionProgrammableHandle {
     }
     public void dologOutProcessing() {
         JOptionPane.showMessageDialog(null, "You're about to log out and end" +
-                        "\nthe program. If you do, your work\nwill be saved in the database.",
+                        "\nthe program. When you do, your work\nwill be saved in the database.",
                 "Warning", JOptionPane.INFORMATION_MESSAGE);
         try {
             PEC.instance().uploadCurrentList();

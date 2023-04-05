@@ -2,6 +2,8 @@ package gui_v1.mainWindows;
 
 import gui_v1.settings.GUI_Settings_Variables;
 import gui_v1.mainWindows.manualEntryWElements.GUI_ManualTransactionsEntryP;
+import main_logic.PEC;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serial;

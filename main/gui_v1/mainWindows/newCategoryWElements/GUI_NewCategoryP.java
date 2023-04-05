@@ -6,6 +6,7 @@ import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
 import gui_v1.mainWindows.*;
 import gui_v1.settings.GUI_Settings_Variables;
+import main_logic.Request;
 import parsers.OFXParser;
 
 import javax.swing.*;
@@ -24,7 +25,8 @@ public class GUI_NewCategoryP extends JPanel implements GUI_Settings_Variables, 
 
     private void init(){
         jcmbCategory = GUI_ElementCreator.newJComboBox(GUI_ElementsOptionLists.getInstance().getTransCategoryist());
-        jtfCategoryName= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNCHelpMsgs().newCategoryNameInputHelpMsg());
+        //jtfCategoryName= GUI_ElementCreator.newTextFieldWithHelp(GUI_ElementsDataLoader.getNCHelpMsgs().newCategoryNameInputHelpMsg());
+        jtfCategoryName= GUI_ElementCreator.newTextFieldWithHelp("");
         jbtnAdd = GUI_ElementCreator.newJButton("Add This Category");
 
         jbtnAdd.addActionListener(this);
@@ -57,6 +59,8 @@ public class GUI_NewCategoryP extends JPanel implements GUI_Settings_Variables, 
                 jbtnAdd.requestFocusInWindow();
             }
         });
+        Request r = Request.instance();
+        r.setNewCategoryWindowHolder(this);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class GUI_NewCategoryP extends JPanel implements GUI_Settings_Variables, 
     AbstractAction a = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            clearField();
             GUI_NewCategoryWindow.getInstance().disposeNewCategoryWindow();
             if (GUI_NewCategoryWindow.getInstance().getPointOfEntry()==ACCESS_FROM_MANUAL_ENTRY) {
                 GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
@@ -77,6 +82,10 @@ public class GUI_NewCategoryP extends JPanel implements GUI_Settings_Variables, 
             }
         }
     };
+
+    public void clearField() {
+        jtfCategoryName.setText("");
+    }
 
     private void processAddCategoryBtnClick() {
         String categoryName = jtfCategoryName.getText().trim() ;
