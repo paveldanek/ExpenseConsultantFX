@@ -153,9 +153,9 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
-                    "email varchar(100) NOT NULL UNIQUE, password varchar(100) NOT NULL, "+
-                    "question1 varchar(100), question2 varchar(100), answer1 varchar(75), "+
-                    "answer2 varchar(75), created_date datetime DEFAULT CURRENT_TIMESTAMP)";
+                    "email varchar(50) NOT NULL UNIQUE, password varchar(40) NOT NULL, "+
+                    "question1 varchar(60), question2 varchar(60), answer1 varchar(40), "+
+                    "answer2 varchar(40), created_date datetime DEFAULT CURRENT_TIMESTAMP)";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
@@ -176,7 +176,7 @@ public class Connectivity {
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE transaction(transaction_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "transaction_date varchar(25), transaction_history text, " +
-                    "bank_name varchar(40), account_nick varchar(100), " +
+                    "bank_name varchar(30), account_nick varchar(50), " +
                     "user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
@@ -196,7 +196,7 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE category(category_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
-                    "category_name varchar(60), user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
+                    "category_name varchar(35), user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
