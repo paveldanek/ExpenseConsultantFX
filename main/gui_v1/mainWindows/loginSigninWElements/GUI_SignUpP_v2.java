@@ -7,6 +7,7 @@ import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_SignUPWindow;
 import gui_v1.settings.GUI_LoginSignUpWiindows_Settings;
 import gui_v1.settings.GUI_Settings_Variables;
+import login.Account;
 import main_logic.PEC;
 import main_logic.Request;
 
@@ -124,7 +125,7 @@ public class GUI_SignUpP_v2 extends JPanel implements GUI_LoginSignUpWiindows_Se
             r.setAnswer1(jtfSeqAnswer1.getText().trim());
             r.setAnswer2(jtfSeqAnswer2.getText().trim());
             try {
-                code = PEC.instance().signup(r);
+                code = Account.instance().signup(r);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

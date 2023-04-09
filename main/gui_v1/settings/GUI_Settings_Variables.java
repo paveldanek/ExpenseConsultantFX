@@ -53,8 +53,10 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 
 	String strAppOfficialName = "Personal Expense Consultant by SPAM Team";
 	String strCopyRigts = "Copyright \u00a9 SPAM Team 2023";
-	String strAboutApp = "This App is Capstone project of SPAM Team";
-
+	// the following one will be fitted into a JLabel
+	String strAboutApp = "<html><center>This App is the Capstone project of SPAM Team,<br>Class ICS 499-01, Spring 2023,"+
+			"<br>Metropolitan State University,<br>Saint Paul, Minnesota, United States."+
+			"<br><br>Copyright \u00a9 SPAM Team 2023.";
 	String strHeadTitle_GUIMainWindow = "Welcome to Personal Expenses Manager ";
 	String strHeadTitle_GUIRecordsWindow = "Personal Expense Consultant";
 

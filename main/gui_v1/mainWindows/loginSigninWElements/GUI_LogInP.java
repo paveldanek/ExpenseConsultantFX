@@ -7,6 +7,8 @@ import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_SignUPWindow;
 import gui_v1.settings.GUI_LoginSignUpWiindows_Settings;
 import gui_v1.settings.GUI_Settings_Variables;
+import gui_v1.mainWindows.GUI_PasswordRetrievalWindow;
+import login.Account;
 import main_logic.PEC;
 import main_logic.Request;
 
@@ -32,11 +34,28 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
         JPanel inputBoxP = new JPanel();
         inputBoxP.setLayout(new GridLayout(3,2));
 
-        String txt = "Don't have an account yet? Click HERE.";
-        JLabel lbl = new JLabel(txt, JLabel.LEFT);
-        inputBoxP.add(lbl);
+        jtfLogInName =  GUI_ElementCreator.newTextField();
+        jtfLogInName.setText("");
+        jtfLogInName.selectAll();
+        jtfPass =  GUI_ElementCreator.newPasswordField();
+        jtfPass.setText("");
+        JButton jbtOk = GUI_ElementCreator.newJButton("OK");
+        jbtOk.addActionListener(this);
+
+        inputBoxP.add(GUI_ElementCreator.newTextLabel("Login Email:"));
+        inputBoxP.add(jtfLogInName);
+        inputBoxP.add(GUI_ElementCreator.newTextLabel("Password:"));
+        inputBoxP.add(jtfPass);
+
+        String noAcct = "Don't have an account yet? Click HERE.";
+        JLabel lbl1 = new JLabel(noAcct, JLabel.LEFT);
+        inputBoxP.add(lbl1);
+        String forgotPass = "Forgot your password? Click HERE.";
+        JLabel lbl2 = new JLabel(forgotPass, JLabel.LEFT);
+        inputBoxP.add(lbl2);
+
         MouseListener m = null;
-        lbl.addMouseListener(new MouseAdapter()
+        lbl1.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent e)
@@ -47,36 +66,42 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
             @Override
             public void mouseEntered(MouseEvent e)
             {
-                lbl.setForeground(GUI_Settings_Variables.linkSelected);
-                lbl.setText("<html><a href=''>" + txt + "</a></html>");
+                lbl1.setForeground(GUI_Settings_Variables.linkSelected);
+                lbl1.setText("<html><a href=''>" + noAcct + "</a></html>");
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
             @Override
             public void mouseExited(MouseEvent e)
             {
-                lbl.setForeground(GUI_Settings_Variables.linkDeselected);
-                lbl.setText(txt);
+                lbl1.setForeground(GUI_Settings_Variables.linkDeselected);
+                lbl1.setText(noAcct);
                 setCursor(Cursor.getDefaultCursor());
             }
         });
-        JLabel padding = new JLabel("", JLabel.LEFT);
-        inputBoxP.add(padding);
 
-        jtfLogInName =  GUI_ElementCreator.newTextField();
-        jtfLogInName.setText("");
-        jtfLogInName.selectAll();
-        jtfPass =  GUI_ElementCreator.newPasswordField();
-        jtfPass.setText("");
-
-
-        JButton jbtOk = GUI_ElementCreator.newJButton("OK");
-
-        jbtOk.addActionListener(this);
-        inputBoxP.add(GUI_ElementCreator.newTextLabel("Login Email:"));
-
-        inputBoxP.add(jtfLogInName);
-        inputBoxP.add(GUI_ElementCreator.newTextLabel("Password:"));
-        inputBoxP.add(jtfPass);
+        lbl2.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                GUI_LogInWindow.getInstance().hideLogInWindow();
+                GUI_PasswordRetrievalWindow.getInstance().showPasswordRetrievalWindow();
+            }
+            @Override
+            public void mouseEntered(MouseEvent e)
+            {
+                lbl2.setForeground(GUI_Settings_Variables.linkSelected);
+                lbl2.setText("<html><a href=''>" + forgotPass + "</a></html>");
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+            @Override
+            public void mouseExited(MouseEvent e)
+            {
+                lbl2.setForeground(GUI_Settings_Variables.linkDeselected);
+                lbl2.setText(forgotPass);
+                setCursor(Cursor.getDefaultCursor());
+            }
+        });
 
         add(inputBoxP, BorderLayout.CENTER);
         add(jbtOk, BorderLayout.SOUTH);
@@ -92,11 +117,12 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
             req.setEmail(String.valueOf(jtfLogInName.getText()));
             req.setPass1(String.valueOf(jtfPass.getPassword()));
             try {
-                userID = PEC.instance().login(req);
+                userID = Account.instance().login(req);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
             if (userID!=-1) {
+                PEC.instance().finishLogin(userID);
                 GUI_LogInWindow.getInstance().hideLogInWindow();
                 GUI_RecordsWindow.getInstance().showRecordsWindow();
             } else {

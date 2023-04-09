@@ -1,7 +1,6 @@
 package db_connectors;
 
 import crypto.AESUtil;
-import entities.Transaction;
 
 import javax.swing.*;
 import java.sql.Connection;
@@ -93,10 +92,10 @@ public class Connectivity {
 
     private static boolean buildDatabase() {
         try {
-             if (!createDatabaseExpenseConsultant()) throw new SQLException();
-             if (!createTableUsers()) throw new SQLException();
-             if (!createTableTransaction()) throw new SQLException();
-             if (!createTableCategory()) throw new SQLException();
+            if (!createDatabaseExpenseConsultant()) throw new SQLException();
+            if (!createTableUsers()) throw new SQLException();
+            if (!createTableTransaction()) throw new SQLException();
+            if (!createTableCategory()) throw new SQLException();
         } catch (SQLException e) {
             return false;
         }
@@ -153,13 +152,14 @@ public class Connectivity {
             sql = "DROP TABLE IF EXISTS users";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
-            sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
-                    "email varchar(100) NOT NULL UNIQUE, password varchar(100) NOT NULL, " +
-                    "question1 varchar(100), question2 varchar(100), answer1 varchar(75), " +
+            sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
+                    "email varchar(100) NOT NULL UNIQUE, password varchar(100) NOT NULL, "+
+                    "question1 varchar(100), question2 varchar(100), answer1 varchar(75), "+
                     "answer2 varchar(75), created_date datetime DEFAULT CURRENT_TIMESTAMP)";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -176,7 +176,7 @@ public class Connectivity {
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE transaction(transaction_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "transaction_date varchar(25), transaction_history text, " +
-                    "bank_name varchar(25), account_nick varchar(30), " +
+                    "bank_name varchar(40), account_nick varchar(100), " +
                     "user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
@@ -196,7 +196,7 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE category(category_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
-                    "category_name varchar(30), user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
+                    "category_name varchar(60), user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {
@@ -205,7 +205,7 @@ public class Connectivity {
         return true;
     }
 
-    public static boolean aUserExists() {
+    public static boolean anyUserExists() {
         Connection conn = getConnection();
         if (!checkTable("users")) return false;
         ResultSet rs = null;

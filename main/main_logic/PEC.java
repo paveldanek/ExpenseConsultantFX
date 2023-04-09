@@ -35,7 +35,9 @@ public class PEC {
 
 	// presetCategories must contain OTHER_CATEGORY as last element
 	private static String[] presetCategories = new String[]
-			{"Food","Car Repair","Mortgage", "Car insurance", "Fun", OTHER_CATEGORY};
+			{"Groceries", "Clothing", "Rent/Mortgage", "Phone", "Car/Gas",
+					"Home", "Restaurants", "Entertainment", "Traveling", "Health/Fitness",
+					"Beauty", "Fee", "Wage/Salary", "Interest", "Money Transfer", OTHER_CATEGORY};
 
 	// private main structure housing active Transaction data
 	// (no more than 3 months worth)
@@ -77,7 +79,7 @@ public class PEC {
 
 	/**
 	 * Instance creator.
-	 * 
+	 *
 	 * @return an instance of PEC
 	 */
 	public static PEC instance() {
@@ -89,12 +91,12 @@ public class PEC {
 
 //	an example of "loading" any logic bearing method with Request parameter
 //	and returning a Result or a ListIterator to a list of Results.
-//	
+//
 //	public Result XXX(Request request) {
 //		Result result = new Result();
 //		return result;
 //	}
-//	
+//
 //	public ListIterator<Result> YYY(Request request) {
 //		ArrayList<Result> list = new ArrayList<Result>();
 //		// ... code ...
@@ -263,6 +265,36 @@ public class PEC {
 			}
 		}
 		return -1;
+	}
+
+	public boolean finishLogin(int userID) {
+		Connection connection = Connectivity.getConnection();
+		String query = "SELECT password FROM users WHERE user_id = ?";
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		String pass = "";
+		try {
+			statement = connection.prepareStatement(query);
+			try {
+				statement.setInt(1, userID);
+				resultSet = statement.executeQuery();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			if (resultSet.next()) {
+				pass = resultSet.getString("password");
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (pass.length() > 0) {
+				currentUserID = userID;
+				setCurrentUserPass(pass);
+				initialDBaseDownload();
+				return true;
+			}
+			else return false;
+		}
 	}
 
 	public void clearManualEntries() {
@@ -797,134 +829,6 @@ public class PEC {
 		return returnRListIterator();
 	}
 
-	public int login(Request r) throws SQLException {
-		int userId = -1;
-		boolean result = false;
-		Connection connection = Connectivity.getConnection();
-		String query = "SELECT user_id FROM users WHERE email = ? AND password = ?";
-		PreparedStatement statement = null;
-		String cipheredPassword;
-		ResultSet resultSet = null;
-		try {
-			statement = connection.prepareStatement(query);
-			try {
-				cipheredPassword = AESUtil.encryptItem(r.getPass1());
-				statement.setString(1, AESUtil.encryptItem(r.getEmail()));
-				statement.setString(2, cipheredPassword);
-				resultSet = statement.executeQuery();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			if (resultSet.next()) {
-				userId = resultSet.getInt("user_id");
-				result = true;
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		if (result) {
-			currentUserID = userId;
-			setCurrentUserPass(cipheredPassword);
-			//************************************
-			// this next line should be moved elsewhere
-			// (probably gui_v1.mainWindows.loginSigninWElements.GUI_LogInP.java)
-			initialDBaseDownload();
-			//************************************
-			return userId;
-		} else {
-			return -1;
-		}
-	}
-
-	public int signup(Request r) throws SQLException {
-
-		int checkCode = 0;
-		// Connect to the database
-		Connection conn = Connectivity.getConnection();
-
-		String email = r.getEmail();
-		String pass1 = r.getPass1();
-		String pass2 = r.getPass2();
-		String question1 = r.getQuestion1();
-		String question2 = r.getQuestion2();
-		String answer1 = r.getAnswer1();
-		String answer2 = r.getAnswer2();
-
-		// Check if the email is in the right format
-		if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-			checkCode = 1;
-		} else {
-			ResultSet rs = null;
-			try {
-				String checkSql = "SELECT COUNT(*) FROM users WHERE email=?";
-				PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-				checkStmt.setString(1, AESUtil.encryptItem(email));
-
-				// Execute the query to check if the user already exists
-				rs = checkStmt.executeQuery();
-			} catch (SQLException e){
-				throw new RuntimeException(e);
-			}
-			rs.next();
-			int count = rs.getInt(1);
-			if (count == 0) {
-				if (pass1.length() >= 8 && pass1.length() < 20) {
-					if (!pass1.equals(pass2)) {
-						checkCode = 4;
-					} else {
-						// Create a PreparedStatement to insert a new user
-						String sql = "INSERT INTO users (email,password,Question1,Question2,answer1,answer2,created_date) " +
-								"VALUES ( ?,?,?,?,?,?,now())";
-						int rowsAffected = 0;
-						PreparedStatement stmt = null;
-						try {
-							stmt = conn.prepareStatement(sql);
-							stmt.setString(1, AESUtil.encryptItem(email));
-							stmt.setString(2, AESUtil.encryptItem(pass1));
-							stmt.setString(3, AESUtil.encryptItem(question1));
-							stmt.setString(4, AESUtil.encryptItem(question2));
-							stmt.setString(5, AESUtil.encryptItem(answer1));
-							stmt.setString(6, AESUtil.encryptItem(answer2));
-							rowsAffected = stmt.executeUpdate();
-						} catch (SQLIntegrityConstraintViolationException e) {
-							checkCode = 6;
-						}
-						// Execute the query and check the number of rows affected
-						if (rowsAffected > 0 && checkCode==0 ) {
-							// added the call of login for further initialization,
-							// which can be moved somewhere else
-							login(r);
-							checkCode = 5;
-						} else {
-							checkCode = 6;
-						}
-
-						// Close the connection and statement
-						stmt.close();
-						conn.close();
-
-					}
-				} else {
-					checkCode = 3;
-				}
-
-			} else {
-				checkCode = 2;
-			}
-
-
-		}
-		return checkCode;
-	}
-
 	public Result downloadDropDownMenuEntries() throws SQLException {
 		Result result = new Result();
 		List<String> banks = new ArrayList<String>();
@@ -1010,7 +914,7 @@ public class PEC {
 
 	public void addCategoriesForUserToDB() throws SQLException {
 		Connection connection = Connectivity.getConnection();
-		String sql = "DELETE FROM category where user_id = ?";
+		String sql = "DELETE FROM category WHERE user_id = ?";
 		PreparedStatement s = connection.prepareStatement(sql);
 		s.setInt(1, getCurrentUserID());
 		int rowsAffected = s.executeUpdate();

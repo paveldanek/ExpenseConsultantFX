@@ -25,7 +25,8 @@ public class GUI_Menu_Actions extends MenuActionProgrammableHandle implements Ac
 		MenuActionProgrammableHandle ac = new MenuActionProgrammableHandle();
 
 		if (e.getActionCommand().compareToIgnoreCase("About")==0) {
-			JOptionPane.showMessageDialog(null, ""+strAboutApp,"About", JOptionPane.INFORMATION_MESSAGE);
+			JLabel label = new JLabel(strAboutApp);
+			JOptionPane.showMessageDialog(null, label,"About", JOptionPane.INFORMATION_MESSAGE);
 		}else if (e.getActionCommand().compareToIgnoreCase("Manual Entry")==0) {
 			ac.doManualEntryProcessing();
 
