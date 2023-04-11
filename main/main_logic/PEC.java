@@ -7,10 +7,9 @@ import crypto.AESUtil;
 import db_connectors.Connectivity;
 import entities.Transaction;
 import entities.TransactionList;
-import gui_v1.data_loaders.GUI_ElementsDataLoader;
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
-import gui_v1.mainWindows.GUI_RecordsWindow;
 import parsers.OFXParser;
+import summary.Summary;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -42,6 +41,7 @@ public class PEC {
 	// private main structure housing active Transaction data
 	// (no more than 3 months worth)
 	private TransactionList tList;
+	private Summary currentSummary;
 
 	private String[][] manualEntries = new String[0][7];
 
@@ -115,7 +115,7 @@ public class PEC {
 		this.currentUserID = currentUserID;
 	}
 
-	private String getCurrentUserPass() throws InvalidAlgorithmParameterException, NoSuchPaddingException,
+	public String getCurrentUserPass() throws InvalidAlgorithmParameterException, NoSuchPaddingException,
 			IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException,
 			InvalidKeyException { return AESUtil.decryptItem(currentUserPass); }
 
@@ -419,9 +419,8 @@ public class PEC {
 			acctEndDate = tempEnd;
 		} else {
 			// if the parsed account is not the active account, fetch it and make it active
-			setActiveAccount(allAccounts[acctPos]);
+			switchActiveAccount(allAccounts[acctPos]);
 		}
-		uploadCurrentList();
 		if (mergeNewTList(parsedTlist)) {
 			return returnRListIterator();
 		}
@@ -456,6 +455,7 @@ public class PEC {
 			}
 			setAcctBeginDate(activeAccount, resultTList.getStartDate());
 			tList = resultTList;
+			currentSummary = new Summary(tList);
 			return change;
 		} else if (list.getEndDate().compareTo(getAcctEndDate(activeAccount))>=0) {
 			// fetch the last 3-or-less-month chunk of db and load it in tList, if not there already
@@ -473,6 +473,7 @@ public class PEC {
 			// If database is empty, do:
 			if (tList.size()==0) setAcctBeginDate(activeAccount, list.getStartDate());
 			tList = resultTList;
+			currentSummary = new Summary(tList);
 			return change;
 		}
 		return change;
@@ -492,6 +493,7 @@ public class PEC {
 			rList.add(result);
 			result = new Result();
 		}
+		if (currentSummary!=null) System.out.println(currentSummary.toString());
 		return rList.listIterator();
 	}
 
@@ -560,10 +562,12 @@ public class PEC {
 				}
 				setActiveAccount(lastNickFound);
 				tList = download3monthPortion(Transaction.returnCalendarFromYYYYMMDD(lastRecordMade));
+				currentSummary = Summary.downloadSummary(lastNickFound,
+						Transaction.returnCalendarFromYYYYMMDD(lastRecordMade),
+						Transaction.returnCalendarFromYYYYMMDD(lastRecordMade));
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
-
 		}
 		return returnRListIterator();
 	}
@@ -574,6 +578,8 @@ public class PEC {
 		uploadCurrentList();
 		setActiveAccount(acctToSwitchTo);
 		tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[0]);
+		currentSummary = Summary.downloadSummary(activeAccount, firstAndLastEntryOfAccount(activeAccount)[0],
+				firstAndLastEntryOfAccount(activeAccount)[0]);
 		return returnRListIterator();
 	}
 
@@ -663,7 +669,7 @@ public class PEC {
 		try {
 			PreparedStatement s = connection.prepareStatement(sql);
 			s.setString(1, Transaction.returnYYYYMMDDFromCalendar(load.getStartDate()));
-			s.setString(2, AESUtil.encryptHistory(AESUtil.tListIntoString(load), getCurrentUserPass()));
+			s.setString(2, AESUtil.encryptStringTable(AESUtil.tListIntoString(load), getCurrentUserPass()));
 			s.setString(3, getBankNameFromCurrAcctIdentifier());
 			s.setString(4, getActiveAccount());
 			s.setInt(5, getCurrentUserID());
@@ -671,6 +677,7 @@ public class PEC {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		Summary.uploadSummary(load, getActiveAccount());
 	}
 
 	private TransactionList download3monthPortion(Calendar dateStarting) {
@@ -687,7 +694,7 @@ public class PEC {
 			ResultSet rs = stmt.executeQuery();
 			String result = "";
 			if (rs.next()) result = rs.getString("transaction_history");
-			result = AESUtil.decryptHistory(result, getCurrentUserPass());
+			result = AESUtil.decryptStringTable(result, getCurrentUserPass());
 			list = AESUtil.stringIntoTList(result);
 			return list;
 		} catch (Exception e) {
@@ -707,6 +714,7 @@ public class PEC {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		Summary.deleteSummary(dateStarting, getActiveAccount());
 	}
 
 	public void uploadCurrentList() {
@@ -807,25 +815,33 @@ public class PEC {
 
 	public ListIterator<Result> goFirst() {
 		uploadCurrentList();
-		tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[0]);
+		Calendar first = firstAndLastEntryOfAccount(activeAccount)[0];
+		tList = download3monthPortion(first);
+		currentSummary = Summary.downloadSummary(activeAccount, first, first);
 		return returnRListIterator();
 	}
 
 	public ListIterator<Result> goPrevious() {
 		uploadCurrentList();
-		tList = download3monthPortion(previousAndNextEntryOfAccount(activeAccount, tList.getStartDate())[0]);
+		Calendar previous = previousAndNextEntryOfAccount(activeAccount, tList.getStartDate())[0];
+		tList = download3monthPortion(previous);
+		currentSummary = Summary.downloadSummary(activeAccount, previous, previous);
 		return returnRListIterator();
 	}
 
 	public ListIterator<Result> goNext() {
 		uploadCurrentList();
-		tList = download3monthPortion(previousAndNextEntryOfAccount(activeAccount, tList.getStartDate())[1]);
+		Calendar next = previousAndNextEntryOfAccount(activeAccount, tList.getStartDate())[1];
+		tList = download3monthPortion(next);
+		currentSummary = Summary.downloadSummary(activeAccount, next, next);
 		return returnRListIterator();
 	}
 
 	public ListIterator<Result> goLast() {
 		uploadCurrentList();
-		tList = download3monthPortion(firstAndLastEntryOfAccount(activeAccount)[1]);
+		Calendar last = firstAndLastEntryOfAccount(activeAccount)[1];
+		tList = download3monthPortion(last);
+		currentSummary = Summary.downloadSummary(activeAccount, last, last);
 		return returnRListIterator();
 	}
 

@@ -54,6 +54,16 @@ public class Connectivity {
                 System.exit(1);
             }
         }
+        if (!checkTable("summary")) {
+            if (!errorShown) {
+                dbIsNotIntact();
+                errorShown=true;
+            }
+            if (!createTableSummary()) {
+                dbCannotBeFixed();
+                System.exit(1);
+            }
+        }
         return connection;
     }
 
@@ -96,6 +106,7 @@ public class Connectivity {
             if (!createTableUsers()) throw new SQLException();
             if (!createTableTransaction()) throw new SQLException();
             if (!createTableCategory()) throw new SQLException();
+            if (!createTableSummary()) throw new SQLException();
         } catch (SQLException e) {
             return false;
         }
@@ -152,9 +163,9 @@ public class Connectivity {
             sql = "DROP TABLE IF EXISTS users";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
-            sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
-                    "email varchar(50) NOT NULL UNIQUE, password varchar(40) NOT NULL, "+
-                    "question1 varchar(60), question2 varchar(60), answer1 varchar(40), "+
+            sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                    "email varchar(50) NOT NULL UNIQUE, password varchar(40) NOT NULL, " +
+                    "question1 varchar(60), question2 varchar(60), answer1 varchar(40), " +
                     "answer2 varchar(40), created_date datetime DEFAULT CURRENT_TIMESTAMP)";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
@@ -195,8 +206,29 @@ public class Connectivity {
             sql = "DROP TABLE IF EXISTS category";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
-            sql = "CREATE TABLE category(category_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, "+
+            sql = "CREATE TABLE category(category_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "category_name varchar(35), user_id int, FOREIGN KEY (user_id) REFERENCES users (user_id))";
+            s = connection.prepareStatement(sql);
+            rowsAffected = s.executeUpdate();
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean createTableSummary() {
+        int rowsAffected;
+        String sql;
+        PreparedStatement s;
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/expense_consultant", USER, PASS);
+            sql = "DROP TABLE IF EXISTS summary";
+            s = connection.prepareStatement(sql);
+            rowsAffected = s.executeUpdate();
+            sql = "CREATE TABLE summary(summary_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                    "begin_date varchar(25), end_date varchar(25), total_out varchar(50), total_in varchar(50), " +
+                    "category_totals text, account_nick varchar(50), user_id int, " +
+                    "FOREIGN KEY (user_id) REFERENCES users (user_id))";
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
         } catch (SQLException e) {

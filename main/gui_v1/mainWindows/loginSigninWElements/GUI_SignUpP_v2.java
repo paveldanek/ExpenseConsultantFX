@@ -1,14 +1,12 @@
 package gui_v1.mainWindows.loginSigninWElements;
 
-import gui_v1.action_processors.SignupNewUserProgrammableHandler;
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.mainWindows.GUI_LogInWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_SignUPWindow;
 import gui_v1.settings.GUI_LoginSignUpWiindows_Settings;
 import gui_v1.settings.GUI_Settings_Variables;
-import login.Account;
-import main_logic.PEC;
+import authentication.Authentication;
 import main_logic.Request;
 
 import javax.swing.*;
@@ -125,7 +123,7 @@ public class GUI_SignUpP_v2 extends JPanel implements GUI_LoginSignUpWiindows_Se
             r.setAnswer1(jtfSeqAnswer1.getText().trim());
             r.setAnswer2(jtfSeqAnswer2.getText().trim());
             try {
-                code = Account.instance().signup(r);
+                code = Authentication.instance().signup(r);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

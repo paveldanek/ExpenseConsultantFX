@@ -5,7 +5,7 @@ import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.mainWindows.GUI_LogInWindow;
 import gui_v1.settings.GUI_LoginSignUpWiindows_Settings;
 import gui_v1.mainWindows.GUI_PasswordRetrievalWindow;
-import login.Account;
+import authentication.Authentication;
 import main_logic.Request;
 
 import javax.swing.*;
@@ -68,7 +68,7 @@ public class GUI_PasswordRetrievalP extends JPanel implements GUI_LoginSignUpWii
             r.setAnswer1(jtfAnswer1.getText().trim());
             r.setAnswer2(jtfAnswer2.getText().trim());
             try {
-                code = Account.instance().retrievePassword(r);
+                code = Authentication.instance().retrievePassword(r);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

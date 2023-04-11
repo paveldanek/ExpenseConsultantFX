@@ -1,30 +1,29 @@
-package login;
+package authentication;
 
 import crypto.AESUtil;
 import db_connectors.Connectivity;
 import main_logic.PEC;
 import main_logic.Request;
 
-import javax.swing.*;
 import java.sql.*;
 
-public class Account {
+public class Authentication {
 
-    private static Account singleton = null;
+    private static Authentication singleton = null;
 
     /**
      * Private constructor.
      */
-    private Account() {}
+    private Authentication() {}
 
     /**
      * Instance creator.
      *
      * @return an instance of Account
      */
-    public static Account instance() {
+    public static Authentication instance() {
         if (singleton == null) {
-            singleton = new Account();
+            singleton = new Authentication();
         }
         return singleton;
     }

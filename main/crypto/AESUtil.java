@@ -3,12 +3,9 @@ package crypto;
 import entities.Transaction;
 import entities.TransactionList;
 import main_logic.Request;
+import summary.CatTotal;
+import summary.Summary.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -16,13 +13,12 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
+import java.util.ArrayList;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -290,6 +286,50 @@ public class AESUtil {
     }
 
     /**
+     * A helper method that converts a ArrayList<CatTotal> into a single String of text.
+     * @param list the input ArrayList<CatTotal>
+     * @return the output String of text
+     */
+    public static String catTotalsIntoString(ArrayList<CatTotal> list) {
+        String output = "";
+        if (list==null) return output;
+        for (int i = 0; i < list.size(); i++) {
+            output += list.get(i).getCategoryName()+(char)0+
+                    String.valueOf(list.get(i).getTotalPerPeriod())+(char)0+
+                    String.valueOf(list.get(i).getPercentagePerPeriod())+(char)0+
+                    String.valueOf(list.get(i).getAveragePerMonth())+(char)1;
+        }
+        return output;
+    }
+
+    /**
+     * A helper method that converts a single String of text containing an ArrayList<CatTotal>
+     * information back into a proper ArrayList<CatTotal>.
+     * @param str the input String
+     * @return the output ArrayList<CatTotal>
+     */
+    public static ArrayList<CatTotal> stringIntoCatTotals(String str) {
+        ArrayList<CatTotal> list = new ArrayList<CatTotal>();
+        CatTotal c;
+        String singleC;
+        String[] cArray = new String[4];
+        int i;
+        while (str.length()>0) {
+            i = 0;
+            while (i < str.length() && str.charAt(i) != (char)1) { i++; }
+            singleC = str.substring(0, i);
+            str = str.substring(i+1);
+            cArray = singleC.split(String.valueOf((char)0));
+            if (cArray.length==4) {
+                c = new CatTotal(cArray[0], Double.parseDouble(cArray[1]),
+                        Double.parseDouble(cArray[2]), Double.parseDouble(cArray[3]));
+                list.add(c);
+            }
+        }
+        return list;
+    }
+
+    /**
      * Encrypts a long String of plain text for database storage. Only needs a password;
      * constructs its own randomized salt and initialization vector, which are both stored
      * within the ciphered output text.
@@ -297,7 +337,7 @@ public class AESUtil {
      * @param password the only necessary ingredient - the password
      * @return encrypted String of text
      */
-    public static String encryptHistory(String plainText, String password) {
+    public static String encryptStringTable(String plainText, String password) {
         String output = "";
         if (plainText.length()==0 || password.length()==0) return output;
         // constructs randomized salt
@@ -333,7 +373,7 @@ public class AESUtil {
      * @param password the only necessary ingredient - the password
      * @return decrypted plain text String
     */
-    public static String decryptHistory(String cipher, String password) {
+    public static String decryptStringTable(String cipher, String password) {
         String output = "";
         // if the ciphered text is less than 22 characters long, it's unlikely
         // we're dealing with a real encrypted text ciphered by this mechanism

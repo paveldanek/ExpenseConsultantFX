@@ -1,23 +1,18 @@
 package gui_v1.mainWindows.loginSigninWElements;
-import db_connectors.Connectivity;
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.mainWindows.GUI_LogInWindow;
-import gui_v1.mainWindows.GUI_MainWindow;
 import gui_v1.mainWindows.GUI_RecordsWindow;
 import gui_v1.mainWindows.GUI_SignUPWindow;
 import gui_v1.settings.GUI_LoginSignUpWiindows_Settings;
 import gui_v1.settings.GUI_Settings_Variables;
 import gui_v1.mainWindows.GUI_PasswordRetrievalWindow;
-import login.Account;
+import authentication.Authentication;
 import main_logic.PEC;
 import main_logic.Request;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settings, ActionListener {
@@ -117,7 +112,7 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
             req.setEmail(String.valueOf(jtfLogInName.getText()));
             req.setPass1(String.valueOf(jtfPass.getPassword()));
             try {
-                userID = Account.instance().login(req);
+                userID = Authentication.instance().login(req);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
