@@ -295,9 +295,7 @@ public class AESUtil {
         if (list==null) return output;
         for (int i = 0; i < list.size(); i++) {
             output += list.get(i).getCategoryName()+(char)0+
-                    String.valueOf(list.get(i).getTotalPerPeriod())+(char)0+
-                    String.valueOf(list.get(i).getPercentagePerPeriod())+(char)0+
-                    String.valueOf(list.get(i).getAveragePerMonth())+(char)1;
+                    String.valueOf(list.get(i).getTotalPerPeriod())+(char)1;
         }
         return output;
     }
@@ -312,7 +310,7 @@ public class AESUtil {
         ArrayList<CatTotal> list = new ArrayList<CatTotal>();
         CatTotal c;
         String singleC;
-        String[] cArray = new String[4];
+        String[] cArray = new String[2];
         int i;
         while (str.length()>0) {
             i = 0;
@@ -320,9 +318,8 @@ public class AESUtil {
             singleC = str.substring(0, i);
             str = str.substring(i+1);
             cArray = singleC.split(String.valueOf((char)0));
-            if (cArray.length==4) {
-                c = new CatTotal(cArray[0], Double.parseDouble(cArray[1]),
-                        Double.parseDouble(cArray[2]), Double.parseDouble(cArray[3]));
+            if (cArray.length==2) {
+                c = new CatTotal(cArray[0], Double.parseDouble(cArray[1]));
                 list.add(c);
             }
         }

@@ -14,18 +14,31 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class creates and keeps a Summary of a single-account per-period activity for
+ * Personal Expense Consultant.
+ */
 public class Summary {
 
+    // essencial metrics and values the Summary holds
     private double totalExpense = 0.0;
     private double totalIncome = 0.0;
     private Calendar periodBegin = Transaction.returnCalendarFromYYYYMMDD(TransactionList.STR_DATE_MIN);
     private Calendar periodEnd = Transaction.returnCalendarFromYYYYMMDD(TransactionList.STR_DATE_MIN);
     private ArrayList<CatTotal> catTotals = new ArrayList<CatTotal>();
     private String accountNick = "";
-
+    // helper variables: start and end are periodBegin and periodEnd millisecond representation
+    // (as typical for Java, milliseconds measured from the beginning point, midnight, Jan 1, 1970 UTC.
+    // periodDayAmount is the length of the specific period (up to 3 months) in days
     private long start = 0, end = 0, periodDayAmount = 0;
 
+    /**
+     * Creates a Summary from a TransactionList.
+     * @param list the TransactionList supplied
+     */
     public Summary(TransactionList list) {
+        if (list==null) return;
+        if (list.size()==0) return;
         periodBegin = list.getStartDate();
         periodEnd = list.getEndDate();
         accountNick = PEC.instance().getActiveAccount();
@@ -50,8 +63,24 @@ public class Summary {
         }
     }
 
-    public Summary(String acctNick, Calendar from) {
+    /**
+     * Creates a new, blank Summary.
+     */
+    public Summary() {
+    }
+
+    /**
+     * Makes a Summary from downloaded information from the database. While this may seem
+     * convenient it's only recomended for other than current TransactionList in use. The
+     * current, most up-to-minute Summary should be always created from scratch, from a
+     * TransactionList.
+     * @param acctNick downloads the Summary from the specified account on file
+     * @param from downloads the Summary from the specified time index
+     * @return the downloaded Summary
+     */
+    public static Summary downloadSingleSummary(String acctNick, Calendar from) {
         Connection connection = Connectivity.getConnection();
+        Summary summary = new Summary();
         String query = "SELECT end_date, total_out, total_in, category_totals FROM summary "
                 + "WHERE user_id = ? AND begin_date = ? AND account_nick = ?";
         PreparedStatement stmt = null;
@@ -63,26 +92,29 @@ public class Summary {
             ResultSet rs = stmt.executeQuery();
             String result = "";
             if (rs.next()) {
-                accountNick = acctNick;
-                periodBegin = from;
-                periodEnd = Transaction.returnCalendarFromYYYYMMDD(rs.getString("end_date"));
-                totalExpense = Double.parseDouble(AESUtil.decryptItem(rs.getString("total_out")));
-                totalIncome = Double.parseDouble(AESUtil.decryptItem(rs.getString("total_in")));
+                summary.accountNick = acctNick;
+                summary.periodBegin = from;
+                summary.periodEnd = Transaction.returnCalendarFromYYYYMMDD(rs.getString("end_date"));
+                summary.totalExpense = Double.parseDouble(AESUtil.decryptItem(rs.getString("total_out")));
+                summary.totalIncome = Double.parseDouble(AESUtil.decryptItem(rs.getString("total_in")));
                 result = rs.getString("category_totals");
                 result = AESUtil.decryptStringTable(result, PEC.instance().getCurrentUserPass());
-                catTotals = AESUtil.stringIntoCatTotals(result);
-                start = periodBegin.getTimeInMillis();
-                end = periodEnd.getTimeInMillis();
-                periodDayAmount = TimeUnit.MILLISECONDS.toDays(Math.abs(end - start)) + 1;
+                summary.catTotals = AESUtil.stringIntoCatTotals(result);
+                summary.start = summary.periodBegin.getTimeInMillis();
+                summary.end = summary.periodEnd.getTimeInMillis();
+                summary.periodDayAmount = TimeUnit.MILLISECONDS.toDays(Math.abs(summary.end - summary.start)) + 1;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return summary;
     }
 
-    public Summary() {
-    }
-
+    /**
+     * Deletes a specified Summary from the database.
+     * @param dateStarting a specific time index of a period to be deleted
+     * @param acctNick a specific account
+     */
     public static void deleteSummary(Calendar dateStarting, String acctNick) {
         Connection connection = Connectivity.getConnection();
         String sql = "DELETE FROM summary WHERE user_id = ? AND begin_date = ? AND account_nick = ?";
@@ -97,6 +129,11 @@ public class Summary {
         }
     }
 
+    /**
+     * Creates a new Summary from scratch from a TransactionList and uploads it to database.
+     * @param tList the TransactionList the Summary will be created from
+     * @param acctNick the nickname of the account the Summary will be associated with
+     */
     public static void uploadSummary(TransactionList tList, String acctNick) {
         Summary summary = new Summary(tList);
         Connection connection = Connectivity.getConnection();
@@ -107,7 +144,6 @@ public class Summary {
             s.setString(1, Transaction.returnYYYYMMDDFromCalendar(summary.getPeriodBegin()));
             s.setString(2, Transaction.returnYYYYMMDDFromCalendar(summary.getPeriodEnd()));
             s.setString(3, AESUtil.encryptItem(String.valueOf(summary.getTotalExpense())));
-            //System.out.println(AESUtil.encryptItem(String.valueOf(summary.getTotalExpense())));
             s.setString(4, AESUtil.encryptItem(String.valueOf(summary.getTotalIncome())));
             s.setString(5, AESUtil.encryptStringTable(AESUtil.catTotalsIntoString
                     (summary.getCatTotals()), PEC.instance().getCurrentUserPass()));
@@ -119,26 +155,14 @@ public class Summary {
         }
     }
 
-    public void uploadCurrentSummary() {
-        Connection connection = Connectivity.getConnection();
-        String sql = "INSERT INTO summary (begin_date, end_date, total_out, total_in, "+
-        "category_totals, account_nick, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement s = connection.prepareStatement(sql);
-            s.setString(1, Transaction.returnYYYYMMDDFromCalendar(periodBegin));
-            s.setString(2, Transaction.returnYYYYMMDDFromCalendar(periodEnd));
-            s.setString(3, AESUtil.encryptItem(String.valueOf(totalExpense)));
-            s.setString(4, AESUtil.encryptItem(String.valueOf(totalIncome)));
-            s.setString(5, AESUtil.encryptStringTable(AESUtil.catTotalsIntoString(catTotals),
-                    PEC.instance().getCurrentUserPass()));
-            s.setString(6, PEC.instance().getActiveAccount());
-            s.setInt(7, PEC.instance().getCurrentUserID());
-            int rowsAffected = s.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * Creates and populates a new Summary for a specific account accross multiple time periods.
+     * If just one period is desired, the from and to parameters should be the same.
+     * @param acctNick the requested account
+     * @param from the time index of the first period included
+     * @param to the time index of the last period included
+     * @return the aggregated Summary for the time period specified
+     */
     public static Summary downloadSummary(String acctNick, Calendar from, Calendar to) {
         if (from.compareTo(to)>0) {
             Calendar temp = to;
@@ -168,11 +192,13 @@ public class Summary {
                     totalSummary.setPeriodBegin(bd);
                     totalSummary.setPeriodEnd(ed);
                 }
-                else if (totalSummary.getPeriodBegin().compareTo(bd)>0) totalSummary.setPeriodBegin(bd);
-                if (totalSummary.getPeriodEnd().compareTo(ed)<0) totalSummary.setPeriodEnd(ed);
-                totalSummary.setTotalExpense(totalSummary.getTotalExpense()+
+                else {
+                    if (totalSummary.getPeriodBegin().compareTo(bd)>0) totalSummary.setPeriodBegin(bd);
+                    if (totalSummary.getPeriodEnd().compareTo(ed)<0) totalSummary.setPeriodEnd(ed);
+                }
+                totalSummary.incrementTotalExpense(
                         Double.parseDouble(AESUtil.decryptItem(rs.getString("total_out"))));
-                totalSummary.setTotalIncome(totalSummary.getTotalIncome()+
+                totalSummary.incrementTotalIncome(
                         Double.parseDouble(AESUtil.decryptItem(rs.getString("total_in"))));
                 catTotalList = AESUtil.stringIntoCatTotals(AESUtil.decryptStringTable
                         (rs.getString("category_totals"), PEC.instance().getCurrentUserPass()));
@@ -181,9 +207,8 @@ public class Summary {
                     for (int i=0; i< catTotalList.size(); i++) {
                         int index = totalSummary.returnCatIndex(catTotalList.get(i).getCategoryName());
                         if (index>-1) {
-                            totalSummary.getCatTotals().get(index).setTotalPerPeriod
-                                    (totalSummary.getCatTotals().get(index).getTotalPerPeriod()+
-                                            catTotalList.get(i).getTotalPerPeriod());
+                            totalSummary.getCatTotals().get(index).incrementTotalPerPeriod(
+                                    catTotalList.get(i).getTotalPerPeriod());
                         } else {
                             totalSummary.getCatTotals().add(new CatTotal(catTotalList.get(i).getCategoryName(),
                                             catTotalList.get(i).getTotalPerPeriod()));
@@ -191,14 +216,16 @@ public class Summary {
                     }
                 }
             }
-            totalSummary.setAccountNick(acctNick);
-            totalSummary.setStart(totalSummary.getPeriodBegin().getTimeInMillis());
-            totalSummary.setEnd(totalSummary.getPeriodEnd().getTimeInMillis());
-            totalSummary.setPeriodDayAmount(TimeUnit.MILLISECONDS.toDays
-                    (Math.abs(totalSummary.end - totalSummary.start)) + 1);
-            for (int i=0; i< totalSummary.getCatTotals().size(); i++) {
-                totalSummary.getCatTotals().get(i).calculatePercentageAndAverage
-                        (totalSummary.totalExpense, totalSummary.totalIncome, totalSummary.periodDayAmount);
+            if (totalSummary.getCatTotals().size()>0) {
+                totalSummary.setAccountNick(acctNick);
+                totalSummary.setStart(totalSummary.getPeriodBegin().getTimeInMillis());
+                totalSummary.setEnd(totalSummary.getPeriodEnd().getTimeInMillis());
+                totalSummary.setPeriodDayAmount(TimeUnit.MILLISECONDS.toDays
+                        (Math.abs(totalSummary.end - totalSummary.start)) + 1);
+                for (int i = 0; i < totalSummary.getCatTotals().size(); i++) {
+                    totalSummary.getCatTotals().get(i).calculatePercentageAndAverage
+                            (totalSummary.totalExpense, totalSummary.totalIncome, totalSummary.periodDayAmount);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -206,41 +233,17 @@ public class Summary {
         return totalSummary;
     }
 
+    /**
+     * Returns the index under which it finds a specified Category in the CatTotal list.
+     * @param categoryName Category name searched for
+     * @return the index of the list where the Category is; returns -1 if not found
+     */
     private int returnCatIndex(String categoryName) {
         for (int j = 0; j < catTotals.size(); j++) {
             if (categoryName.compareToIgnoreCase(catTotals.get(j).getCategoryName())==0)
                 return j;
         }
         return -1;
-    }
-
-    private boolean currentUserHasAnyAccountSummary() {
-        Connection connection = Connectivity.getConnection();
-        String query = "SELECT account_nick FROM summary WHERE user_id = ?";
-        PreparedStatement stmt = null;
-        try {
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, PEC.instance().getCurrentUserID());
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean currentUserHasSummaryForAccount(String acctNick) {
-        Connection connection = Connectivity.getConnection();
-        String query = "SELECT account_nick FROM summary WHERE user_id = ? AND account_nick = ?";
-        PreparedStatement stmt = null;
-        try {
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, PEC.instance().getCurrentUserID());
-            stmt.setString(2, acctNick);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public String getAccountNick() {
@@ -255,45 +258,57 @@ public class Summary {
         return totalExpense;
     }
 
-    public double getTotalIncome() {
-        return totalIncome;
-    }
-
-    public Calendar getPeriodBegin() {
-        return periodBegin;
-    }
-
-    public Calendar getPeriodEnd() {
-        return periodEnd;
-    }
-
-    public ArrayList<CatTotal> getCatTotals() {
-        return catTotals;
-    }
-
     public void setTotalExpense(double totalExpense) {
         this.totalExpense = totalExpense;
+    }
+
+    public void incrementTotalExpense(double totalExpense) {
+        this.totalExpense += totalExpense;
+    }
+
+    public double getTotalIncome() {
+        return totalIncome;
     }
 
     public void setTotalIncome(double totalIncome) {
         this.totalIncome = totalIncome;
     }
 
+    public void incrementTotalIncome(double totalIncome) {
+        this.totalIncome += totalIncome;
+    }
+
+    public Calendar getPeriodBegin() {
+        return periodBegin;
+    }
+
     public void setPeriodBegin(Calendar periodBegin) {
         this.periodBegin = periodBegin;
+    }
+
+    public Calendar getPeriodEnd() {
+        return periodEnd;
     }
 
     public void setPeriodEnd(Calendar periodEnd) {
         this.periodEnd = periodEnd;
     }
 
+    public ArrayList<CatTotal> getCatTotals() {
+        return catTotals;
+    }
+
     public void setCatTotals(ArrayList<CatTotal> catTotals) {
         this.catTotals = catTotals;
     }
 
+    public long getStart() { return start; }
+
     public void setStart(long start) {
         this.start = start;
     }
+
+    public long getEnd() { return end; }
 
     public void setEnd(long end) {
         this.end = end;
