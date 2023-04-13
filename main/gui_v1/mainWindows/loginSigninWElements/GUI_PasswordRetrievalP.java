@@ -53,8 +53,6 @@ public class GUI_PasswordRetrievalP extends JPanel implements GUI_LoginSignUpWii
         JButton jbtOk = GUI_ElementCreator.newJButton("Retrieve My Password");
         jbtOk.addActionListener(this);
         add(jbtOk, BorderLayout.SOUTH);
-
-
     }
 
     @Override
@@ -75,17 +73,17 @@ public class GUI_PasswordRetrievalP extends JPanel implements GUI_LoginSignUpWii
             switch (code)
             {
                 case 1:
-                    JOptionPane.showMessageDialog(null, "Unrecognized email. You may\nhave to set up a new account.");
+                    JOptionPane.showMessageDialog(null, "Unrecognized Email. You may\nhave to set up a new Account.");
                     break;
                 case 2:
                     JOptionPane.showMessageDialog(null, "The security Questions & Answers\ndo not match our records. Sorry.");
                     break;
                 case 3:
-                    JOptionPane.showMessageDialog(null, "Your password is:\n"+ AESUtil.decryptItem(r.getPass1()));
+                    JOptionPane.showMessageDialog(null, "Your Password is:\n"+ AESUtil.decryptItem(r.getPass1()));
                     r.setPass1("");
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Sorry. Your password could not be retrieved!");
+                    JOptionPane.showMessageDialog(null, "Sorry. Your Password could not be retrieved!");
                     break;
             }
         }

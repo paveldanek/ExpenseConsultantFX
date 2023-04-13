@@ -74,16 +74,16 @@ public class GUI_PasswordChangeP extends JPanel implements GUI_LoginSignUpWiindo
                     JOptionPane.showMessageDialog(null, "New Password has to be between\n8 and 19 characters long!");
                     break;
                 case 3:
-                    JOptionPane.showMessageDialog(null, "Unrecognized email.");
+                    JOptionPane.showMessageDialog(null, "Unrecognized Email.");
                     break;
                 case 4:
-                    JOptionPane.showMessageDialog(null, "The Current Password does\nnot match our records.");
+                    JOptionPane.showMessageDialog(null, "The current Password does\nnot match our records.");
                     break;
                 case 5:
                     JOptionPane.showMessageDialog(null, "Your New Password is:\n"+ r.getPass1());
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Sorry. Your password could not be changed!");
+                    JOptionPane.showMessageDialog(null, "Sorry. Your Password could not be changed!");
                     break;
             }
             r.setOldPass(""); r.setPass1(""); r.setPass2("");

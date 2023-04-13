@@ -254,15 +254,16 @@ public class Authentication {
         return 5;
     }
 
-    public int closeAccountDialog(Request r) {
+    public int closeAccountDialog(Request r) throws SQLException{
         Connection connection = Connectivity.getConnection();
-        String query = "SELECT password FROM users WHERE email = ?";
+        String query = "SELECT password FROM users WHERE email = ? AND user_id = ?";
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         String pass = "";
         try {
             statement = connection.prepareStatement(query);
             statement.setString(1, AESUtil.encryptItem(r.getEmail()));
+            statement.setInt(2, PEC.instance().getCurrentUserID());
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 pass = resultSet.getString("password");
@@ -272,11 +273,11 @@ public class Authentication {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        if (pass.compareToIgnoreCase(r.getPass1())!=0) return 2;
+        if (AESUtil.decryptItem(pass).compareToIgnoreCase(r.getPass1())!=0) return 2;
         return 3;
     }
 
-    public void closeAccount() {
+    public void closeAccount() throws SQLException{
         Connection connection = Connectivity.getConnection();
         int id = PEC.instance().getCurrentUserID();
         String transaction = "DELETE FROM transaction WHERE user_id = ?";
@@ -299,7 +300,7 @@ public class Authentication {
             s = connection.prepareStatement(users);
             s.setInt(1, id);
             rowsAffected = s.executeUpdate();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

@@ -28,7 +28,7 @@ public class Summary {
     private ArrayList<CatTotal> catTotals = new ArrayList<CatTotal>();
     private String accountNick = "";
     // helper variables: start and end are periodBegin and periodEnd millisecond representation
-    // (as typical for Java, milliseconds measured from the beginning point, midnight, Jan 1, 1970 UTC.
+    // (as typical for Java, milliseconds measured from the beginning point, midnight, Jan 1, 1970 UTC).
     // periodDayAmount is the length of the specific period (up to 3 months) in days
     private long start = 0, end = 0, periodDayAmount = 0;
 

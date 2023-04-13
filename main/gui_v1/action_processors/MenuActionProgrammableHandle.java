@@ -98,9 +98,9 @@ public class MenuActionProgrammableHandle {
     void doChangePasswordProcessing(){
         GUI_PasswordChangeWindow.getInstance().showPasswordChangeWindow();
     }
-    void doCloseAccountProcessing(){
 
-    }
+    void doCloseAccountProcessing(){ GUI_CloseAccountWindow.getInstance().showCloseAccountWindow(); }
+
     public void dologOutProcessing() {
         JOptionPane.showMessageDialog(null, "You're about to log out and end" +
                         "\nthe program. When you do, your work\nwill be saved in the database.",
