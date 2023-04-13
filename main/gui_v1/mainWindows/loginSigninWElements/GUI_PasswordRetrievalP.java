@@ -78,7 +78,7 @@ public class GUI_PasswordRetrievalP extends JPanel implements GUI_LoginSignUpWii
                     JOptionPane.showMessageDialog(null, "Unrecognized email. You may\nhave to set up a new account.");
                     break;
                 case 2:
-                    JOptionPane.showMessageDialog(null, "The security Questions & Answers\ndo not match our record. Sorry.");
+                    JOptionPane.showMessageDialog(null, "The security Questions & Answers\ndo not match our records. Sorry.");
                     break;
                 case 3:
                     JOptionPane.showMessageDialog(null, "Your password is:\n"+ AESUtil.decryptItem(r.getPass1()));

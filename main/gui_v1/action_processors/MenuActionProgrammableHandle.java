@@ -1,11 +1,8 @@
 package gui_v1.action_processors;
 import entities.Transaction;
 import entities.TransactionList;
-import gui_v1.mainWindows.GUI_NewAccountWindow;
+import gui_v1.mainWindows.*;
 import gui_v1.mainWindows.recordsWElements.RecordsTable;
-import gui_v1.mainWindows.GUI_HowToWindow;
-import gui_v1.mainWindows.GUI_ManualEntryWindow;
-import gui_v1.mainWindows.GUI_RecordsWindow;
 import main_logic.PEC;
 import main_logic.Request;
 import main_logic.Result;
@@ -98,7 +95,10 @@ public class MenuActionProgrammableHandle {
     void doGenerateSummaryProcessing(){
 
     }
-    void doSettingsProcessing(){
+    void doChangePasswordProcessing(){
+        GUI_PasswordChangeWindow.getInstance().showPasswordChangeWindow();
+    }
+    void doCloseAccountProcessing(){
 
     }
     public void dologOutProcessing() {

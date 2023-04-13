@@ -40,13 +40,12 @@ public class GUI_Menu_Actions extends MenuActionProgrammableHandle implements Ac
 			ac.doHowToStartProcessing();
 		}else if (e.getActionCommand().compareToIgnoreCase("Log Out and Exit")==0) {
 			ac.dologOutProcessing();
-		}else if (e.getActionCommand().compareToIgnoreCase("Settings")==0){
-			ac.doSettingsProcessing();
-
+		}else if (e.getActionCommand().compareToIgnoreCase("Change Password")==0){
+			ac.doChangePasswordProcessing();
+		}else if (e.getActionCommand().compareToIgnoreCase("Close Account")==0){
+			ac.doCloseAccountProcessing();
 		}
 	}
-
-
 
 	private void developmentActions(ActionEvent e) {
 		MenuActionProgrammableHandle ac = new MenuActionProgrammableHandle();

@@ -36,6 +36,8 @@ public class DataTransfer {
 	private String question2;
 	private String answer1;
 	private String answer2;
+	// field for password change
+	private String oldPassword;
 	// fields to hold references to instantiated GUI objects
 	private GUI_RecordsBoxP mainWindowHolder = null;
 	private JTable recordsTableHolder = null;
@@ -76,6 +78,7 @@ public class DataTransfer {
 		question2 = "";
 		answer1 = "";
 		answer2 = "";
+		oldPassword = "";
 		// ...
 	}
 
@@ -260,4 +263,8 @@ public class DataTransfer {
 	public void setAnswer2(String answer2) {
 		this.answer2 = answer2;
 	}
+
+	public String getOldPass() { return oldPassword; }
+
+	public void setOldPass(String oldPassword) { this.oldPassword = oldPassword; }
 }

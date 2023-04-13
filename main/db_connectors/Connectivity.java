@@ -164,7 +164,7 @@ public class Connectivity {
             s = connection.prepareStatement(sql);
             rowsAffected = s.executeUpdate();
             sql = "CREATE TABLE users(user_id int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
-                    "email varchar(50) NOT NULL UNIQUE, password varchar(40) NOT NULL, " +
+                    "email varchar(70) NOT NULL UNIQUE, password varchar(60) NOT NULL, " +
                     "question1 varchar(60), question2 varchar(60), answer1 varchar(40), " +
                     "answer2 varchar(40), created_date datetime DEFAULT CURRENT_TIMESTAMP)";
             s = connection.prepareStatement(sql);

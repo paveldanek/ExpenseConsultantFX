@@ -177,9 +177,9 @@ public final class GUI_ElementCreator implements GUI_Settings_Variables{
 	}
 	public static JMenu newJMenu(String  msg) {
 		JMenu  jmenu = new JMenu(checkTitleMsg(msg));
-		jmenu.setFont(newFont(jmenu.getFont(), txtSize_JMenu));
-		jmenu.setForeground(clrF_JMenu);
-		jmenu.setBackground(clrB_JMenu);
+		jmenu.setFont(newFont(jmenu.getFont(), txtSize_JMenuItem));
+		jmenu.setForeground(clrF_JMenuItem);
+		jmenu.setBackground(clrB_JMenuItem);
 		return jmenu;
 	}
 	public static JMenuItem newJMenuItem(String  msg) {

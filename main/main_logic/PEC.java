@@ -119,7 +119,7 @@ public class PEC {
 			IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException,
 			InvalidKeyException { return AESUtil.decryptItem(currentUserPass); }
 
-	private void setCurrentUserPass(String cipheredPass) { currentUserPass = cipheredPass; }
+	public void setCurrentUserPass(String cipheredPass) { currentUserPass = cipheredPass; }
 
 	public Calendar getAcctBeginDate(int position) {
 		if (position>=acctBeginDate.length || position<0)

@@ -2,6 +2,7 @@ package authentication;
 
 import crypto.AESUtil;
 import db_connectors.Connectivity;
+import entities.Transaction;
 import main_logic.PEC;
 import main_logic.Request;
 
@@ -65,40 +66,6 @@ public class Authentication {
             return userId;
         } else {
             return -1;
-        }
-    }
-
-    public int retrievePassword(Request r) throws SQLException{
-        Connection connection = Connectivity.getConnection();
-        String query = "SELECT password, question1, question2, answer1, answer2 FROM users WHERE email = ?";
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        String q1 = "", q2 = "", a1 = "", a2 = "";
-        try {
-            statement = connection.prepareStatement(query);
-            try {
-                statement.setString(1, AESUtil.encryptItem(r.getEmail()));
-                resultSet = statement.executeQuery();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            if (resultSet.next()) {
-                q1 = AESUtil.decryptItem(resultSet.getString("question1"));
-                q2 = AESUtil.decryptItem(resultSet.getString("question2"));
-                a1 = AESUtil.decryptItem(resultSet.getString("answer1"));
-                a2 = AESUtil.decryptItem(resultSet.getString("answer2"));
-                r.setPass1(resultSet.getString("password"));
-            } else {
-                return 1;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        if (q1.compareToIgnoreCase(r.getQuestion1())==0 && q2.compareToIgnoreCase(r.getQuestion2())==0
-        && a1.compareToIgnoreCase(r.getAnswer1())==0 && a2.compareToIgnoreCase(r.getAnswer2())==0) return 3;
-        else {
-            r.setPass1("");
-            return 2;
         }
     }
 
@@ -173,5 +140,167 @@ public class Authentication {
             }
         }
         return checkCode;
+    }
+
+    public int retrievePassword(Request r) throws SQLException{
+        Connection connection = Connectivity.getConnection();
+        String query = "SELECT password, question1, question2, answer1, answer2 FROM users WHERE email = ?";
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String q1 = "", q2 = "", a1 = "", a2 = "";
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, AESUtil.encryptItem(r.getEmail()));
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                q1 = AESUtil.decryptItem(resultSet.getString("question1"));
+                q2 = AESUtil.decryptItem(resultSet.getString("question2"));
+                a1 = AESUtil.decryptItem(resultSet.getString("answer1"));
+                a2 = AESUtil.decryptItem(resultSet.getString("answer2"));
+                r.setPass1(resultSet.getString("password"));
+            } else {
+                return 1;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if ((q1.compareToIgnoreCase(r.getQuestion1())==0 && q2.compareToIgnoreCase(r.getQuestion2())==0
+                && a1.compareToIgnoreCase(r.getAnswer1())==0 && a2.compareToIgnoreCase(r.getAnswer2())==0) ||
+                (q1.compareToIgnoreCase(r.getQuestion2())==0 && q2.compareToIgnoreCase(r.getQuestion1())==0
+                && a1.compareToIgnoreCase(r.getAnswer2())==0 && a2.compareToIgnoreCase(r.getAnswer1())==0)) return 3;
+        else {
+            r.setPass1("");
+            return 2;
+        }
+    }
+
+    public int passwordChange(Request r) throws SQLException{
+        if (r.getPass1().compareToIgnoreCase(r.getPass2())!=0) return 1;
+        if (r.getPass1().length()<8 || r.getPass1().length()>=20) return 2;
+        Connection connection = Connectivity.getConnection();
+        String query = "SELECT password FROM users WHERE email = ? AND user_id = ?";
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String oldPass = "";
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, AESUtil.encryptItem(r.getEmail()));
+            statement.setInt(2, PEC.instance().getCurrentUserID());
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                oldPass = resultSet.getString("password");
+            } else {
+                return 3;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (r.getOldPass().compareToIgnoreCase(AESUtil.decryptItem(oldPass))!=0) return 4;
+
+        PEC.instance().setCurrentUserPass(AESUtil.encryptItem(r.getPass1()));
+        String sql = "UPDATE users SET password = ? WHERE email = ?";
+        statement = null;
+        int rowsAffected = 0;
+        try {
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, AESUtil.encryptItem(r.getPass1()));
+            statement.setString(2, AESUtil.encryptItem(r.getEmail()));
+            rowsAffected = statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        query = "SELECT summary_id, category_totals FROM summary WHERE user_id = ?";
+        sql = "UPDATE summary SET category_totals = ? WHERE summary_id = ?";
+        PreparedStatement statement1 = null, statement2 = null;
+        resultSet = null; rowsAffected = 0;
+        try {
+            statement1 = connection.prepareStatement(query);
+            statement1.setInt(1, PEC.instance().getCurrentUserID());
+            resultSet = statement1.executeQuery();
+            while (resultSet.next()) {
+                String plainText = AESUtil.decryptStringTable(
+                    resultSet.getString("category_totals"), r.getOldPass());
+                String encryptedText = AESUtil.encryptStringTable(plainText, r.getPass1());
+                int summaryID = resultSet.getInt("summary_id");
+                statement2 = connection.prepareStatement(sql);
+                statement2.setString(1, encryptedText);
+                statement2.setInt(2, summaryID);
+                rowsAffected = statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        query = "SELECT transaction_id, transaction_history FROM transaction WHERE user_id = ?";
+        sql = "UPDATE transaction SET transaction_history = ? WHERE transaction_id = ?";
+        statement1 = null; statement2 = null;
+        resultSet = null; rowsAffected = 0;
+        try {
+            statement1 = connection.prepareStatement(query);
+            statement1.setInt(1, PEC.instance().getCurrentUserID());
+            resultSet = statement1.executeQuery();
+            while (resultSet.next()) {
+                String plainText = AESUtil.decryptStringTable(
+                        resultSet.getString("transaction_history"), r.getOldPass());
+                String encryptedText = AESUtil.encryptStringTable(plainText, r.getPass1());
+                int transactionID = resultSet.getInt("transaction_id");
+                statement2 = connection.prepareStatement(sql);
+                statement2.setString(1, encryptedText);
+                statement2.setInt(2, transactionID);
+                rowsAffected = statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return 5;
+    }
+
+    public int closeAccountDialog(Request r) {
+        Connection connection = Connectivity.getConnection();
+        String query = "SELECT password FROM users WHERE email = ?";
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        String pass = "";
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, AESUtil.encryptItem(r.getEmail()));
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                pass = resultSet.getString("password");
+            } else {
+                return 1;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (pass.compareToIgnoreCase(r.getPass1())!=0) return 2;
+        return 3;
+    }
+
+    public void closeAccount() {
+        Connection connection = Connectivity.getConnection();
+        int id = PEC.instance().getCurrentUserID();
+        String transaction = "DELETE FROM transaction WHERE user_id = ?";
+        String summary = "DELETE FROM summary WHERE user_id = ?";
+        String category = "DELETE FROM category WHERE user_id = ?";
+        String users = "DELETE FROM users WHERE user_id = ?";
+        try {
+            PreparedStatement s = connection.prepareStatement(transaction);
+            s.setInt(1, id);
+            int rowsAffected = s.executeUpdate();
+
+            s = connection.prepareStatement(summary);
+            s.setInt(1, id);
+            rowsAffected = s.executeUpdate();
+
+            s = connection.prepareStatement(category);
+            s.setInt(1, id);
+            rowsAffected = s.executeUpdate();
+
+            s = connection.prepareStatement(users);
+            s.setInt(1, id);
+            rowsAffected = s.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

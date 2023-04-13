@@ -126,6 +126,14 @@ public interface GUI_MainWidowsSharedBehaviors {
             GUI_LogInWindow.getInstance().showLogInWindow();
         }
     };
+
+    WindowListener w7 = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            GUI_PasswordChangeWindow.getInstance().disposePasswordChangeWindow();
+            GUI_RecordsWindow.getInstance().showRecordsWindow();
+        }
+    };
 }
 
 

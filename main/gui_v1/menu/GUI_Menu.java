@@ -56,9 +56,17 @@ public class GUI_Menu extends JMenuBar implements GUI_Settings_Variables{
 		jmiAdvising.addActionListener(a);
 		jmVMenu.add(jmiAdvising);
 
-		JMenuItem jmiSettings = GUI_ElementCreator.newJMenuItem("Settings");
+		JMenu jmiSettings = GUI_ElementCreator.newJMenu("Settings");
 		jmiSettings.setMnemonic('S');
 		jmiSettings.addActionListener(a);
+		JMenuItem jmiChangePassword = GUI_ElementCreator.newJMenuItem("Change Password");
+		jmiChangePassword.setMnemonic('E');
+		jmiChangePassword.addActionListener(a);
+		jmiSettings.add(jmiChangePassword);
+		JMenuItem jmiCloseAccount = GUI_ElementCreator.newJMenuItem("Close Account");
+		jmiCloseAccount.setMnemonic('C');
+		jmiCloseAccount.addActionListener(a);
+		jmiSettings.add(jmiCloseAccount);
 		jmVMenu.add(jmiSettings);
 
 		JMenuItem jmiAbout = GUI_ElementCreator.newJMenuItem("About");
