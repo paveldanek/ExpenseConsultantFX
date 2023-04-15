@@ -267,36 +267,6 @@ public class PEC {
 		return -1;
 	}
 
-	public boolean finishLogin(int userID) {
-		Connection connection = Connectivity.getConnection();
-		String query = "SELECT password FROM users WHERE user_id = ?";
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		String pass = "";
-		try {
-			statement = connection.prepareStatement(query);
-			try {
-				statement.setInt(1, userID);
-				resultSet = statement.executeQuery();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			if (resultSet.next()) {
-				pass = resultSet.getString("password");
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (pass.length() > 0) {
-				currentUserID = userID;
-				setCurrentUserPass(pass);
-				initialDBaseDownload();
-				return true;
-			}
-			else return false;
-		}
-	}
-
 	public void clearManualEntries() {
 		manualEntries = new String[0][7];
 	}
@@ -393,12 +363,13 @@ public class PEC {
 		String acctNum = OFXParser.getAcctNumber();
 		int acctPos = accountPosition("", acctNum);
 		if (acctPos==-1) {
+			// if the newly parsed data belongs to account that's not yet on file, do:
 			if (tList.size()>0) {
+				// if there's anything in the current tList
 				uploadCurrentList();
 				tList.clearTransactionList();
 			}
 			// set up a new account, clear the table; the following is temporary
-			// DO SIMILAR FOR MANUAL ENTRY!!!
 			String[] tempAccounts = new String[(allAccounts.length+1)];
 			System.arraycopy(allAccounts, 0, tempAccounts, 0, allAccounts.length);
 			allAccounts = tempAccounts;
@@ -419,9 +390,11 @@ public class PEC {
 			acctEndDate = tempEnd;
 		} else {
 			// if the parsed account is not the active account, fetch it and make it active
-			switchActiveAccount(allAccounts[acctPos]);
+			if (activeAccount.compareToIgnoreCase(allAccounts[acctPos])!=0)
+				switchActiveAccount(allAccounts[acctPos]);
 		}
 		if (mergeNewTList(parsedTlist)) {
+			uploadCurrentList();
 			return returnRListIterator();
 		}
 		else {
@@ -432,7 +405,7 @@ public class PEC {
 	}
 
 	/**
-	 * Merges a new list (from parsing or manual entry) into the database.
+	 * Merges a new list (from parsing or manual entry) into the main tList.
 	 * @param list - list to be merged
 	 * @return - TRUE if succeeded, FALSE if nothing got merged
 	 */
@@ -535,7 +508,11 @@ public class PEC {
 		sortedList = TransactionList.mergeSortByDate(list);
 		TransactionList temp = new TransactionList();
 		for (Transaction t : sortedList) { temp.add(t); }
-		return mergeNewTList(temp);
+		if (mergeNewTList(temp)) {
+			uploadCurrentList();
+			return true;
+		}
+		else return false;
 	}
 
 	public ListIterator<Result> initialDBaseDownload() {
@@ -907,7 +884,17 @@ public class PEC {
 			Calendar[] calRange = new Calendar[2];
 			calRange = firstAndLastEntryOfAccount(allAccounts[i]);
 			acctBeginDate[i] = calRange[0];
-			acctEndDate[i] = calRange[1];
+			connection = Connectivity.getConnection();
+			query = "SELECT end_date FROM summary WHERE user_id = ? AND account_nick = ?"+
+					" AND begin_date = ?";
+			stmt = connection.prepareStatement(query);
+			stmt.setInt(1, getCurrentUserID());
+			stmt.setString(2, allAccounts[i]);
+			stmt.setString(3, Transaction.returnYYYYMMDDFromCalendar(acctBeginDate[i]));
+			rs = stmt.executeQuery();
+			if (rs.next()) acctEndDate[i] = Transaction.returnCalendarFromYYYYMMDD
+					(rs.getString("end_date"));
+			else acctEndDate[i] = calRange[1];
 		}
 		return result;
 	}

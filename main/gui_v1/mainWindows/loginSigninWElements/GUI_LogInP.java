@@ -117,7 +117,6 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
                 throw new RuntimeException(e);
             }
             if (userID!=-1) {
-                PEC.instance().finishLogin(userID);
                 GUI_LogInWindow.getInstance().hideLogInWindow();
                 GUI_RecordsWindow.getInstance().showRecordsWindow();
             } else {

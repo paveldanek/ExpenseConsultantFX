@@ -32,12 +32,11 @@ public class MenuActionProgrammableHandle {
     public  void doParsOFXFileProcessing(){
       //  GUI_RecordsFrame records = new GUI_RecordsFrame();
         GUI_RecordsWindow.getInstance().showRecordsWindow();
-        File f = null;
         Request request = Request.instance();
-        File chosenFile= GUI_FileChooser.getFileOrDirectory(f);
+        File chosenFile= GUI_FileChooser.getFileOrDirectory();
         if(chosenFile == null ){
-            JOptionPane.showMessageDialog(null, "File not Selected",
-                    "Info", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "File not selected.",
+                    "Info", JOptionPane.INFORMATION_MESSAGE);
         } else{
             request.reset();
             ListIterator<Result> it;

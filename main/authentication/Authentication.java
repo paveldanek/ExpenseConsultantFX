@@ -63,6 +63,9 @@ public class Authentication {
             }
         }
         if (result) {
+            PEC.instance().setCurrentUserID(userId);
+            PEC.instance().setCurrentUserPass(cipheredPassword);
+            PEC.instance().initialDBaseDownload();
             return userId;
         } else {
             return -1;
@@ -123,7 +126,6 @@ public class Authentication {
                             // added the call of login for further initialization,
                             // which can be moved somewhere else
                             int userID = login(r);
-                            PEC.instance().finishLogin(userID);
                             checkCode = 5;
                         } else {
                             checkCode = 6;
