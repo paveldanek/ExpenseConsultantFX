@@ -3,6 +3,7 @@ package main_logic;
 //import java.util.ArrayList;
 //import java.util.ListIterator;
 
+import advising.Advising;
 import crypto.AESUtil;
 import db_connectors.Connectivity;
 import entities.Transaction;
@@ -467,7 +468,7 @@ public class PEC {
 			result = new Result();
 		}
 		// AN EXAMPLE OF WHAT THE CURRENT SUMMARY MAY LOOK LIKE
-		if (currentSummary!=null) System.out.println(currentSummary.toString());
+		//if (currentSummary!=null) System.out.println(currentSummary.toString());
 		/*
 		// AN EXAMPLE OF HOW TO RETRIEVE AVAILABLE PERIODS FOR SUMMARY
 		ArrayList<Calendar[]> cal = Summary.getAllAvailablePeriods(activeAccount);
@@ -479,6 +480,8 @@ public class PEC {
 		}
 		System.out.println("-----------------------------------------------");
 		*/
+		ArrayList<Calendar[]> cal = Advising.getAllAvailablePeriodsForAdvising(activeAccount);
+		if (cal!=null) System.out.println(new Advising(activeAccount, cal.get(0)[0], cal.get(cal.size()-1)[0]));
 		return rList.listIterator();
 	}
 

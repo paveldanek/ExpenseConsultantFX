@@ -31,7 +31,8 @@ public class Summary {
     // helper variables: start and end are periodBegin and periodEnd millisecond representation
     // (typically for Java, milliseconds are measured from the beginning point, midnight, Jan 1, 1970 UTC).
     // periodDayAmount is the length of the specific period (up to 3 months) in days
-    private long start = 0, end = 0, periodDayAmount = 0;
+    private long start = 0, end = 0;
+    int periodDayAmount = 0;
     // a time stamp of when the summary was generated
     private Calendar timeStamp = null;
 
@@ -60,7 +61,7 @@ public class Summary {
         }
         start = periodBegin.getTimeInMillis();
         end = periodEnd.getTimeInMillis();
-        periodDayAmount = TimeUnit.MILLISECONDS.toDays(Math.abs(end - start)) + 1;
+        periodDayAmount = (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start)) + 1;
         for (int k = 0; k < catTotals.size(); k++) {
             catTotals.get(k).calculatePercentageAndAverage(totalExpense, totalIncome, periodDayAmount);
         }
@@ -106,7 +107,7 @@ public class Summary {
                 summary.catTotals = AESUtil.stringIntoCatTotals(result);
                 summary.start = summary.periodBegin.getTimeInMillis();
                 summary.end = summary.periodEnd.getTimeInMillis();
-                summary.periodDayAmount = TimeUnit.MILLISECONDS.toDays(Math.abs(summary.end - summary.start)) + 1;
+                summary.periodDayAmount = (int) TimeUnit.MILLISECONDS.toDays(Math.abs(summary.end - summary.start)) + 1;
                 summary.timeStamp = Calendar.getInstance();
             }
         } catch (Exception e) {
@@ -225,7 +226,7 @@ public class Summary {
                 totalSummary.setAccountNick(acctNick);
                 totalSummary.setStart(totalSummary.getPeriodBegin().getTimeInMillis());
                 totalSummary.setEnd(totalSummary.getPeriodEnd().getTimeInMillis());
-                totalSummary.setPeriodDayAmount(TimeUnit.MILLISECONDS.toDays
+                totalSummary.setPeriodDayAmount((int) TimeUnit.MILLISECONDS.toDays
                         (Math.abs(totalSummary.end - totalSummary.start)) + 1);
                 for (int i = 0; i < totalSummary.getCatTotals().size(); i++) {
                     totalSummary.getCatTotals().get(i).calculatePercentageAndAverage
@@ -286,7 +287,7 @@ public class Summary {
      * @param categoryName Category name searched for
      * @return the index of the list where the Category is; returns -1 if not found
      */
-    private int returnCatIndex(String categoryName) {
+    public int returnCatIndex(String categoryName) {
         for (int j = 0; j < catTotals.size(); j++) {
             if (categoryName.compareToIgnoreCase(catTotals.get(j).getCategoryName())==0)
                 return j;
@@ -362,9 +363,9 @@ public class Summary {
         this.end = end;
     }
 
-    public long getPeriodDayAmount() { return periodDayAmount; }
+    public int getPeriodDayAmount() { return periodDayAmount; }
 
-    public void setPeriodDayAmount(long periodDayAmount) {
+    public void setPeriodDayAmount(int periodDayAmount) {
         this.periodDayAmount = periodDayAmount;
     }
 
