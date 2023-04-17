@@ -466,7 +466,19 @@ public class PEC {
 			rList.add(result);
 			result = new Result();
 		}
+		// AN EXAMPLE OF WHAT THE CURRENT SUMMARY MAY LOOK LIKE
 		if (currentSummary!=null) System.out.println(currentSummary.toString());
+		/*
+		// AN EXAMPLE OF HOW TO RETRIEVE AVAILABLE PERIODS FOR SUMMARY
+		ArrayList<Calendar[]> cal = Summary.getAllAvailablePeriods(activeAccount);
+		System.out.println("PERIODS FOR ACCOUNT "+activeAccount+
+				"\n-----------------------------------------------");
+		for (int i = 0; i < cal.size(); i++) {
+			System.out.println(Transaction.returnYYYYMMDDFromCalendar(cal.get(i)[0])+"-"+
+					Transaction.returnYYYYMMDDFromCalendar(cal.get(i)[1]));
+		}
+		System.out.println("-----------------------------------------------");
+		*/
 		return rList.listIterator();
 	}
 

@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,6 +32,8 @@ public class Summary {
     // (typically for Java, milliseconds are measured from the beginning point, midnight, Jan 1, 1970 UTC).
     // periodDayAmount is the length of the specific period (up to 3 months) in days
     private long start = 0, end = 0, periodDayAmount = 0;
+    // a time stamp of when the summary was generated
+    private Calendar timeStamp = null;
 
     /**
      * Creates a Summary from a TransactionList.
@@ -61,6 +64,7 @@ public class Summary {
         for (int k = 0; k < catTotals.size(); k++) {
             catTotals.get(k).calculatePercentageAndAverage(totalExpense, totalIncome, periodDayAmount);
         }
+        timeStamp = Calendar.getInstance();
     }
 
     /**
@@ -103,6 +107,7 @@ public class Summary {
                 summary.start = summary.periodBegin.getTimeInMillis();
                 summary.end = summary.periodEnd.getTimeInMillis();
                 summary.periodDayAmount = TimeUnit.MILLISECONDS.toDays(Math.abs(summary.end - summary.start)) + 1;
+                summary.timeStamp = Calendar.getInstance();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -226,11 +231,54 @@ public class Summary {
                     totalSummary.getCatTotals().get(i).calculatePercentageAndAverage
                             (totalSummary.totalExpense, totalSummary.totalIncome, totalSummary.periodDayAmount);
                 }
+                totalSummary.setTimeStamp(Calendar.getInstance());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return totalSummary;
+    }
+
+    /**
+     * Method returns an ArrayList of all start date/ end date pairs of periods in database
+     * available for fetching, aggregating, and rendering a Summary of a chosen account
+     * (all 3-month chunks in the database for the particular account).
+     * @param acctNick account of interest
+     * @return an ArrayList of all start date/ end date pairs in ascending order
+     */
+    public static ArrayList<Calendar[]> getAllAvailablePeriods(String acctNick) {
+        ArrayList<Calendar[]> result = new ArrayList<Calendar[]>();
+        ArrayList<Calendar> resultFrom = new ArrayList<Calendar>();
+        ArrayList<Calendar> resultTo = new ArrayList<Calendar>();
+        Calendar[] calendarPair;
+        Connection connection = Connectivity.getConnection();
+        String query = "SELECT begin_date, end_date FROM summary "
+                + "WHERE user_id = ? AND account_nick = ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, PEC.instance().getCurrentUserID());
+            stmt.setString(2, acctNick);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                resultFrom.add(Transaction.returnCalendarFromYYYYMMDD(rs.getString("begin_date")));
+                resultTo.add(Transaction.returnCalendarFromYYYYMMDD(rs.getString("end_date")));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        // sort the two independent lists
+        Collections.sort(resultFrom);
+        Collections.sort(resultTo);
+        // merge the two lists into one ArrayList of Calendar pairs;
+        // their order will match, because periods don't overlap
+        for (int i = 0; i < resultFrom.size(); i++) {
+            calendarPair = new Calendar[2];
+            calendarPair[0] = resultFrom.get(i);
+            calendarPair[1] = resultTo.get(i);
+            result.add(calendarPair);
+        }
+        return result;
     }
 
     /**
@@ -320,11 +368,40 @@ public class Summary {
         this.periodDayAmount = periodDayAmount;
     }
 
+    public Calendar getTimeStamp() { return timeStamp; }
+
+    public String getTimeStampString() {
+        String year, month, day, hour, minute, second;
+        year = Integer.toString(timeStamp.get(Calendar.YEAR));
+//		the twelve months in Calendar range from 0-11
+        month = Integer.toString(timeStamp.get(Calendar.MONTH) + 1);
+        day = Integer.toString(timeStamp.get(Calendar.DATE));
+        hour = Integer.toString(timeStamp.get(Calendar.HOUR_OF_DAY));
+        minute = Integer.toString(timeStamp.get(Calendar.MINUTE));
+        second = Integer.toString(timeStamp.get(Calendar.SECOND));
+        if (month.length() == 1)
+            month = "0" + month;
+        if (day.length() == 1)
+            day = "0" + day;
+        if (hour.length() == 1)
+            hour = "0" + hour;
+        if (minute.length() == 1)
+            minute = "0" + minute;
+        if (second.length() == 1)
+            second = "0" + second;
+        return year+"/"+month+"/"+day+" at "+hour+":"+minute+":"+second;
+    }
+
+    public void setTimeStamp(Calendar timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
     public String toString() {
         String output = "";
         output = "Summary for "+getAccountNick()+" from period starting "+
                 Transaction.returnYYYYMMDDFromCalendar(getPeriodBegin())+" and ending "+
-                Transaction.returnYYYYMMDDFromCalendar(getPeriodEnd())+".\n";
+                Transaction.returnYYYYMMDDFromCalendar(getPeriodEnd())+
+                "\n(created on "+getTimeStampString()+").\n";
         output+="------------------------------------------------------------------------------------------------\n";
         output+="Total expenses are "+String.format("$%.2f", getTotalExpense()*(-1), "")+
                 ", total income is "+String.format("$%.2f", getTotalIncome(), "")+"\n";
