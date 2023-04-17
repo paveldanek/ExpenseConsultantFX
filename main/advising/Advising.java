@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Advising {
 
+    // THIS CLASS FOCUSES ON EXPENSES (SPENDING MONEY), NOT INCOMES (MAKING MONEY)
+
     // ALL METRICS AND THEIR CHANGES ARE BASED ON TWO SUMMARIES OF AN ACCOUNT;
     // THE SUMMARIES (THEIR TIME PERIODS) ARE CHOSEN BY THE CUSTOMER: IT IS
     // A GOOD IDEA FOR THE FIRST TIME PERIOD TO BE AS FAR BACK AS POSSIBLE
@@ -65,7 +67,8 @@ public class Advising {
         if (s1.getCatTotals().size() < s2.getCatTotals().size()) {
             for (int i = 0; i < s1.getCatTotals().size(); i++) {
                 indexInTheOther = s2.returnCatIndex(s1.getCatTotals().get(i).getCategoryName());
-                if (indexInTheOther != -1 && s1.getCatTotals().get(i).getTotalPerPeriod()<0.0) {
+                if (indexInTheOther != -1 && s1.getCatTotals().get(i).getTotalPerPeriod()<0.0 &&
+                        s2.getCatTotals().get(indexInTheOther).getTotalPerPeriod()<0.0) {
                     CatStats c = new CatStats();
                     c.setCategoryName(s1.getCatTotals().get(i).getCategoryName());
                     c.setPastTotalPerPeriod(s1.getCatTotals().get(i).getTotalPerPeriod());
@@ -76,7 +79,8 @@ public class Advising {
         } else {
             for (int i = 0; i < s2.getCatTotals().size(); i++) {
                 indexInTheOther = s1.returnCatIndex(s2.getCatTotals().get(i).getCategoryName());
-                if (indexInTheOther != -1 && s2.getCatTotals().get(i).getTotalPerPeriod()<0.0) {
+                if (indexInTheOther != -1 && s2.getCatTotals().get(i).getTotalPerPeriod()<0.0 &&
+                        s1.getCatTotals().get(indexInTheOther).getTotalPerPeriod()<0.0) {
                     CatStats c = new CatStats();
                     c.setCategoryName(s2.getCatTotals().get(i).getCategoryName());
                     c.setPastTotalPerPeriod(s1.getCatTotals().get(indexInTheOther).getTotalPerPeriod());
@@ -269,7 +273,7 @@ public class Advising {
 
     public String toString() {
         String output = "";
-        output = "Analysis for " + getAccountNick() + " based on change between periods (1):" +
+        output = "Analysis of " + getAccountNick() + " EXPENSES based on change between periods (1):" +
                 Transaction.returnYYYYMMDDFromCalendar(getPastPeriodBegin()) + "-" +
                 Transaction.returnYYYYMMDDFromCalendar(getPastPeriodEnd()) + " and (2):" +
                 Transaction.returnYYYYMMDDFromCalendar(getLastPeriodBegin()) + "-" +
@@ -311,6 +315,7 @@ public class Advising {
             output += String.format("%12s", String.format("%.2f%%", getCatStats().get(i).getY10NetPercentageChange(), ""));
             output += "\n";
         }
+        if (getCatStats().size()==0) output += "No EXPENSE categories appearing in BOTH periods to display...\n";
         output += "------------------------------------------------------------------------------------------------------------------------------------------\n";
         output += String.format("%-25s", "TOTAL");
         output += String.format("%12s", String.format("$%.2f", getPastSumOfCatTotals(), ""));
