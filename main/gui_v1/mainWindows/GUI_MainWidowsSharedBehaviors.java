@@ -142,6 +142,14 @@ public interface GUI_MainWidowsSharedBehaviors {
             GUI_RecordsWindow.getInstance().showRecordsWindow();
         }
     };
+
+    WindowListener w9 = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            GUI_AdvisingWindow.getInstance().disposeAdvisingWindow();
+            GUI_RecordsWindow.getInstance().showRecordsWindow();
+        }
+    };
 }
 
 

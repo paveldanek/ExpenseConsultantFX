@@ -45,6 +45,9 @@ public class DataTransfer {
 	private GUI_NewAccountP newAccountWindowHolder = null;
 	private GUI_NewCategoryP newCategoryWindowHolder = null;
 	private GUI_NewBankP newBankWindowHolder = null;
+	// summary picker fields
+	private String date1;
+	private String date2;
 
 	// ... Both GUI programmers and LOGIC programmers are allowed to add fields and
 	// corresponding methods to convey functionality back and forth between LOGIC
@@ -79,6 +82,8 @@ public class DataTransfer {
 		answer1 = "";
 		answer2 = "";
 		oldPassword = "";
+		date1 = "";
+		date2 = "";
 		// ...
 	}
 
@@ -267,4 +272,12 @@ public class DataTransfer {
 	public String getOldPass() { return oldPassword; }
 
 	public void setOldPass(String oldPassword) { this.oldPassword = oldPassword; }
+
+	public String getDate1() { return date1; }
+
+	public void setDate1(String date1) { this.date1 = date1; }
+
+	public String getDate2() { return date2; }
+
+	public void setDate2(String date2) { this.date2 = date2; }
 }

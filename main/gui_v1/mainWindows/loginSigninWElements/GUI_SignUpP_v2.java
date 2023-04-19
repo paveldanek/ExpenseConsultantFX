@@ -35,7 +35,7 @@ public class GUI_SignUpP_v2 extends JPanel implements GUI_LoginSignUpWiindows_Se
         inputBoxP.setLayout(new GridLayout(8, 2));
 
         String txt = "Already have an account? Click HERE.";
-        JLabel lbl = new JLabel(txt, JLabel.LEFT);
+        JLabel lbl = new JLabel(txt, JLabel.CENTER);
         inputBoxP.add(lbl);
         MouseListener m = null;
         lbl.addMouseListener(new MouseAdapter()

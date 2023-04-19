@@ -70,6 +70,9 @@ public interface GUI_Settings_Variables extends GUI_Constants, GUI_FontSizeAdjus
 
 	Dimension manualEntryGUIWindowFrameSize = new Dimension(gui_width, 400);
 	Dimension howToWindowFrameSize  = new Dimension(gui_width-100, gui_height-50);
+	Dimension summaryWindowFrameSize = new Dimension(1050, 700);
+	Dimension advisingWindowFrameSize = new Dimension(1250, 700);
+
 
 	String mainGUIFrameWindowTitle = strAppOfficialName;
 	String recordsGUIWindowTitle = strAppOfficialName;

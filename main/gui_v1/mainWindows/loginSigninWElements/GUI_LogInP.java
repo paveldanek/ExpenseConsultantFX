@@ -43,10 +43,10 @@ public class GUI_LogInP extends JPanel implements GUI_LoginSignUpWiindows_Settin
         inputBoxP.add(jtfPass);
 
         String noAcct = "Don't have an account yet? Click HERE.";
-        JLabel lbl1 = new JLabel(noAcct, JLabel.LEFT);
+        JLabel lbl1 = new JLabel(noAcct, JLabel.CENTER);
         inputBoxP.add(lbl1);
         String forgotPass = "Forgot your password? Click HERE.";
-        JLabel lbl2 = new JLabel(forgotPass, JLabel.LEFT);
+        JLabel lbl2 = new JLabel(forgotPass, JLabel.CENTER);
         inputBoxP.add(lbl2);
 
         MouseListener m = null;

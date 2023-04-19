@@ -241,6 +241,14 @@ public class PEC {
 		allBanks = tempBanks;
 	}
 
+	public Calendar getCurrentViewBeginDate() {
+		return tList.getStartDate();
+	}
+
+	public Calendar getCurrentViewEndDate() {
+		return tList.getEndDate();
+	}
+
 	/**
 	 * Returns the account position in the allAccounts array,
 	 * searched either by accountNick (if accountNick!=""), or
@@ -480,8 +488,11 @@ public class PEC {
 		}
 		System.out.println("-----------------------------------------------");
 		*/
+		/*
+		// AN EXAMPLE OF WHAT THE ADVISING DATA MAY LOOK LIKE
 		ArrayList<Calendar[]> cal = Advising.getAllAvailablePeriodsForAdvising(activeAccount);
 		if (cal!=null) System.out.println(new Advising(activeAccount, cal.get(0)[0], cal.get(cal.size()-1)[0]));
+		*/
 		return rList.listIterator();
 	}
 

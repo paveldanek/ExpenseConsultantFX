@@ -82,8 +82,10 @@ public class MenuActionProgrammableHandle {
     }
 
     void doAdvisingProcessing(){
-
+        GUI_RecordsWindow.getInstance().hideRecordsWindoww();
+        GUI_AdvisingWindow.getInstance().showAdvisingWindow();
     }
+
     void doManualEntryProcessing(){
         if (PEC.instance().getActiveAccount().length()==0) {
             GUI_NewAccountWindow.getInstance().showNewAccntWindow();
@@ -91,9 +93,8 @@ public class MenuActionProgrammableHandle {
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
     }
-    void doGenerateSummaryProcessing(){
+    void doGenerateSummaryProcessing(){ GUI_SummaryPickerWindow.getInstance().showSummaryPickerWindow(); }
 
-    }
     void doChangePasswordProcessing(){
         GUI_PasswordChangeWindow.getInstance().showPasswordChangeWindow();
     }

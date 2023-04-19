@@ -29,11 +29,8 @@ public class GUI_RecordsWindow extends JFrame implements GUI_MainWidowsSharedBeh
 //		setForeground(guiFramesForegroundColor);
 		setTitle(recordsGUIWindowTitle);
 
-		if(gui_v1.settings.GUI_Static_Settings.workStage==1){
-			setJMenuBar(new GUI_Menu());
-		}else{
-			setJMenuBar(new GUI_Menu_Technical());
-		}
+		setJMenuBar(new GUI_Menu());
+
 		setSize(recordsGUIWindowFrameSize);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout());

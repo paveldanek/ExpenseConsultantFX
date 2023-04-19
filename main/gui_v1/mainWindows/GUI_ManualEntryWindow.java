@@ -14,10 +14,8 @@ public class GUI_ManualEntryWindow extends JFrame implements GUI_MainWidowsShare
     private static final long serialVersionUID = 1L;
     private static GUI_ManualEntryWindow instance = null;
     private GUI_ManualEntryWindow() {
+        setTitle("Manual Transaction Entry");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-//        GUI_RecordsWindow.getInstance().hideRecordsWindoww();
-//        setBackground(guiFramesBackgroundColor);
-//        setForeground(guiFramesForegroundColor);
 
         setSize(manualEntryGUIWindowFrameSize);
         setLocationRelativeTo(null);
