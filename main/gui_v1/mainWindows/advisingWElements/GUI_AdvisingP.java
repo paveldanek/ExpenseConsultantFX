@@ -73,8 +73,8 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         jpAdvisingActionControlBoxP.add(jcmbDate2/*, BorderLayout.CENTER*/);
 
         jbtnOK = GUI_ElementCreator.newJButton("OK");
-        jpAdvisingActionControlBoxP.add(jbtnOK);
         jbtnOK.addActionListener(this);
+        jpAdvisingActionControlBoxP.add(jbtnOK);
 
         JLabel initialInstruct = GUI_ElementCreator.newFieldNameLabel(
                 "The analysis is based on the numbers' "+
@@ -108,7 +108,16 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
     }
 
     private void processOKBtnClick() {
-        // call
+        selectedDate1 = jcmbDate1.getSelectedIndex();
+        selectedDate2 = jcmbDate2.getSelectedIndex();
+        if (selectedDate1>selectedDate2) {
+            int temp = selectedDate2;
+            selectedDate2 = selectedDate1;
+            selectedDate1 = temp;
+            jcmbDate1.setSelectedIndex(selectedDate1);
+            jcmbDate2.setSelectedIndex(selectedDate2);
+        }
+        // call AdvisingInstance()...
     }
 
     private void processAccountSelection() {
