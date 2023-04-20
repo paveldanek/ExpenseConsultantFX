@@ -78,7 +78,7 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
 
         JLabel initialInstruct = GUI_ElementCreator.newFieldNameLabel(
                 "The analysis is based on the numbers' "+
-                "comparison between Period 1 and Period 2.");
+                "comparison (and their relative change) between Period 1 and Period 2.");
         jpAdvisingTitleBoxP.add(initialInstruct);
         jpAdvisingTitleBoxP.add(jpAdvisingActionControlBoxP);
         add(jpAdvisingTitleBoxP, BorderLayout.NORTH);
