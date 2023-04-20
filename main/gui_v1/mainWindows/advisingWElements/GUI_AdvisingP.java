@@ -91,7 +91,11 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         ArrayList<Calendar[]> calList = Advising.getAllAvailablePeriodsForAdvising(acctNick);
         // the first dimension will indicate the 3-month-chunk in database,
         // the second dimension will be 0 for beginning, 1 for ending date
-        if (calList==null) return new String[0];
+        if (calList==null) {
+            String[] result = new String[1];
+            result[0] = "";
+            return result;
+        }
         String[] result = new String[calList.size()];
         for (int i = 0; i < calList.size(); i++) {
             result[i] = Transaction.returnYYYYMMDDFromCalendar(calList.get(i)[0])+"-"+
