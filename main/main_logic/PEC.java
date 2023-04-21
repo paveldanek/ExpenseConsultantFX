@@ -476,7 +476,7 @@ public class PEC {
 			result = new Result();
 		}
 		// AN EXAMPLE OF WHAT THE CURRENT SUMMARY MAY LOOK LIKE
-		//if (currentSummary!=null) System.out.println(currentSummary.toString());
+		// if (currentSummary!=null) System.out.println(currentSummary.toString());
 		/*
 		// AN EXAMPLE OF HOW TO RETRIEVE AVAILABLE PERIODS FOR SUMMARY
 		ArrayList<Calendar[]> cal = Summary.getAllAvailablePeriods(activeAccount);

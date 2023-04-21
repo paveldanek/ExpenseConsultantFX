@@ -223,6 +223,7 @@ public class Summary {
                 }
             }
             if (totalSummary.getCatTotals().size()>0) {
+                totalSummary.setCatTotals(customMergeSort(totalSummary.getCatTotals()));
                 totalSummary.setAccountNick(acctNick);
                 totalSummary.setStart(totalSummary.getPeriodBegin().getTimeInMillis());
                 totalSummary.setEnd(totalSummary.getPeriodEnd().getTimeInMillis());
@@ -239,6 +240,81 @@ public class Summary {
         }
         return totalSummary;
     }
+
+    // ----------------- helper sorting algorithm for CatTotal (custom sorting by totalPerPeriod) -----------------
+
+    private static ArrayList<CatTotal> mergeByTotal(boolean ascending,
+                                                    ArrayList<CatTotal> list1, ArrayList<CatTotal> list2) {
+        ArrayList<CatTotal> result = new ArrayList<CatTotal>();
+        if (ascending) {
+            while (list1.size() > 0 && list2.size() > 0) {
+                if (list1.get(0).getTotalPerPeriod() > list2.get(0).getTotalPerPeriod()) {
+                    result.add(list2.get(0));
+                    list2.remove(0);
+                } else {
+                    result.add(list1.get(0));
+                    list1.remove(0);
+                }
+            }
+        } else {
+            while (list1.size() > 0 && list2.size() > 0) {
+                if (list1.get(0).getTotalPerPeriod() < list2.get(0).getTotalPerPeriod()) {
+                    result.add(list2.get(0));
+                    list2.remove(0);
+                } else {
+                    result.add(list1.get(0));
+                    list1.remove(0);
+                }
+            }
+        }
+        // at this point list1 or list2 is empty
+        while (list1.size() > 0) {
+            result.add(list1.get(0));
+            list1.remove(0);
+        }
+        while (list2.size() > 0) {
+            result.add(list2.get(0));
+            list2.remove(0);
+        }
+        return result;
+    }
+
+    public static ArrayList<CatTotal> mergeSortByTotal(boolean ascending, ArrayList<CatTotal> list) {
+        ArrayList<CatTotal> list1 = new ArrayList<CatTotal>();
+        ArrayList<CatTotal> list2 = new ArrayList<CatTotal>();
+        int n = list.size();
+        if (n == 0)
+            return null;
+        if (n == 1)
+            return list;
+        n = n / 2;
+        for (int i = 0; i < n; i++) {
+            list1.add(list.get(i));
+        }
+        for (int i = n; i < list.size(); i++) {
+            list2.add(list.get(i));
+        }
+        list1 = mergeSortByTotal(ascending, list1);
+        list2 = mergeSortByTotal(ascending, list2);
+        return mergeByTotal(ascending, list1, list2);
+    }
+
+    public static ArrayList<CatTotal> customMergeSort(ArrayList<CatTotal> list) {
+        ArrayList<CatTotal> negativeList = new ArrayList<CatTotal>();
+        ArrayList<CatTotal> positiveList = new ArrayList<CatTotal>();
+        ArrayList<CatTotal> result = new ArrayList<CatTotal>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getTotalPerPeriod()<0.0) negativeList.add(list.get(i));
+            else positiveList.add(list.get(i));
+        }
+        negativeList = mergeSortByTotal(true, negativeList);
+        positiveList = mergeSortByTotal(false, positiveList);
+        for (int i = 0; i < negativeList.size(); i++) result.add(negativeList.get(i));
+        for (int i = 0; i < positiveList.size(); i++) result.add(positiveList.get(i));
+        return result;
+    }
+
+    // ------------------------------------------------------------------------------------------------------------
 
     /**
      * Method returns an ArrayList of all start date/ end date pairs of periods in database

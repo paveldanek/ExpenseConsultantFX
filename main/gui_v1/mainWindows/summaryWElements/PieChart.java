@@ -10,63 +10,38 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-public class PieChart extends ApplicationFrame{
+import java.awt.*;
 
-    public PieChart( String title ) {
-        super( title );
-        setContentPane(createDemoPanel( ));
-    }
+public class PieChart {
 
-    private static PieDataset createDataset( ) {
+    private static PieDataset createDataset(double[] data) {
         DefaultPieDataset dataset = new DefaultPieDataset( );
-        dataset.setValue( "1" , new Double( 20 ) );
-        dataset.setValue( "2" , new Double( 20 ) );
-        dataset.setValue( "3" , new Double( 40 ) );
-        dataset.setValue( "4" , new Double( 10 ) );
-        dataset.setValue( "5" , new Double( 20 ) );
-        dataset.setValue( "6" , new Double( 20 ) );
-        dataset.setValue( "7" , new Double( 40 ) );
-        dataset.setValue( "8" , new Double( 10 ) );
-        dataset.setValue( "9" , new Double( 20 ) );
-        dataset.setValue( "10" , new Double( 20 ) );
-        dataset.setValue( "11" , new Double( 40 ) );
-        dataset.setValue( "12" , new Double( 10 ) );
-        dataset.setValue( "13" , new Double( 20 ) );
-        dataset.setValue( "14" , new Double( 20 ) );
-        dataset.setValue( "15" , new Double( 40 ) );
-        dataset.setValue( "16" , new Double( 10 ) );
-        dataset.setValue( "17" , new Double( 20 ) );
-        dataset.setValue( "18" , new Double( 20 ) );
-        dataset.setValue( "19" , new Double( 40 ) );
-        dataset.setValue( "20" , new Double( 10 ) );
-        dataset.setValue( "21" , new Double( 20 ) );
-        dataset.setValue( "22" , new Double( 20 ) );
-        dataset.setValue( "23" , new Double( 40 ) );
-        dataset.setValue( "24" , new Double( 10 ) );
+        for (int i = 0; i < data.length; i++) {
+            dataset.setValue(String.valueOf(i+1), new Double(data[i]));
+        }
         return dataset;
     }
 
-    private static JFreeChart createChart( PieDataset dataset ) {
+    private static JFreeChart createChart(String title, PieDataset dataset) {
         JFreeChart chart = ChartFactory.createPieChart(
-                "Mobile Sales",   // chart title
-                dataset,          // data
-                false,             // include legend
-                true,
-                false);
-
+                title, dataset, false, true, false);
         return chart;
     }
 
-    public static JPanel createDemoPanel( ) {
-        JFreeChart chart = createChart(createDataset( ) );
-        return new ChartPanel( chart );
+    public static JPanel createChartPanel(String title, double[] data) {
+        JFreeChart chart = createChart(title, createDataset(data));
+        ChartPanel cp = new ChartPanel(chart);
+        //cp.setMaximumSize(new Dimension(600, 600));
+        cp.setVisible(true);
+        return cp;
     }
 
-
+    /*
     public static void main( String[ ] args ) {
         PieChart demo = new PieChart( "Mobile Sales" );
         demo.setSize( 400 , 367 );
         RefineryUtilities.centerFrameOnScreen( demo );
         demo.setVisible( true );
     }
+    */
 }
