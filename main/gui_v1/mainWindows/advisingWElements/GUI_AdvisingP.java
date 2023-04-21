@@ -18,11 +18,15 @@ import java.util.Calendar;
 public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, ActionListener {
 
     private JPanel jpAdvisingActionControlBoxP;
+    private JPanel jpPredictionScopeSelectionBoxP;
     private static JComboBox<String> jcmbAccount;
     private static JComboBox<String> jcmbDate1;
     private static JComboBox<String> jcmbDate2;
+    private static JComboBox<String> jcmbScope;
     private static int selectedDate1, selectedDate2;
     private JButton jbtnOK;
+    private static String[] predictionOptions = {"3 months", "6 months", "1 year", "2 years", "5 years", "10 years"};
+    private static String[] emptyPredisctionOptions = {"               "};
 
     public GUI_AdvisingP() {
         setLayout(new BorderLayout());
@@ -30,8 +34,9 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         JPanel jpAdvisingTitleBoxP = new JPanel();
         JPanel jpAdvisingDisplayBoxP = new JPanel();
         jpAdvisingActionControlBoxP = new JPanel();
+        jpPredictionScopeSelectionBoxP = new JPanel();
 
-        jpAdvisingTitleBoxP.setLayout(new GridLayout(2,1));
+        jpAdvisingTitleBoxP.setLayout(new GridLayout(3,1));
 
         String[] nicksListTemp = GUI_ElementsOptionLists.getInstance().getAccountNicksList();
         String[] nicksList = new String[nicksListTemp.length-1];
@@ -47,6 +52,9 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
                     /* The main Advising object (param: PEC.instance().getActiveAccount(),
                     dateList[dateList.length - 2], dateList[dateList.length - 1]) instead of new...*/
                     , BorderLayout.CENTER);
+            jcmbScope = GUI_ElementCreator.newJComboBox(predictionOptions);
+            jcmbScope.setSelectedIndex(0);
+            jcmbScope.addActionListener(this);
         } else {
             selectedDate1 = 0;
             selectedDate2 = 0;
@@ -54,6 +62,7 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
                     /* The main Advising object (no param ==> "Not enough data to create an instance of
                     advising...") instead of new...*/
                     , BorderLayout.CENTER);
+            jcmbScope = GUI_ElementCreator.newJComboBox(emptyPredisctionOptions);
         }
 
         jpAdvisingActionControlBoxP.setLayout(new GridBagLayout());
@@ -61,16 +70,16 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         jpAdvisingActionControlBoxP.add(acctLabel);
         jcmbAccount.setSelectedItem(PEC.instance().getActiveAccount());
         jcmbAccount.addActionListener(this);
-        jpAdvisingActionControlBoxP.add(jcmbAccount/*, BorderLayout.WEST*/);
+        jpAdvisingActionControlBoxP.add(jcmbAccount);
 
         JLabel date1Label = GUI_ElementCreator.newTextLabel("Period 1:");
         jpAdvisingActionControlBoxP.add(date1Label);
         jcmbDate1.setSelectedIndex(selectedDate1);
-        jpAdvisingActionControlBoxP.add(jcmbDate1/*, BorderLayout.CENTER*/);
+        jpAdvisingActionControlBoxP.add(jcmbDate1);
         JLabel date2Label = GUI_ElementCreator.newTextLabel("Period 2:");
         jpAdvisingActionControlBoxP.add(date2Label);
         jcmbDate2.setSelectedIndex(selectedDate2);
-        jpAdvisingActionControlBoxP.add(jcmbDate2/*, BorderLayout.CENTER*/);
+        jpAdvisingActionControlBoxP.add(jcmbDate2);
 
         jbtnOK = GUI_ElementCreator.newJButton("OK");
         jbtnOK.addActionListener(this);
@@ -78,13 +87,22 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
 
         JLabel initialInstruct = GUI_ElementCreator.newFieldNameLabel(
                 "The analysis is based on the numbers' "+
-                "comparison (and their relative change) between Period 1 and Period 2.");
+                "comparison (and their relative change) between Period 1 and Period 2. "+
+                        "Select & click OK button.");
         jpAdvisingTitleBoxP.add(initialInstruct);
         jpAdvisingTitleBoxP.add(jpAdvisingActionControlBoxP);
+        JLabel predictionInstruct = GUI_ElementCreator.newFieldNameLabel(
+                "For different scope of future expense prediction, please select "+
+                        "from the drop-down menu below.");
+        jpAdvisingTitleBoxP.add(predictionInstruct);
         add(jpAdvisingTitleBoxP, BorderLayout.NORTH);
         add(jpAdvisingDisplayBoxP, BorderLayout.CENTER);
 
-        // new code goes HERE...
+        jpPredictionScopeSelectionBoxP.setLayout(new GridBagLayout());
+        JLabel predictionLabel = GUI_ElementCreator.newTextLabel("Scope of Prediction:");
+        jpPredictionScopeSelectionBoxP.add(predictionLabel);
+        jpPredictionScopeSelectionBoxP.add(jcmbScope);
+        add(jpPredictionScopeSelectionBoxP, BorderLayout.SOUTH);
     }
 
     private String[] returnDateOptions(String acctNick) {
@@ -127,35 +145,36 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
     private void processAccountSelection() {
 
         String[] dateList = returnDateOptions((String) jcmbAccount.getSelectedItem());
-        JComboBox<String> jcmNewDate1 = GUI_ElementCreator.newJComboBox(dateList);
-        JComboBox<String> jcmNewDate2 = GUI_ElementCreator.newJComboBox(dateList);
+        JComboBox<String> jcmbNewDate1 = GUI_ElementCreator.newJComboBox(dateList);
+        JComboBox<String> jcmbNewDate2 = GUI_ElementCreator.newJComboBox(dateList);
+        JComboBox<String> jcmbNewScope;
         if (dateList.length>=2) {
             selectedDate1 = dateList.length - 2;
             selectedDate2 = dateList.length - 1;
+            jcmbNewScope = GUI_ElementCreator.newJComboBox(predictionOptions);
+            jcmbNewScope.setSelectedIndex(0);
+            jcmbNewScope.addActionListener(this);
         } else {
             selectedDate1 = 0;
             selectedDate2 = 0;
+            jcmbNewScope = GUI_ElementCreator.newJComboBox(emptyPredisctionOptions);
         }
         jpAdvisingActionControlBoxP.remove(jcmbDate1);
-        jcmbDate1 = jcmNewDate1;
+        jcmbDate1 = jcmbNewDate1;
         jcmbDate1.setSelectedIndex(selectedDate1);
-        /*
-        Component[] c = jpAdvisingActionControlBoxP.getComponents();
-        System.out.println("HELLO");
-        int i;
-        for (i = 0; i < c.length; i++) {if (c[i].equals(jcmbDate1)) break;}
-        System.out.println(i);
-        int j;
-        for (j = 0; j < c.length; i++) {if (c[j].equals(jcmbDate2)) break;}
-        System.out.println("Date1 = #"+i+", Date2 = #"+j+".");
-
-         */
         jpAdvisingActionControlBoxP.add(jcmbDate1, 3);
         jpAdvisingActionControlBoxP.remove(jcmbDate2);
-        jcmbDate2 = jcmNewDate2;
+        jcmbDate2 = jcmbNewDate2;
         jcmbDate2.setSelectedIndex(selectedDate2);
         jpAdvisingActionControlBoxP.add(jcmbDate2, 5);
+        jpPredictionScopeSelectionBoxP.remove(jcmbScope);
+        jcmbScope = jcmbNewScope;
+        jpPredictionScopeSelectionBoxP.add(jcmbScope);
         GUI_AdvisingWindow.getInstance().showAdvisingWindow();
+    }
+
+    private void processScopeChange() {
+        // change scope...
     }
 
     @Override
@@ -170,6 +189,9 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         }
         if (e.getSource() == jcmbAccount) {
             processAccountSelection();
+        }
+        if (e.getSource() == jcmbScope) {
+            processScopeChange();
         }
     }
 }

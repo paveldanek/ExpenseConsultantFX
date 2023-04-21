@@ -309,8 +309,8 @@ public class Summary {
         }
         negativeList = mergeSortByTotal(true, negativeList);
         positiveList = mergeSortByTotal(false, positiveList);
-        for (int i = 0; i < negativeList.size(); i++) result.add(negativeList.get(i));
-        for (int i = 0; i < positiveList.size(); i++) result.add(positiveList.get(i));
+        if (negativeList!=null) { for (int i = 0; i < negativeList.size(); i++) result.add(negativeList.get(i)); }
+        if (positiveList!=null) { for (int i = 0; i < positiveList.size(); i++) result.add(positiveList.get(i)); }
         return result;
     }
 
