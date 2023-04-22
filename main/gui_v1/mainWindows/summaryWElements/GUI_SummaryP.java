@@ -40,7 +40,7 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
         incomeTotals = new double[incomeCount];
         String[][] expenseTableItems = new String[expenseCount][5];
         String[][] incomeTableItems = new String[incomeCount][5];
-        String[] columnNames = {"No.", "Category", "Total per period", "Total per month", "% of total"};
+        String[] columnNames = {"No.", "Category", "Total per period", "Average per month", "% of sum of totals"};
         int eCounter = 0, iCounter = 0;
         for (int i = 0; i < summary.getCatTotals().size(); i++) {
             if (summary.getCatTotals().get(i).getTotalPerPeriod()<0.0) {
@@ -90,7 +90,7 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
         expenseTablePanel = tablePanelCreator(expenseTableItems, columnNames);
         c.gridwidth = 1;
         c.ipady = 250;
-        c.ipadx = 600;
+        c.ipadx = 650;
         c.gridx = 1; c.gridy = 1;
         add(expenseTablePanel, c);
         // ---------------- income pie chart -------
@@ -104,13 +104,15 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
         incomeTablePanel = tablePanelCreator(incomeTableItems, columnNames);
         c.gridwidth = 1;
         c.ipady = 250;
-        c.ipadx = 600;
+        c.ipadx = 650;
         c.gridx = 1; c.gridy = 2;
         add(incomeTablePanel, c);
     }
 
     private JPanel tablePanelCreator(String[][] items, String[] columnNames) {
         JPanel output = new JPanel();
+        if (items==null) items = new String[0][0];
+        if (columnNames==null) columnNames = new String[0];
         output.setLayout(new BorderLayout());
         JTable table = new JTable(new DefaultTableModel(items, columnNames)) {
             public boolean isCellEditable(int row, int column) { return false; } };
@@ -132,24 +134,12 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
         return output;
     }
 
-    public TableRowSorter<TableModel> getCustomRowSorter(TableRowSorter<TableModel> sorter, TableModel m, int column){
+    private TableRowSorter<TableModel> getCustomRowSorter(TableRowSorter<TableModel> sorter, TableModel m, int column){
         sorter.setComparator(column, new Comparator<String>() {
             @Override
             public int compare(String c1, String c2) {
-                Double n1 = null;
-                Double n2 = null;
-                if(c1.startsWith("$")){
-                    n1 = Double.parseDouble((c1.substring(1)).replaceAll("[, %]",""));
-                }else if(c1.startsWith("-")){
-                    n1 = Double.parseDouble((c1.substring(2)).replaceAll("[, %]",""));
-                    n1*= -1;
-                }else n1 = Double.parseDouble((c1.substring(0)).replaceAll("[, %]",""));
-                if(c2.startsWith("$")){
-                    n2 = Double.parseDouble((c2.substring(1)).replaceAll("[, %]",""));
-                }else if(c2.startsWith("-")){
-                    n2 = Double.parseDouble((c2.substring(2)).replaceAll("[, %]",""));
-                    n2*= -1;
-                }else n2 = Double.parseDouble((c2.substring(0)).replaceAll("[, %]",""));
+                Double n1 = Double.parseDouble(c1.replaceAll("[, $ %]",""));
+                Double n2 = Double.parseDouble(c2.replaceAll("[, $ %]",""));
                 if (n1 < n2) {
                     return -1;
                 } else if (n1 > n2) {

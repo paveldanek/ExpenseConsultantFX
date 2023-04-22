@@ -19,6 +19,8 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
 
     private JPanel jpAdvisingActionControlBoxP;
     private JPanel jpPredictionScopeSelectionBoxP;
+    private JPanel jpAdvisingDisplayBoxP;
+    private GUI_AdvisingInstanceP advisingInstance;
     private static JComboBox<String> jcmbAccount;
     private static JComboBox<String> jcmbDate1;
     private static JComboBox<String> jcmbDate2;
@@ -32,11 +34,9 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         setLayout(new BorderLayout());
 
         JPanel jpAdvisingTitleBoxP = new JPanel();
-        JPanel jpAdvisingDisplayBoxP = new JPanel();
+        jpAdvisingDisplayBoxP = new JPanel();
         jpAdvisingActionControlBoxP = new JPanel();
         jpPredictionScopeSelectionBoxP = new JPanel();
-
-        jpAdvisingTitleBoxP.setLayout(new GridLayout(3,1));
 
         String[] nicksListTemp = GUI_ElementsOptionLists.getInstance().getAccountNicksList();
         String[] nicksList = new String[nicksListTemp.length-1];
@@ -48,23 +48,22 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         if (dateList.length>=2) {
             selectedDate1 = dateList.length - 2;
             selectedDate2 = dateList.length - 1;
-            jpAdvisingDisplayBoxP.add(new GUI_AdvisingInstanceP(null, null, null)
-                    /* The main Advising object (param: PEC.instance().getActiveAccount(),
-                    dateList[dateList.length - 2], dateList[dateList.length - 1]) instead of new...*/
-                    , BorderLayout.CENTER);
+            String[] d1Array = dateList[selectedDate1].split("-");
+            String[] d2Array = dateList[selectedDate2].split("-");
+            advisingInstance = new GUI_AdvisingInstanceP(
+                    PEC.instance().getActiveAccount(), d1Array[0], d2Array[0], 0);
             jcmbScope = GUI_ElementCreator.newJComboBox(predictionOptions);
             jcmbScope.setSelectedIndex(0);
             jcmbScope.addActionListener(this);
         } else {
             selectedDate1 = 0;
             selectedDate2 = 0;
-            jpAdvisingDisplayBoxP.add(new GUI_AdvisingInstanceP(null, null, null)
-                    /* The main Advising object (no param ==> "Not enough data to create an instance of
-                    advising...") instead of new...*/
-                    , BorderLayout.CENTER);
+            advisingInstance = new GUI_AdvisingInstanceP(null, null, null, 0);
             jcmbScope = GUI_ElementCreator.newJComboBox(emptyPredisctionOptions);
         }
 
+        jpAdvisingDisplayBoxP = advisingInstance;
+        jpAdvisingTitleBoxP.setLayout(new GridLayout(4,1));
         jpAdvisingActionControlBoxP.setLayout(new GridBagLayout());
         JLabel acctLabel = GUI_ElementCreator.newTextLabel("Account:");
         jpAdvisingActionControlBoxP.add(acctLabel);
@@ -86,11 +85,16 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
         jpAdvisingActionControlBoxP.add(jbtnOK);
 
         JLabel initialInstruct = GUI_ElementCreator.newFieldNameLabel(
-                "The analysis is based on the numbers' "+
-                "comparison (and their relative change) between Period 1 and Period 2. "+
+                "The analysis is based on comparison of EXPENSES"+
+                " (and their relative change) between Period 1 and Period 2. "+
                         "Select & click OK button.");
         jpAdvisingTitleBoxP.add(initialInstruct);
         jpAdvisingTitleBoxP.add(jpAdvisingActionControlBoxP);
+        JLabel categExplenation = GUI_ElementCreator.newFieldNameLabel(
+                "<html><u><b>Listed categories are ones that appear in "+
+                        "<font color='#00'>BOTH<font color='#ff'> "+
+                        "Period 1 and 2 EXPENSE Summaries.</b></u></html>");
+        jpAdvisingTitleBoxP.add(categExplenation);
         JLabel predictionInstruct = GUI_ElementCreator.newFieldNameLabel(
                 "For different scope of future expense prediction, please select "+
                         "from the drop-down menu below.");
@@ -139,11 +143,26 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
             jcmbDate1.setSelectedIndex(selectedDate1);
             jcmbDate2.setSelectedIndex(selectedDate2);
         }
-        // call AdvisingInstance()...
+        String temp1 = (String) jcmbDate1.getSelectedItem();
+        String temp2 = (String) jcmbDate2.getSelectedItem();
+        temp1 = temp1.trim();
+        temp2 = temp2.trim();
+        String[] d1Array = temp1.split("-");
+        String[] d2Array = temp2.split("-");
+        JPanel oldPanel = jpAdvisingDisplayBoxP;
+        if (temp1.compareToIgnoreCase("")==0 & temp2.compareToIgnoreCase("")==0){
+            advisingInstance = new GUI_AdvisingInstanceP(null, null, null, 0);
+        } else {
+            advisingInstance = new GUI_AdvisingInstanceP(
+                    (String) jcmbAccount.getSelectedItem(), d1Array[0], d2Array[0], jcmbScope.getSelectedIndex());
+        }
+        jpAdvisingDisplayBoxP = advisingInstance;
+        this.remove(oldPanel);
+        this.add(jpAdvisingDisplayBoxP, BorderLayout.CENTER);
+        GUI_AdvisingWindow.getInstance().showAdvisingWindow();
     }
 
     private void processAccountSelection() {
-
         String[] dateList = returnDateOptions((String) jcmbAccount.getSelectedItem());
         JComboBox<String> jcmbNewDate1 = GUI_ElementCreator.newJComboBox(dateList);
         JComboBox<String> jcmbNewDate2 = GUI_ElementCreator.newJComboBox(dateList);
@@ -174,7 +193,7 @@ public class GUI_AdvisingP extends JPanel implements GUI_Settings_Variables, Act
     }
 
     private void processScopeChange() {
-        // change scope...
+        if (!advisingInstance.isEmpty()) advisingInstance.switchScope(jcmbScope.getSelectedIndex());
     }
 
     @Override

@@ -326,10 +326,10 @@ public class Advising {
         output += "\n------------------------------------------------------------------------------------------------------------------------------------------\n";
         output += "\nYour net income in the period (1) was " + String.format("$%.2f", getPastNetIncome(), "") +
                 ", and in the period (2) was " + String.format("$%.2f", getLastNetIncome(), "") + ",\nwhich is ";
-        if (netIncomeChangeInPercent < 0.0) output += "a decrease of ";
+        if (getNetIncomeChangeInPercent() < 0.0) output += "a decrease of ";
         else output += "an increase of ";
-        output += String.format("%.2f%%", netIncomeChangeInPercent, "") + ". ";
-        if (netIncomeChangeInPercent < 0.0) {
+        output += String.format("%.2f%%", getNetIncomeChangeInPercent(), "") + ". ";
+        if (getNetIncomeChangeInPercent() < 0.0) {
             output += "WATCH OUT!!! LOWER YOUR SPENDINGS!!!\n";
             if (getCatStats().size()>0 && getCatStats().get(getCatStats().size()-1).getNetPercentagePerPeriodChange()>=5.0)
                 output += "You NEED to DECREASE your spending mainly in categories:\n";
