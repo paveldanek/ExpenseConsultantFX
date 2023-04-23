@@ -144,7 +144,7 @@ public class TransactionList {
      */
     public boolean isInTheList(String identifier) {
         for (Transaction transaction : transactionList) {
-            if (transaction.getRefNumber().equalsIgnoreCase(identifier)) {
+            if (identifier.length()>0 && transaction.getRefNumber().equalsIgnoreCase(identifier)) {
                 return true;
             }
         }
@@ -206,16 +206,18 @@ public class TransactionList {
     }
 
     /**
-     * Finds and fetches a Transaction, identified by its reference number, from
-     * transactionList.
+     * Finds and fetches a Transaction, identified by its reference number
+     * and name, from transactionList.
      *
      * @param refNumber - reference number of Transaction being searched for
+     * @param name - name (description) of Transaction being searched for
      * @return Transaction in question, or NULL if not found
      */
-    public Transaction searchByRefNumber(String refNumber) {
+    public Transaction searchByRefNumberAndName(String refNumber, String name) {
         for (Iterator<Transaction> i = listIterator(); i.hasNext();) {
             Transaction t = i.next();
-            if (t.getRefNumber().equalsIgnoreCase(refNumber)) {
+            if ((refNumber.length()>0 && t.getRefNumber().equalsIgnoreCase(refNumber))
+            || (refNumber.length()==0 && t.getDescription().equalsIgnoreCase(name))) {
                 return t;
             }
         }

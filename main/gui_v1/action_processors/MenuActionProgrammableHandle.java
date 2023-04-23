@@ -82,8 +82,13 @@ public class MenuActionProgrammableHandle {
     }
 
     void doAdvisingProcessing(){
-        GUI_RecordsWindow.getInstance().hideRecordsWindoww();
-        GUI_AdvisingWindow.getInstance().showAdvisingWindow();
+        if (PEC.instance().getActiveAccount().equalsIgnoreCase("")) {
+            JOptionPane.showMessageDialog(null, "You have no accounts to\n"+
+                    "generate an analysis or advice from.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            GUI_RecordsWindow.getInstance().hideRecordsWindoww();
+            GUI_AdvisingWindow.getInstance().showAdvisingWindow();
+        }
     }
 
     void doManualEntryProcessing(){
@@ -93,7 +98,12 @@ public class MenuActionProgrammableHandle {
             GUI_ManualEntryWindow.getInstance().showManualEntryWindow();
         }
     }
-    void doGenerateSummaryProcessing(){ GUI_SummaryPickerWindow.getInstance().showSummaryPickerWindow(); }
+    void doGenerateSummaryProcessing(){
+        if (PEC.instance().getActiveAccount().equalsIgnoreCase("")) {
+            JOptionPane.showMessageDialog(null, "You have no accounts to\n"+
+                            "generate a summary from.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        } else GUI_SummaryPickerWindow.getInstance().showSummaryPickerWindow();
+    }
 
     void doChangePasswordProcessing(){
         GUI_PasswordChangeWindow.getInstance().showPasswordChangeWindow();

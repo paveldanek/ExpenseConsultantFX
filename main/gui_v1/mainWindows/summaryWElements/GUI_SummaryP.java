@@ -4,6 +4,7 @@ import entities.Transaction;
 import gui_v1.automation.GUI_ElementCreator;
 import gui_v1.mainWindows.recordsWElements.RecordsTable_CustomMethods;
 import gui_v1.settings.GUI_Settings_Variables;
+import main_logic.PEC;
 import org.jfree.ui.RefineryUtilities;
 import summary.Summary;
 
@@ -28,6 +29,11 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
 
     public GUI_SummaryP(String acctNick, String from, String to) {
         // ----------------------- downloading Summary ---------------------
+        if (acctNick.compareToIgnoreCase(PEC.instance().getActiveAccount())==0 &&
+                Transaction.returnCalendarFromYYYYMMDD(from).compareTo(PEC.instance().getCurrentViewBeginDate())<=0 &&
+                Transaction.returnCalendarFromYYYYMMDD(to).compareTo(PEC.instance().getCurrentViewEndDate())>=0) {
+            PEC.instance().uploadCurrentList();
+        }
         Summary summary = Summary.downloadSummary(acctNick, Transaction.returnCalendarFromYYYYMMDD(from),
                 Transaction.returnCalendarFromYYYYMMDD(to));
         // ------------- creating arrays for pie charts and tables ----------

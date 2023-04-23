@@ -3,7 +3,6 @@ package main_logic;
 //import java.util.ArrayList;
 //import java.util.ListIterator;
 
-import advising.Advising;
 import crypto.AESUtil;
 import db_connectors.Connectivity;
 import entities.Transaction;
@@ -37,7 +36,8 @@ public class PEC {
 	private static String[] presetCategories = new String[]
 			{"Groceries", "Clothing", "Rent/Mortgage", "Phone", "Car/Gas",
 					"Home", "Restaurants", "Entertainment", "Traveling", "Health/Fitness",
-					"Beauty", "Fee", "Wage/Salary", "Interest", "Money Transfer", OTHER_CATEGORY};
+					"Beauty", "Fee", "Wage/Salary", "Interest", "Money Transfer In",
+					"Money Transfer Out", OTHER_CATEGORY};
 
 	// private main structure housing active Transaction data
 	// (no more than 3 months worth)
@@ -533,7 +533,8 @@ public class PEC {
 		}
 		sortedList = TransactionList.mergeSortByDate(list);
 		TransactionList temp = new TransactionList();
-		for (Transaction t : sortedList) { temp.add(t); }
+		for (Transaction t : sortedList) {
+			temp.add(t); }
 		if (mergeNewTList(temp)) {
 			uploadCurrentList();
 			return true;
@@ -936,9 +937,10 @@ public class PEC {
 		return allCategories;
 	}
 
-	public void changeCategoryToActive(String refNum) {
+	public void changeCategoryToActive(String refNum, String name) {
 		if (tList==null || tList.size()==0) return;
-		tList.searchByRefNumber(refNum).setCategory(activeCategory);
+		Transaction t = tList.searchByRefNumberAndName(refNum, name);
+		if (t!=null) t.setCategory(activeCategory);
 	}
 
 	public void addCategoriesForUserToDB() throws SQLException {

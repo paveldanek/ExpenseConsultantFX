@@ -71,7 +71,7 @@ public class GUI_CloseAccountP extends JPanel implements GUI_LoginSignUpWiindows
                     if (entry!=null && entry.compareToIgnoreCase(jtfEmail.getText().trim())==0) {
                         Object[] options = { "YES", "NO" };
                         int answer = JOptionPane.showOptionDialog(null,
-                                "Your Account will now be closed and DELETED\n"+
+                                "Your Account will now be closed and DELETED,\n"+
                                         "and this program terminated. Do you agree?", "Warning",
                                 JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
                                 null, options, options[1]);

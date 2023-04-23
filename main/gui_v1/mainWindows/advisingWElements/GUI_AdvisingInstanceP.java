@@ -50,7 +50,12 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
                 if (advice.getCatStats().get(i).getLastTotalPerPeriod()<0.0000) mainItems[i][3]="-"; else mainItems[i][3]="";
                 mainItems[i][3] += String.format("$%.2f", Math.abs(advice.getCatStats().get(i).getLastTotalPerPeriod()), "");
                 mainItems[i][4] = String.format("%.2f%%", advice.getCatStats().get(i).getLastPercentagePerPeriod(), "");
-                mainItems[i][5] = String.format("%.2f%%", advice.getCatStats().get(i).getNetPercentagePerPeriodChange(), "");
+                if (advice.getCatStats().get(i).getNetPercentagePerPeriodChange()<0.0000)
+                    mainItems[i][5]="<html><font color='#4cbb17'>";
+                else if (advice.getCatStats().get(i).getNetPercentagePerPeriodChange()>=5.0000)
+                    mainItems[i][5]="<html><font color='#ff0000'>";
+                else mainItems[i][5]="";
+                mainItems[i][5] += String.format("%.2f%%", advice.getCatStats().get(i).getNetPercentagePerPeriodChange(), "");
                 if (advice.getCatStats().get(i).getM3TotalperPeriod()<0.0000) m3Items[i][0]="-"; else m3Items[i][0]="";
                 m3Items[i][0] += String.format("$%.2f", Math.abs(advice.getCatStats().get(i).getM3TotalperPeriod()), "");
                 m3Items[i][1] = String.format("%.2f%%", advice.getCatStats().get(i).getM3NetPercentageChange(), "");
@@ -197,6 +202,14 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
         sorter.setComparator(column, new Comparator<String>() {
             @Override
             public int compare(String c1, String c2) {
+                if (c1.startsWith("<")) {
+                    String[] temp = c1.split(">");
+                    c1 = temp[2];
+                }
+                if (c2.startsWith("<")) {
+                    String[] temp = c2.split(">");
+                    c2 = temp[2];
+                }
                 Double n1 = Double.parseDouble(c1.replaceAll("[, $ %]",""));
                 Double n2 = Double.parseDouble(c2.replaceAll("[, $ %]",""));
                 if (n1 < n2) {

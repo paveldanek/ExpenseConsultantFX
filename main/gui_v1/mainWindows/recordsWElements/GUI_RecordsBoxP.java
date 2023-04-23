@@ -40,7 +40,8 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 	private static JPanel jpRecordsActionControlsBoxP;
 	private static JLabel acctLabel;
 	private static JLabel catLabel;
-	private static String[] columnNames = {"Date", "Ref", "Name", "Memo", "Amount", "OTHER"};
+	/*
+	private static String[] columnNames = {"Date", "Ref", "Name", "Memo", "Amount", "Category"};
 	private static String[][] testData = {{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"},
 			{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"},
 			{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"} ,
@@ -48,14 +49,11 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 			{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"},
 			{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"},
 			{"Rec Num", "Explain", "Bank", "Acct #", "Amount", "OTHER"}};
+
+	 */
 	private static ActionListener a;
 	private JTable table;
 
-//	private static final JTable jtRecordsTable = GUI_ElementCreator.newJTable(testData, columnNames);
-////	private static JTable jtRecordsTable = GUI_ElementCreator.newJTable();
-//	public static JTable getTableView(){
-//		return jtRecordsTable;
-//	}
 	public GUI_RecordsBoxP() {
 		setLayout(new BorderLayout());
 
@@ -99,6 +97,7 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 		add(new RecordsNavigationButtonsP(), BorderLayout.SOUTH);
 		Request r = Request.instance();
 		table = r.getRecordsTableHolder();
+		//DefaultTableModel dm = (DefaultTableModel) table.getModel();
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent evt) {
@@ -106,12 +105,21 @@ public class GUI_RecordsBoxP extends JPanel implements GUI_Settings_Variables, A
 					int row = table.rowAtPoint(evt.getPoint());
 					int col = table.columnAtPoint(evt.getPoint());
 					if (row >= 0 && col >= 0) {
-						PEC.instance().changeCategoryToActive((String) table.getValueAt(row, 1));
-						table.setValueAt(PEC.instance().getActiveCategory(), row, 5);
+						PEC.instance().changeCategoryToActive((String)
+										table.getValueAt(row,getColumnIndex("Ref")),
+								(String) table.getValueAt(row, getColumnIndex("Name")));
+						table.setValueAt(PEC.instance().getActiveCategory(), row, getColumnIndex("Category"));
 					}
 				}
 			}
 		});
+	}
+
+	private int getColumnIndex(String columnName) {
+		for (int i=0; i<table.getColumnCount(); i++) {
+			if (table.getColumnName(i).equalsIgnoreCase(columnName)) return i;
+		}
+		return -1;
 	}
 
 	public void updateRecordWindowAcctMenu(String acctNick) {
