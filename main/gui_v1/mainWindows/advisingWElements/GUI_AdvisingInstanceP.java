@@ -256,8 +256,12 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
             line3 = "You NEED to DECREASE your spending mainly in categories:";
         }
         else {
-            line2 += "an <font color='#4cbb17'>increase of "+percentage+"<font color='#ff'>. "+
-                    "<u>GOOD JOB!!! YOU ARE ABLE TO SAVE UP!!!</u></html>";
+            line2 += "an <font color='#4cbb17'>increase of "+percentage+"<font color='#ff'>.";
+            if (advice.getNetIncomeChangeInPercent()>0.0 || advice.getLastNetIncome()>0.0) {
+                line2 += " <u>GOOD JOB!!!</u>";
+                if (advice.getLastNetIncome()>0.0) line2 += " YOU ARE ABLE TO SAVE UP!!!</u></html>";
+                else line2 +="</html>";
+            }
             line3 = "You could consider lowering your spending in categories like:";
         }
         JLabel label1 = new JLabel(line1, SwingConstants.CENTER);

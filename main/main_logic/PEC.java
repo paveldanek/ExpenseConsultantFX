@@ -533,8 +533,7 @@ public class PEC {
 		}
 		sortedList = TransactionList.mergeSortByDate(list);
 		TransactionList temp = new TransactionList();
-		for (Transaction t : sortedList) {
-			temp.add(t); }
+		for (Transaction t : sortedList) { temp.add(t); }
 		if (mergeNewTList(temp)) {
 			uploadCurrentList();
 			return true;
