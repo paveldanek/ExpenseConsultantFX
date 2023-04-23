@@ -52,6 +52,9 @@ public class PEC {
 	private String[] allAccounts = {};
 	private String[] allCategories = {};
 	private String activeAccount = "";
+	// holds temporary list of bank names, created by Add New Bank Dialog in
+	// Manual Entry feature; will get discarted when logged out
+	private ArrayList<String> tempBankNames = new ArrayList<String>();
 	private String activeCategory = OTHER_CATEGORY;
 	// array of booleans to remember if a particular column is sorted
 	// in a descending (or ascending) direction
@@ -224,10 +227,17 @@ public class PEC {
 		return output;
 	}
 
+	public void addNewBankToTempList(String bankName) {
+		tempBankNames.add(bankName);
+	}
+
 	private String getBankNameFromCurrAcctIdentifier() {
-		String[] strArray = getActiveAccount().split("[( )]");
+		String[] strArray = getActiveAccount().split("[()]");
 		for (String str : strArray) {
 			for (String bank : allBanks) {
+				if (str.compareToIgnoreCase(bank)==0) return bank;
+			}
+			for (String bank : tempBankNames) {
 				if (str.compareToIgnoreCase(bank)==0) return bank;
 			}
 		}

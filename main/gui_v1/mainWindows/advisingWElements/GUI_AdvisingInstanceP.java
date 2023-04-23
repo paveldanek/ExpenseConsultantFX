@@ -210,8 +210,8 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
                     String[] temp = c2.split(">");
                     c2 = temp[2];
                 }
-                Double n1 = Double.parseDouble(c1.replaceAll("[, $ %]",""));
-                Double n2 = Double.parseDouble(c2.replaceAll("[, $ %]",""));
+                Double n1 = Double.parseDouble(c1.replaceAll("[,$ %]",""));
+                Double n2 = Double.parseDouble(c2.replaceAll("[,$ %]",""));
                 if (n1 < n2) {
                     return -1;
                 } else if (n1 > n2) {

@@ -86,7 +86,7 @@ public class Transaction {
      * @return same date as a Calendar type
      */
     public static Calendar returnCalendarFromYYYYMMDD(String stringDate) {
-        String[] ymd = stringDate.split("[/ . -]");
+        String[] ymd = stringDate.split("[/. :-]");
         if (ymd.length<3) stringDate = "19000101000000";
         else
         if (ymd[0].length()==4) {

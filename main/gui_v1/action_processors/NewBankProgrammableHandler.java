@@ -23,6 +23,7 @@ public class NewBankProgrammableHandler {
             GUI_ElementsOptionLists.getInstance().addBankToList(strBank);
             r.getNewAccountWindowHolder().addBankToComboBox(strBank);
             //GUI_ManualEntryTemporaialHolder.getInstance().addBankAsUnstored(strBank);
+            PEC.instance().addNewBankToTempList(strBank);
         }
         //showNewBankEntryInfo();
     }
