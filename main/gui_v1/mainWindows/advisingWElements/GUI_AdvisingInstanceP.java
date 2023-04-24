@@ -212,6 +212,8 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
                 }
                 Double n1 = Double.parseDouble(c1.replaceAll("[,$ %]",""));
                 Double n2 = Double.parseDouble(c2.replaceAll("[,$ %]",""));
+                if (n1==null) n1 = 0.0;
+                if (n2==null) n2 = 0.0;
                 if (n1 < n2) {
                     return -1;
                 } else if (n1 > n2) {
@@ -354,16 +356,25 @@ public class GUI_AdvisingInstanceP extends JPanel implements GUI_Settings_Variab
         // ----- table header update ----------------
         JTableHeader th = mainTable.getTableHeader();
         TableColumnModel tcm = th.getColumnModel();
-        TableColumn tc0 = tcm.getColumn(6);
+        int index0 = getMainTableColumnIndex("Sums (in ");
+        int index1 = getMainTableColumnIndex("% change (in ");
+        TableColumn tc0 = tcm.getColumn(index0);
         tc0.setHeaderValue(columnNames[0]);
-        TableColumn tc1 = tcm.getColumn(7);
+        TableColumn tc1 = tcm.getColumn(index1);
         tc1.setHeaderValue(columnNames[1]);
         th.repaint();
         // ------- table update ---------------------
         for (int i = 0; i < futureItems.length; i++) {
-            mainTable.setValueAt(futureItems[i][0], i, 6);
-            mainTable.setValueAt(futureItems[i][1], i, 7);
+            mainTable.setValueAt(futureItems[i][0], i, index0);
+            mainTable.setValueAt(futureItems[i][1], i, index1);
         }
+    }
+
+    private int getMainTableColumnIndex(String nameStartsWith) {
+        for (int i=0; i<mainTable.getColumnCount(); i++) {
+            if (mainTable.getColumnName(i).startsWith(nameStartsWith)) return i;
+        }
+        return -1;
     }
 
     @Override

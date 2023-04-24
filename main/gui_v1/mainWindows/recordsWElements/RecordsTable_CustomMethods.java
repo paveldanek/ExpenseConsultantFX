@@ -113,6 +113,8 @@ public class RecordsTable_CustomMethods {
                     n2*= -1;
                 }
 //                o(n1 + " "+ n2);
+                if (n1==null) n1 = 0.0;
+                if (n2==null) n2 = 0.0;
                 if (n1 < n2) {
                     return -1;
                 } else if (n1 > n2) {
