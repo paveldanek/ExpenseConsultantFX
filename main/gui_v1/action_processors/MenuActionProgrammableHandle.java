@@ -70,8 +70,6 @@ public class MenuActionProgrammableHandle {
                         result.getTMemo(), result.getTAmount(), result.getTCat());
                }
         }
-        //updateMenus(PEC.instance().getActiveAccount(), PEC.instance().getActiveCategory());
-//        records.setVisible(true);
         request.getMainWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
         GUI_RecordsWindow.getInstance().showRecordsWindow();
     }

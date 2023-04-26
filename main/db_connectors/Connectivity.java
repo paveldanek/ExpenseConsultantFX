@@ -14,8 +14,8 @@ import java.sql.*;
  * @author SPAM team: Pavel Danek and Samuel Dinka
  */
 public class Connectivity {
-    private static final String USER = "root";
-    private static final String PASS = "ics49901";
+    private static String USER = "root";
+    private static String PASS = "ics49901";
     private static Connection connection = null;
     private static boolean errorShown = false;
 
@@ -322,6 +322,17 @@ public class Connectivity {
             throw new RuntimeException(e);
         }
         return count>0;
+    }
+
+    /**
+     * Stores the local MySQL server authentication credentials for future use;
+     * these are only stored until the app quits.
+     * @param userName local MySQL server user name
+     * @param password local MySQL server password
+     */
+    public static void storeDBCredentials(String userName, String password) {
+        USER = userName;
+        PASS = password;
     }
 
 }
