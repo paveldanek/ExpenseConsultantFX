@@ -12,6 +12,7 @@ import gui_v1.mainWindows.GUI_NewCategoryWindow;
 import gui_v1.mainWindows.recordsWElements.RecordsTable;
 import gui_v1.settings.GUI_Settings_Variables;
 import main_logic.PEC;
+import main_logic.ManualEntry;
 import main_logic.Request;
 import main_logic.Result;
 import net.sourceforge.jdatepicker.impl.*;
@@ -176,22 +177,10 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         add(buttonsBox, BorderLayout.SOUTH);
         req.setManualEntryWindowHolder(this);
 
-        PEC.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
+        ManualEntry.instance().clearManualEntries();
+        ManualEntry.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
                 (Calendar) datePicker.getModel().getValue(), (String) jcmbCategory.getSelectedItem());
     }
-
-    /*
-    private void setDateOutputTextFieldWithDateFromComboBoxes() {
-        jtfOutputDate.setText(jcmbMonths.getSelectedItem() + "/" + jcmbDays.getSelectedItem() + "/" + jcmbYears.getSelectedItem());
-    }
-
-    private void replaceItemsAtJCMBoWith(JComboBox<String> jcb, String[] items) {
-        jcb.removeAllItems();
-        for (String i : items) {
-            jcb.addItem(i);
-        }
-    }
-    */
 
     public void addAccountNickToComboBox(String acctNick) {
         JComboBox<String> oldAccount = jcmbAccount;
@@ -231,71 +220,6 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         jcmbCategory.setSelectedItem(category);
     }
 
-    /*
-    public void setElementsDefaultHelpTexts() {
-        if(jcmbAccount.getItemAt(DEFAULT_SELECTED_ITEM).compareToIgnoreCase
-                (GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg())!=0){
-            jcmbAccount.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().acctNicksSelectionHelpMsg(),
-                    DEFAULT_SELECTED_ITEM);
-        }
-        if(jcmbCategory.getItemAt(DEFAULT_SELECTED_ITEM).compareToIgnoreCase
-                (GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg())!=0){
-            jcmbCategory.insertItemAt(GUI_ElementsDataLoader.getMEntHelpMsgs().categoryOfAccntSelectionHelpMsg(),
-                    DEFAULT_SELECTED_ITEM);
-        }
-        jtfDate.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().dateInputHelpMsg());
-        jtfOutputDate.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().dateOutputHelpMsg());
-        jtfRefNum.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().referenceInputHelpMsg());
-        jtfTransName.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().referenceInputHelpMsg());
-        jtfMemo.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().transMemoInputHelpMsg());
-        jtfAmount.setText(GUI_ElementsDataLoader.getMEntHelpMsgs().transAmountInputHelpMsg());
-
-    }
-
-    public void setAllElementsCustomHelpTexts(String accountCombo_helpText, String date_helpText,
-                                              String refnum_helpText, String transName_helpText,
-                                              String memo_helpText, String amount_helpText,
-                                              String categoryCombo_helpText) {
-        setJTFCustom_Texts(date_helpText, refnum_helpText, transName_helpText, memo_helpText, amount_helpText);
-        setJCMBs_Custom_UserHelpTexts(accountCombo_helpText, categoryCombo_helpText);
-    }
-
-    private void setJCMBs_Custom_UserHelpTexts(String accountComboHelpText, String categoryComboHelpText) {
-        jcmbAccount.setSelectedItem(accountComboHelpText);
-        jcmbCategory.setSelectedItem(categoryComboHelpText);
-    }
-
-    public void setJTFCustom_Texts(String date_helpText, String refnum_helpText, String TransName_helpText,
-                                   String memo_helpText, String amount_helpText) {
-        jtfDate.setText(date_helpText);
-        jtfRefNum.setText(refnum_helpText);
-        jtfTransName.setText(TransName_helpText);
-        jtfMemo.setText(memo_helpText);
-        jtfAmount.setText(amount_helpText);
-    }
-
-    public void setManualEntriesValues(String[] tmpManualEntries) {
-        if(tmpManualEntries==null){
-            return;
-        }
-        String acctNick = tmpManualEntries[0];
-        String date = tmpManualEntries[1];
-        String refNum = tmpManualEntries[2];
-        String transName = tmpManualEntries[3];
-        String memo = tmpManualEntries[4];
-        String amount = tmpManualEntries[5];
-        String category = tmpManualEntries[6];
-        setAllElementsCustomHelpTexts(acctNick, date, refNum, transName, memo, amount, category);
-        //setManualEntriesCalendarValues(date.split("/"));
-    }
-
-    public void setManualEntriesCalendarValues(String[] calArrYMD) {
-        jcmbYears.setSelectedItem(calArrYMD[2]);
-        jcmbMonths.setSelectedItem(calArrYMD[0]);
-        jcmbDays.setSelectedItem(calArrYMD[1]);
-    }
-    */
-
     private String[] getAllInputElementsData() {
         String account = (jcmbAccount.getSelectedItem() + "").trim();
         String custom_category = (jcmbCategory.getSelectedItem() + "").trim();
@@ -307,27 +231,6 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         return new String[]{account, date, refN, descr, memo, amount, custom_category};
     }
 
-    /*
-    private void clearrErrorArr(String[] errArr){
-        clearStrArr( errArr);
-
-    }
-
-    private boolean checkInputData(String[] inputData){
-        if(inputData.length != INPUT_ELEMENTS_ON_VIEW_COUNTER){
-            return false;
-        }
-        String account = inputData[0].trim();
-        String custom_category = inputData[6].trim();
-        if(account.compareToIgnoreCase(jcmbAccount.getItemAt(DEFAULT_SELECTED_ITEM))==0){
-           return false;
-        }
-        if(custom_category.compareToIgnoreCase(jcmbCategory.getItemAt(DEFAULT_SELECTED_ITEM))==0){
-           return false;
-        }
-        return true;
-    }
-*/
     private void processCategorySelection() {
         if (jcmbCategory.getSelectedIndex()==0) jcmbCategory.setSelectedIndex(listsSelectedItems[1]);
         else if ((jcmbCategory.getSelectedItem() + "").trim().compareToIgnoreCase
@@ -347,7 +250,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
             GUI_ManualEntryWindow.getInstance().hideManualEntryWindow();
         } else {
             listsSelectedItems[0] = jcmbAccount.getSelectedIndex();
-            PEC.instance().changeManualEntryAccount((String) jcmbAccount.getSelectedItem());
+            ManualEntry.instance().changeManualEntryAccount((String) jcmbAccount.getSelectedItem());
         }
     }
 
@@ -407,9 +310,9 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         Result r = new Result();
         newEntry = getAllInputElementsData();
         if (position==0) i++;
-        while (i < PEC.instance().getManualEntrySize()) {
+        while (i < ManualEntry.instance().getManualEntrySize()) {
             r.reset();
-            r = PEC.instance().getManualEntry(i);
+            r = ManualEntry.instance().getManualEntry(i);
             if (newEntry[0].compareToIgnoreCase(r.getAccountNick())==0 &&
                     newEntry[1].compareToIgnoreCase(r.getTDate())==0 &&
                     newEntry[2].compareToIgnoreCase(r.getTRef())==0 &&
@@ -425,9 +328,9 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
 
     private boolean doesManualEntryExist(String[] entry) {
         Result r = new Result();
-        for (int i=0; i<PEC.instance().getManualEntrySize(); i++) {
+        for (int i=0; i<ManualEntry.instance().getManualEntrySize(); i++) {
             r.reset();
-            r = PEC.instance().getManualEntry(i);
+            r = ManualEntry.instance().getManualEntry(i);
             if (entry[0].compareToIgnoreCase(r.getAccountNick())==0 &&
                     entry[1].compareToIgnoreCase(r.getTDate())==0 &&
                     entry[2].compareToIgnoreCase(r.getTRef())==0 &&
@@ -460,10 +363,10 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
 
     private boolean exitEntry() {
         // returns false if there are invalid fields and process can't move on
-        if (isFormEmpty() && PEC.instance().getManualEntrySize()>1) {
-            PEC.instance().deleteManualEntry(position);
-            if (position>=PEC.instance().getManualEntrySize())
-                    position = PEC.instance().getManualEntrySize()-1;
+        if (isFormEmpty() && ManualEntry.instance().getManualEntrySize()>1) {
+            ManualEntry.instance().deleteManualEntry(position);
+            if (position>=ManualEntry.instance().getManualEntrySize())
+                    position = ManualEntry.instance().getManualEntrySize()-1;
         } else {
             if (!areFieldsValid()) return false;
             if (isManualEntryADouble()) {
@@ -484,7 +387,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
             req.setTMemo(fields[4]);
             req.setTAmount(Double.parseDouble(fields[5]));
             req.setTCat(fields[6]);
-            PEC.instance().editManualEntry(position, req);
+            ManualEntry.instance().editManualEntry(position, req);
         }
         return true;
     }
@@ -492,9 +395,9 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
     private void processAnotherClick() {
         if (!exitEntry()) return;
         clearFields();
-        PEC.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
+        ManualEntry.instance().addManualEntry((String) jcmbAccount.getSelectedItem(),
                 (Calendar) datePicker.getModel().getValue(), (String) jcmbCategory.getSelectedItem());
-        position = PEC.instance().getManualEntrySize()-1;
+        position = ManualEntry.instance().getManualEntrySize()-1;
     }
 
     private void processDoneBtnClick(){
@@ -519,7 +422,7 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         Request.instance().getMainWindowHolder().updateRecordWindowAcctMenu(PEC.instance().getActiveAccount());
         position = 0;
         clearFields();
-        PEC.instance().clearManualEntries();
+        ManualEntry.instance().clearManualEntries();
         GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
         GUI_RecordsWindow.getInstance().showRecordsWindow();
     }
@@ -528,44 +431,45 @@ public class GUI_ManualTransactionsEntryP extends JPanel implements GUI_Settings
         if (position==0) return;
         if (!exitEntry()) return;
         position = 0;
-        Result r = PEC.instance().getManualEntry(position);
+        Result r = ManualEntry.instance().getManualEntry(position);
         setFieldsTo(r);
     }
 
     private void processPrevBtnClick(){
         if (position==0) return;
         boolean dontMove = false;
-        if (position==PEC.instance().getManualEntrySize()-1 && isFormEmpty()) dontMove = true;
+        if (position==ManualEntry.instance().getManualEntrySize()-1 && isFormEmpty()) dontMove = true;
         if (!exitEntry()) return;
         if (!dontMove) position--;
-        Result r = PEC.instance().getManualEntry(position);
+        Result r = ManualEntry.instance().getManualEntry(position);
         setFieldsTo(r);
     }
 
     private void processNextBtnClick(){
-        if (position==PEC.instance().getManualEntrySize()-1) return;
+        if (position==ManualEntry.instance().getManualEntrySize()-1) return;
         boolean dontMove = false;
         if (isFormEmpty()) dontMove = true;
         if (!exitEntry()) return;
         if (!dontMove) position++;
-        if (position>=PEC.instance().getManualEntrySize()) position = PEC.instance().getManualEntrySize()-1;
-        Result r = PEC.instance().getManualEntry(position);
+        if (position>=ManualEntry.instance().getManualEntrySize()) position = ManualEntry.instance().getManualEntrySize()-1;
+        Result r = ManualEntry.instance().getManualEntry(position);
         setFieldsTo(r);
     }
 
     private void processLastBtnClick(){
-        if (position==PEC.instance().getManualEntrySize()-1) return;
+        if (position==ManualEntry.instance().getManualEntrySize()-1) return;
         if (!exitEntry()) return;
-        position = PEC.instance().getManualEntrySize()-1;
-        Result r = PEC.instance().getManualEntry(position);
+        position = ManualEntry.instance().getManualEntrySize()-1;
+        Result r = ManualEntry.instance().getManualEntry(position);
         setFieldsTo(r);
     }
 
     private void processCancelBtnClick() {
-        int answr = JOptionPane.showOptionDialog(null, "Do you want to cancel manual entry\n and discard all input entries?", "Warning",
+        int answr = JOptionPane.showOptionDialog(null, "Do you want to cancel manual entry"+
+                        "\n and discard all input entries?", "Warning",
                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
         if (answr==JOptionPane.YES_OPTION) {
-            PEC.instance().clearManualEntries();
+            ManualEntry.instance().clearManualEntries();
             GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();
             GUI_RecordsWindow.getInstance().showRecordsWindow();
         }

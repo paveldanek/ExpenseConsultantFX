@@ -6,6 +6,7 @@ package summary;
  * amount per month (per 30 days) calculated from the total and period length, and
  * the percentage per the specific period of the total spent/ made (depending on
  * whether the total per period is negative/ positive respectively.
+ * @author SPAM team: Pavel Danek and Samuel Dinka
  */
 public class CatTotal {
 

@@ -17,7 +17,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class creates and keeps a Summary of a single-account per-period activity for
- * Personal Expense Consultant.
+ * Personal Expense Consultant. Static methods allow for building an aggregated Summary,
+ * consisting of multiple, contiguous time periods.
+ * @author SPAM team: Pavel Danek and Samuel Dinka
  */
 public class Summary {
 
@@ -299,6 +301,12 @@ public class Summary {
         return mergeByTotal(ascending, list1, list2);
     }
 
+    /**
+     * This custom-sorting method sorts the input list of CatTotal in a way where the
+     * resulting list starts with the largest negative value, going down the list but
+     * up in values towards 0, followed be largest positive value, going down the list
+     * and down in values towards 0.
+     */
     public static ArrayList<CatTotal> customMergeSort(ArrayList<CatTotal> list) {
         ArrayList<CatTotal> negativeList = new ArrayList<CatTotal>();
         ArrayList<CatTotal> positiveList = new ArrayList<CatTotal>();
@@ -447,6 +455,11 @@ public class Summary {
 
     public Calendar getTimeStamp() { return timeStamp; }
 
+    /**
+     * Converts a Calendar value of timeStamp variable to a String
+     * formatted "YYYY/MM/DD at HH:MM:SS".
+     * @return String representation of a Calendar value of timeStamp variable
+     */
     public String getTimeStampString() {
         String year, month, day, hour, minute, second;
         year = Integer.toString(timeStamp.get(Calendar.YEAR));

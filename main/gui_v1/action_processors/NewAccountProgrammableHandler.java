@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import gui_v1.data_loaders.GUI_ElementsOptionLists;
 import main_logic.PEC;
+import main_logic.ManualEntry;
 import gui_v1.gui_logic.GUI_ManualEntryTemporaialHolder;
 import main_logic.Request;
 
@@ -31,7 +32,7 @@ public class NewAccountProgrammableHandler {
             PEC.instance().addBankToList(strBank);
             if (r.getManualEntryWindowHolder()!=null) {
                 r.getManualEntryWindowHolder().addAccountNickToComboBox(acctIdentifier);
-                PEC.instance().changeManualEntryAccount(acctIdentifier);
+                ManualEntry.instance().changeManualEntryAccount(acctIdentifier);
             }
         }
     }

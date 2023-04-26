@@ -2,6 +2,7 @@ package gui_v1.mainWindows;
 import gui_v1.action_processors.GUI_MainiWindowActionProcessor;
 import gui_v1.action_processors.MenuActionProgrammableHandle;
 import main_logic.PEC;
+import main_logic.ManualEntry;
 import main_logic.Request;
 
 import javax.swing.*;
@@ -60,7 +61,7 @@ public interface GUI_MainWidowsSharedBehaviors {
            int answr = JOptionPane.showOptionDialog(null, "Do you want to cancel Manual Entry\n and discard all input entries?", "Warning",
                    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
            if (answr==JOptionPane.YES_OPTION) {
-               PEC.instance().clearManualEntries();
+               ManualEntry.instance().clearManualEntries();
                Request r = Request.instance();
                r.getManualEntryWindowHolder().clearFields();
                GUI_ManualEntryWindow.getInstance().disposeManualEntryWindow();

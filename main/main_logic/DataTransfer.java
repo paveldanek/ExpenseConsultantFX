@@ -9,8 +9,11 @@ import gui_v1.mainWindows.recordsWElements.GUI_RecordsBoxP;
 
 import javax.swing.*;
 
+/**
+ * A class that stores and retrieves various data necessary to communicate--
+ * typically between the program's logic and the Graphical User Interface (GUI).
+ */
 public class DataTransfer {
-
 
 	// Transaction fields
 	private String tDate;
@@ -58,7 +61,8 @@ public class DataTransfer {
 	}
 
 	/**
-	 * Resets all fields to "", null, or zero.
+	 * Resets all fields to "", null, or zero. Does NOT nullify the reference
+	 * holders for instantiated classes.
 	 */
 	public void reset() {
 		tDate = "";
@@ -189,15 +193,16 @@ public class DataTransfer {
 
 	// more getters and setters: ...
 
+	/**
+	 * A setter that simplifies "loading" variables with Transaction data.
+	 * @param transaction Transaction to be loaded
+	 */
 	public void setTFields(Transaction transaction) {
 		this.tDate = Transaction.returnYYYYMMDDFromCalendar(transaction.getPostedDate());
 		this.tRef = transaction.getRefNumber();
 		this.tDesc = transaction.getDescription();
 		this.tMemo = transaction.getMemo();
-//		if (transaction.getAmount()<0) { this.tAmount = String.format("$%.2f", transaction.getAmount()); }
-//		else { this.tAmount = String.format("$ %.2f", transaction.getAmount()); }
 		this.tAmount = transaction.getAmount();
-		//this.tAmount = ((int)(transaction.getAmount() * 100))/100.0;
 		this.tCat = transaction.getCategory();
 	}
 

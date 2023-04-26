@@ -8,6 +8,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 
+/**
+ *
+ */
 public class Connectivity {
     private static final String USER = "root";
     private static final String PASS = "ics49901";

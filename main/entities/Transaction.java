@@ -12,10 +12,6 @@ import java.util.Calendar;
  */
 public class Transaction {
 
-    // Category Name examples { "<OTHER>", "INCOME", "FEE", "ESSENTIALS", "TRANSPORT", "ENTERTAINMENT", "ALCOHOL" };
-
-//	many more to be added
-
     private Calendar postedDate;
     private String refNumber;
     private String description;

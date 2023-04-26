@@ -3,12 +3,12 @@ package gui_v1.settings;
 import java.awt.*;
 
 public interface GUI_LoginSignUpWiindows_Settings {
-    String strCopyRigts = "Copyright \u00a9 SPAM Team 2023";
+    String strCopyRigts = "P.E.C., Copyright \u00a9 SPAM Team 2023";
 
-    String strLogInWindowTitle = "Login";
+    String strLogInWindowTitle = "Welcome to Personal Expense Consultant - Login";
     String strLogInHeadTitle = "Please Enter Your Login Info";
 
-    String strSignUpWindowTitle = "Create an account";
+    String strSignUpWindowTitle = "Welcome to Personal Expense Consultant - Create an account";
     String StrSignUpHeadTilte = "Please Enter Your Info";
 
     int gui_width = 550;

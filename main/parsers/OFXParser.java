@@ -98,23 +98,6 @@ public class OFXParser {
 		return endDate;
 	}
 
-	/**
-	 * Sets the endDate to be no longer away from the startDate than 3 months
-	 */
-	/*
-	private static void setEndDate(Calendar endDate) {
-		// the date is copied without coping the whole object's reference
-		Calendar startPlus3Months = Transaction.returnCalendarFromOFX(Transaction.returnOFXFromCalendar(startDate));
-		startPlus3Months.add(Calendar.MONTH, 3);
-		System.out.println("Start+3="+Transaction.returnYYYYMMDDFromCalendar(startPlus3Months));
-		System.out.println("End="+Transaction.returnYYYYMMDDFromCalendar(endDate));
-		if (endDate.compareTo(startPlus3Months)>0) OFXParser.endDate = startPlus3Months;
-		else OFXParser.endDate = endDate;
-		System.out.println("Parsing from "+Transaction.returnYYYYMMDDFromCalendar(OFXParser.startDate)+
-				" to "+Transaction.returnYYYYMMDDFromCalendar(OFXParser.endDate)+".\n");
-	}
-	*/
-
 	private static void setEndDate(Calendar endDate) {
 		OFXParser.endDate = endDate;
 	}
@@ -159,9 +142,7 @@ public class OFXParser {
 
 	private static void setBankID(String bankID) { OFXParser.bankID = bankID; }
 
-	//	--------------------------------------------------------
-
-//  
+//	------------------------------------------------------------------------------
 
 	/**
 	 * Parses OFX file and returns a list of Transactions. It doesn't check the file
@@ -341,9 +322,9 @@ public class OFXParser {
 				Transaction t = new Transaction(date, ref, name, mem, amt, PEC.OTHER_CATEGORY); // Default
 				// following if statement checks if the Transaction date is outside of
 				// restricted time period; being a "border date" is allowed
-				if (((!t.isBetweenDates(startNoParseDate, endNoParseDate)) ||
+				if (!t.isBetweenDates(startNoParseDate, endNoParseDate) ||
 						date.compareTo(startNoParseDate)==0 ||
-						date.compareTo(endNoParseDate)==0)) {
+						date.compareTo(endNoParseDate)==0) {
 					output.add(t);
 				}
 			}
@@ -437,6 +418,8 @@ public class OFXParser {
 			}
 		}
 	}
+
+//	------------------------------------------------------------------------------
 
 	/*
 	public static void main(String[] args) throws IOException {
