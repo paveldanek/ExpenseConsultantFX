@@ -8,6 +8,12 @@ import main_logic.Request;
 
 import java.sql.*;
 
+/**
+ * The Authentication class contains everything that has to do with user account
+ * program logic. Sign-up, login, password retrieval, password change, and account
+ * close.
+ * @author SPAM team: Pavel Danek and Samuel Dinka
+ */
 public class Authentication {
 
     private static Authentication singleton = null;
@@ -29,6 +35,12 @@ public class Authentication {
         return singleton;
     }
 
+    /**
+     * Logs the user in.
+     * @param r Request variable containing all necessary fields
+     * @return user id of the newly logged-in user
+     * @throws SQLException
+     */
     public int login(Request r) throws SQLException {
         int userId = -1;
         boolean result = false;
@@ -72,8 +84,16 @@ public class Authentication {
         }
     }
 
+    /**
+     * Signs a new user up. Stores user name, user ID, password, 2 security
+     * questions, and corresponding answers--all in an encrypted form. If the
+     * user is properly signed up, it also loggs them in.
+     * @param r Request variable containing all necessary fields
+     * @return a checkcode communicating the result of the sign-up
+     * @throws SQLException
+     */
     public int signup(Request r) throws SQLException {
-        int checkCode = 0;
+        int checkCode = 0; // 0 = no code
         // Connect to the database
         Connection conn = Connectivity.getConnection();
         String email = r.getEmail();
@@ -85,7 +105,7 @@ public class Authentication {
         String answer2 = r.getAnswer2();
         // Check if the email is in the right format
         if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            checkCode = 1;
+            checkCode = 1; // 1 = not an email address
         } else {
             ResultSet rs = null;
             try {
@@ -102,7 +122,7 @@ public class Authentication {
             if (count == 0) {
                 if (pass1.length() >= 8 && pass1.length() < 20) {
                     if (!pass1.equals(pass2)) {
-                        checkCode = 4;
+                        checkCode = 4; // 4 = confirm password does not match the first password entry
                     } else {
                         // Create a PreparedStatement to insert a new user
                         String sql = "INSERT INTO users (email, password, question1, question2, answer1, answer2, "+
@@ -119,31 +139,39 @@ public class Authentication {
                             stmt.setString(6, AESUtil.encryptItem(answer2));
                             rowsAffected = stmt.executeUpdate();
                         } catch (SQLIntegrityConstraintViolationException e) {
-                            checkCode = 6;
+                            checkCode = 6; // 6 = SQL error occurred
                         }
                         // Execute the query and check the number of rows affected
                         if (rowsAffected > 0 && checkCode==0 ) {
                             // added the call of login for further initialization,
                             // which can be moved somewhere else
                             int userID = login(r);
-                            checkCode = 5;
+                            checkCode = 5; // 5 = sign-up successful
                         } else {
-                            checkCode = 6;
+                            checkCode = 6; // 6 = SQL error occurred
                         }
                         // Close the connection and statement
                         stmt.close();
                         conn.close();
                     }
                 } else {
-                    checkCode = 3;
+                    checkCode = 3; // 3 = incorrect length of password
                 }
             } else {
-                checkCode = 2;
+                checkCode = 2; // 2 = the email is in the database already
             }
         }
         return checkCode;
     }
 
+    /**
+     * Retrieves a forgotten password.
+     * @param r Request variable containing all necessary fields; the retrieved
+     *          password is sent back through this variable in case of a successful
+     *          retrieval as well
+     * @return a code communicating the result of the retrieval
+     * @throws SQLException
+     */
     public int retrievePassword(Request r) throws SQLException{
         Connection connection = Connectivity.getConnection();
         String query = "SELECT password, question1, question2, answer1, answer2 FROM users WHERE email = ?";
@@ -161,7 +189,7 @@ public class Authentication {
                 a2 = AESUtil.decryptItem(resultSet.getString("answer2"));
                 r.setPass1(resultSet.getString("password"));
             } else {
-                return 1;
+                return 1; // 1 = unrecognized email
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -169,16 +197,27 @@ public class Authentication {
         if ((q1.compareToIgnoreCase(r.getQuestion1())==0 && q2.compareToIgnoreCase(r.getQuestion2())==0
                 && a1.compareToIgnoreCase(r.getAnswer1())==0 && a2.compareToIgnoreCase(r.getAnswer2())==0) ||
                 (q1.compareToIgnoreCase(r.getQuestion2())==0 && q2.compareToIgnoreCase(r.getQuestion1())==0
-                && a1.compareToIgnoreCase(r.getAnswer2())==0 && a2.compareToIgnoreCase(r.getAnswer1())==0)) return 3;
+                && a1.compareToIgnoreCase(r.getAnswer2())==0 && a2.compareToIgnoreCase(r.getAnswer1())==0))
+            return 3; // 3 = retrieval successful, password can be accessed from r.getPass1()
+                      // (recommended deleting the password from the Request.pass1 right after use)
         else {
             r.setPass1("");
-            return 2;
+            return 2; // 2 = security Q&A don't match
         }
     }
 
+    /**
+     * Changes the current user's password. Since all transaction and summary
+     * entries are encoded using the user's password, this method not only changes
+     * and stores the new credentials, but also pulls all relevant entries from the
+     * database, "re-crypts" them with the new password, and uploads them back.
+     * @param r Request variable containing all necessary fields
+     * @return a code communicating the result of the password change
+     * @throws SQLException
+     */
     public int passwordChange(Request r) throws SQLException{
-        if (r.getPass1().compareToIgnoreCase(r.getPass2())!=0) return 1;
-        if (r.getPass1().length()<8 || r.getPass1().length()>=20) return 2;
+        if (!r.getPass1().equals(r.getPass2())) return 1; // 1 = the new password and its confirmation don't match
+        if (r.getPass1().length()<8 || r.getPass1().length()>=20) return 2; // 2 = incorrect length of password
         Connection connection = Connectivity.getConnection();
         String query = "SELECT password FROM users WHERE email = ? AND user_id = ?";
         PreparedStatement statement = null;
@@ -192,12 +231,13 @@ public class Authentication {
             if (resultSet.next()) {
                 oldPass = resultSet.getString("password");
             } else {
-                return 3;
+                return 3; // 3 = unrecognized email
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        if (r.getOldPass().compareToIgnoreCase(AESUtil.decryptItem(oldPass))!=0) return 4;
+        if (!r.getOldPass().equals(AESUtil.decryptItem(oldPass)))
+            return 4; // 4 = current password wrong
 
         PEC.instance().setCurrentUserPass(AESUtil.encryptItem(r.getPass1()));
         String sql = "UPDATE users SET password = ? WHERE email = ?";
@@ -253,9 +293,16 @@ public class Authentication {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return 5;
+        return 5; // 5 = password change successful
     }
 
+    /**
+     * Performs the security check on input email and password during closing
+     * of a PEC account (NOT a bank account).
+     * @param r Request variable containing all necessary fields
+     * @return a code communicating the result of the security check before closing
+     * @throws SQLException
+     */
     public int closeAccountDialog(Request r) throws SQLException{
         Connection connection = Connectivity.getConnection();
         String query = "SELECT password FROM users WHERE email = ? AND user_id = ?";
@@ -270,15 +317,20 @@ public class Authentication {
             if (resultSet.next()) {
                 pass = resultSet.getString("password");
             } else {
-                return 1;
+                return 1; // 1 = unrecognized email
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        if (AESUtil.decryptItem(pass).compareToIgnoreCase(r.getPass1())!=0) return 2;
-        return 3;
+        if (!AESUtil.decryptItem(pass).equals(r.getPass1())) return 2; // 2 = incorrect password
+        return 3; // 3 = close successful
     }
 
+    /**
+     * Irreversibly closes the current user's PEC account (NOT a bank account)
+     * and deletes all associated database entries along with it.
+     * @throws SQLException
+     */
     public void closeAccount() throws SQLException{
         Connection connection = Connectivity.getConnection();
         int id = PEC.instance().getCurrentUserID();

@@ -14,6 +14,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class represents the statistics based on two discrete periods
+ * (3-month portions) of a single account: PAST period and LAST period.
+ * Any analysis and advising is based on the statistical information
+ * produced by this engine, with the help of its subsystem, CatStats class.
+ * @author SPAM team: Pavel Danek and Samuel Dinka
+ */
 public class Advising {
 
     // THIS CLASS FOCUSES ON EXPENSES (SPENDING MONEY), NOT INCOMES (MAKING MONEY)
@@ -51,6 +58,12 @@ public class Advising {
 
     private Summary s1, s2;
 
+    /**
+     * Creates the Advising instance based on two Summaries of an account.
+     * @param acctNick the account identifier
+     * @param pastPeriod a Calendar value of the beginning date of period 1 (PAST)
+     * @param lastPeriod a Calendar value of the beginning date of period 2 (LAST)
+     */
     public Advising(String acctNick, Calendar pastPeriod, Calendar lastPeriod) {
         s1 = Summary.downloadSingleSummary(acctNick, pastPeriod);
         s2 = Summary.downloadSingleSummary(acctNick, lastPeriod);
@@ -64,6 +77,8 @@ public class Advising {
         numberOfDaysBetweenEndingsOfPastAndLast =
                 (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end2 - end1)) + 1;
         int indexInTheOther = 0;
+        // depending on which list of Categories is longer (P1 or P2) this compiles
+        // a new list containing only Categories present in BOTH periods (P1 and P2)
         if (s1.getCatTotals().size() < s2.getCatTotals().size()) {
             for (int i = 0; i < s1.getCatTotals().size(); i++) {
                 indexInTheOther = s2.returnCatIndex(s1.getCatTotals().get(i).getCategoryName());
@@ -89,6 +104,7 @@ public class Advising {
                 }
             }
         }
+        // this calculates all other values, if there were some common Categories available
         if (catStats.size() > 0) {
             for (int i = 0; i < catStats.size(); i++) {
                 catStats.get(i).calculateCategoryStats(s1.getTotalExpense(), s2.getTotalExpense(),
@@ -113,7 +129,6 @@ public class Advising {
      * account (all 3-month chunks in the database for the particular account, IF their time
      * span is larger than 1 month). There have to be at least two such time periods, otherwise
      * the method returns NULL.
-     *
      * @param acctNick account of interest
      * @return an ArrayList of all start date/ end date pairs (in ascending order) spanning at least
      * 1 month. If the ArrayList's length is less than 2, NULL will be returned.
@@ -278,7 +293,8 @@ public class Advising {
                 Transaction.returnYYYYMMDDFromCalendar(getPastPeriodEnd()) + " and (2):" +
                 Transaction.returnYYYYMMDDFromCalendar(getLastPeriodBegin()) + "-" +
                 Transaction.returnYYYYMMDDFromCalendar(getLastPeriodEnd());
-        output += "\n------------------------------------------------------------------------------------------------------------------------------------------\n";
+        output += "\n------------------------------------------------------------------"+
+                "------------------------------------------------------------------------\n";
         output += String.format("%-25s", "CATEGORY");
         output += String.format("%12s", "SUMS 1");
         output += String.format("%12s", "%ofSPEND 1");
@@ -292,7 +308,8 @@ public class Advising {
         output += String.format("%24s", "SUMS+% CHANGE 2yrs.");
         output += String.format("%24s", "SUMS+% CHANGE 5yrs.");
         output += String.format("%24s", "SUMS+% CHANGE 10yrs.");
-        output += "\n------------------------------------------------------------------------------------------------------------------------------------------\n";
+        output += "\n------------------------------------------------------------------"+
+                "------------------------------------------------------------------------\n";
         for (int i = 0; i < getCatStats().size(); i++) {
             output += String.format("%-25s", getCatStats().get(i).getCategoryName());
             output += String.format("%12s", String.format("$%.2f", getCatStats().get(i).getPastTotalPerPeriod(), ""));
@@ -316,14 +333,16 @@ public class Advising {
             output += "\n";
         }
         if (getCatStats().size()==0) output += "No EXPENSE categories appearing in BOTH periods to display...\n";
-        output += "------------------------------------------------------------------------------------------------------------------------------------------\n";
+        output += "------------------------------------------------------------------"+
+                "------------------------------------------------------------------------\n";
         output += String.format("%-25s", "TOTAL");
         output += String.format("%12s", String.format("$%.2f", getPastSumOfCatTotals(), ""));
         output += String.format("%12s", String.format("%.2f%%", getPastSumOfCatPercentages(), ""));
         output += String.format("%12s", String.format("$%.2f", getLastSumOfCatTotals(), ""));
         output += String.format("%12s", String.format("%.2f%%", getLastSumOfCatPercentages(), ""));
         output += String.format("%12s", String.format("%.2f%%", getNetSumOfCatPercentageChange(), ""));
-        output += "\n------------------------------------------------------------------------------------------------------------------------------------------\n";
+        output += "\n------------------------------------------------------------------"+
+                "------------------------------------------------------------------------\n";
         output += "\nYour net income in the period (1) was " + String.format("$%.2f", getPastNetIncome(), "") +
                 ", and in the period (2) was " + String.format("$%.2f", getLastNetIncome(), "") + ",\nwhich is ";
         if (getNetIncomeChangeInPercent() < 0.0) output += "a decrease of ";

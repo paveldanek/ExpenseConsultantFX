@@ -1,5 +1,11 @@
 package advising;
 
+/**
+ * This class represents a development of a single Transaction Category
+ * from one period (3-month portion) (called PAST period) of a single
+ * account to another (called LAST period). Utilized by Advising class.
+ * @author SPAM team: Pavel Danek and Samuel Dinka
+ */
 public class CatStats {
 
     private String categoryName = "";
@@ -7,15 +13,17 @@ public class CatStats {
     private double pastPercentagePerPeriod = 0.0;
     private double lastTotalPerPeriod = 0.0;
     private double lastPercentagePerPeriod = 0.0;
+
+    // ADVISING BASED OFF OF THIS VARIABLE:
     private double netPercentagePerPeriodChange = 0.0;
+
+    // VARIABLES CONTAINING FIGURES OF FUTURE (PROJECTED) ACCOUNT STATE
     private double m3TotalperPeriod = 0.0;
     private double m6TotalperPeriod = 0.0;
     private double y1TotalperPeriod = 0.0;
     private double y2TotalperPeriod = 0.0;
     private double y5TotalperPeriod = 0.0;
     private double y10TotalperPeriod = 0.0;
-
-    // ADVISING BASED OFF OF THESE PERCENTAGE CHANGES:
     private double m3NetPercentageChange = 0.0;
     private double m6NetPercentageChange = 0.0;
     private double y1NetPercentageChange = 0.0;
@@ -107,6 +115,12 @@ public class CatStats {
         return y10NetPercentageChange;
     }
 
+    /**
+     * Calculates all related statistics of the Category based on three supplied values.
+     * @param pastTotalSpent the sum of spendings in this Category for period 1 (PAST period)
+     * @param lastTotalSpent the sum of spendings in this Category for period 2 (LAST period)
+     * @param numberOfDaysPassed the amount of days between period 1 and 2
+     */
     public void calculateCategoryStats(double pastTotalSpent, double lastTotalSpent, int numberOfDaysPassed) {
         // numberOfDaysPassed is NOT the difference between the beginning of past period and ending of last period!
         // IT IS THE DIFFERENCE BETWEEN ENDING OF PAST PERIOD AND ENDING OF LAST PERIOD!!!
