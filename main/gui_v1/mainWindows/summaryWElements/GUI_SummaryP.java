@@ -28,12 +28,9 @@ public class GUI_SummaryP extends JPanel implements GUI_Settings_Variables {
     private JTable incomeTable;
 
     public GUI_SummaryP(String acctNick, String from, String to) {
+        // ----------- refreshing transaction and summary tables in db -------
+        PEC.instance().uploadCurrentList();
         // ----------------------- downloading Summary ---------------------
-        if (acctNick.compareToIgnoreCase(PEC.instance().getActiveAccount())==0 &&
-                Transaction.returnCalendarFromYYYYMMDD(from).compareTo(PEC.instance().getCurrentViewBeginDate())<=0 &&
-                Transaction.returnCalendarFromYYYYMMDD(to).compareTo(PEC.instance().getCurrentViewEndDate())>=0) {
-            PEC.instance().uploadCurrentList();
-        }
         Summary summary = Summary.downloadSummary(acctNick, Transaction.returnCalendarFromYYYYMMDD(from),
                 Transaction.returnCalendarFromYYYYMMDD(to));
         // ------------- creating arrays for pie charts and tables ----------
