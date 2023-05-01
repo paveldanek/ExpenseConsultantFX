@@ -11,6 +11,7 @@ import summary.Summary;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.swing.*;
 import java.io.File;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -21,6 +22,8 @@ import java.util.*;
 
 import static main_logic.Result.Code.*;
 import static parsers.OFXParser.ofxParser;
+
+// Please run this app from main.gui_v1.starter.PEC_App_Main.java!!!!!!!!!!!!!!!!!!!!!
 
 /**
  * Main logic class of the Personal Expense Consultant. This is the core of the program.
@@ -59,6 +62,11 @@ public class PEC {
 	private int currentUserID = 0;
 	private String currentUserPass = "";
 
+	// optional database user name and password stored here for accessing individual
+	// MySQL database. These variables get populated from command line arguments listed
+	// at the time of execution of the app.
+	private String dbUserName = "", dbPassword = "";
+
 	private static PEC singleton = null;
 
 	/**
@@ -78,6 +86,17 @@ public class PEC {
 			singleton = new PEC();
 		}
 		return singleton;
+	}
+
+	/**
+	 * Processes args in case the user ran the program from the Command Line and chose
+	 * to specify local MySQL server user name (argument 0) and password (argument 1).
+	 * @param args a String array, possibly containing the db Server credentials
+	 */
+	public void processArgs(String[] args) {
+		if (args.length==2) {
+			Connectivity.storeDBCredentials(args[0], args[1]);
+		}
 	}
 
 	/**
