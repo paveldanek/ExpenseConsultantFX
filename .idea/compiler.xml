@@ -6,11 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Capstone-Project-FX" />
+        <module name="AY_SPAM_FX_021723" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="AY_SPAM_FX_021723" target="1.5" />
       <module name="Capstone-Project-FX" target="19" />
     </bytecodeTargetLevel>
   </component>
