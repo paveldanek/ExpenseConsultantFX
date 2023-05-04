@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="AY_SPAM_FX_021723" />
+        <module name="PEC_App" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Capstone-Project-FX" target="19" />
+      <module name="PEC App" target="19" />
     </bytecodeTargetLevel>
   </component>
 </project>
